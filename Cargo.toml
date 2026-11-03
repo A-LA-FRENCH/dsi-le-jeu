@@ -1,0 +1,46 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/dsi-core",
+    "crates/platform",
+    "crates/dsi-client",
+]
+# Le client Bevy n'est pas compilé par défaut : `cargo test` ne compile que la
+# simulation (Rust pur), testable sans GPU ni dépendances système.
+default-members = [
+    "crates/dsi-core",
+    "crates/platform",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT OR Apache-2.0"
+authors = ["Contributeurs de DSI — Le Jeu"]
+
+[workspace.dependencies]
+dsi-core = { path = "crates/dsi-core" }
+platform = { path = "crates/platform" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+rand = { version = "0.9", default-features = false, features = ["std"] }
+rand_chacha = { version = "0.9", default-features = false, features = ["std", "serde"] }
+
+[profile.dev]
+opt-level = 1
+debug = false
+
+[profile.dev.package."*"]
+opt-level = 2
+debug = false
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+
+# Build navigateur optimisé pour la taille (tools/build-web.sh).
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"
+strip = "debuginfo"

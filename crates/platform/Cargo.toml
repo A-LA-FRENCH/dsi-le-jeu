@@ -1,0 +1,15 @@
+[package]
+name = "platform"
+description = "DSI — Le Jeu : adaptateurs de plateforme (stockage, horloge, paramètres d'URL)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { version = "0.3", features = ["Window", "Storage", "Location"] }
+js-sys = "0.3"

@@ -1,0 +1,81 @@
+{
+  "roles": [
+    { "id": "junior", "label": "Développeur·se junior", "salary": 0.15, "pitch": "Motivé·e, curieux·se, a fait un projet en Rust en école.", "on_hire": { "make": 2, "dev_sat": 1 }, "monthly": { "make": 0.15 }, "cap": 50 },
+    { "id": "senior", "label": "Développeur·se senior", "salary": 0.28, "pitch": "Dix ans d'expérience, a vu des migrations ratées et sait pourquoi.", "on_hire": { "make": 5, "velocity": 2 }, "monthly": { "make": 0.2, "debt": -0.1 }, "cap": 65 },
+    { "id": "staff", "label": "Staff Engineer", "salary": 0.42, "pitch": "Veut de l'impact technique, pas manager 40 personnes.", "on_hire": { "make": 6, "complexity": -3, "dev_sat": 3 }, "monthly": { "make": 0.2, "complexity": -0.15, "debt": -0.15 }, "cap": 75, "requires": { "min": { "attractiveness": 30 } } },
+    { "id": "architecte", "label": "Architecte", "salary": 0.36, "pitch": "Dessine des boîtes et des flèches. Les bonnes, cette fois.", "on_hire": { "make": 3, "complexity": -5 }, "monthly": { "complexity": -0.2 }, "cap": 70 },
+    { "id": "sre", "label": "SRE", "salary": 0.36, "pitch": "Parle en SLO. Déteste les astreintes inutiles.", "on_hire": { "make": 3, "resilience": 5 }, "monthly": { "resilience": 0.3, "uptime": 0.15, "devops_maturity": 0.15 }, "cap": 80 },
+    { "id": "secu", "label": "Security Engineer", "salary": 0.38, "pitch": "A trouvé trois failles dans votre site carrière avant l'entretien.", "on_hire": { "make": 2, "security": 6 }, "monthly": { "security": 0.35 }, "cap": 80 },
+    { "id": "data_eng", "label": "Data Engineer", "salary": 0.34, "pitch": "Veut savoir d'où viennent les données avant de les déplacer.", "on_hire": { "make": 3, "data_quality": 4 }, "monthly": { "data_quality": 0.3 }, "cap": 80 },
+    { "id": "ml_eng", "label": "ML Engineer", "salary": 0.42, "pitch": "Demande d'abord vos données. Puis vos GPU.", "on_hire": { "make": 3, "ai_maturity": 5 }, "monthly": { "ai_maturity": 0.3 }, "cap": 80, "requires": { "year_min": 2 } },
+    { "id": "platform", "label": "Platform Engineer", "salary": 0.38, "pitch": "Veut construire la route, pas conduire chaque voiture.", "on_hire": { "make": 4, "devops_maturity": 5 }, "monthly": { "devops_maturity": 0.3, "complexity": -0.1 }, "cap": 80 }
+  ],
+  "questions": [
+    { "id": "java", "prompt": "Quelle version de Java utilisez-vous ?", "answers": [
+      { "text": "8.", "interest": -100, "leave": true, "reaction": "Le candidat a disparu de l'écran." },
+      { "text": "11.", "interest": -10, "reaction": "Hmm. D'accord. C'est… stable." },
+      { "text": "21.", "interest": 15, "lie_if": { "tech": "java8" }, "reaction": "Super ! Moderne ! (Vous n'avez qu'une seule appli en 21. Un POC.)" },
+      { "text": "« Ça dépend des applications. »", "interest": 6, "reaction": "Honnête. J'aime bien. Ça veut dire 8, hein ?" }
+    ] },
+    { "id": "remote", "prompt": "Et le télétravail, c'est comment chez vous ?", "answers": [
+      { "text": "Deux jours par semaine.", "remote": 2, "reaction": "Je note." },
+      { "text": "Trois jours, flexible.", "remote": 3, "reaction": "Ça me va bien." },
+      { "text": "Full remote possible.", "remote": 5, "interest": -2, "reaction": "Vraiment ? La DRH est au courant ?" },
+      { "text": "La DRH tient au présentiel. Cinq jours.", "remote": 0, "interest": -8, "reaction": "Ah. Vous avez des bureaux sympas, au moins ?" }
+    ] },
+    { "id": "deploy", "prompt": "Combien de fois par jour déployez-vous en production ?", "answers": [
+      { "text": "Par jour ? Une fois par trimestre, avec un comité.", "interest": -15, "reaction": "Un comité. D'accord." },
+      { "text": "Plusieurs fois par jour, en continu.", "interest": 12, "lie_if": { "no_tech": "cd" }, "reaction": "Génial. J'ai hâte de voir le pipeline." },
+      { "text": "Ça dépend des équipes. On y travaille.", "interest": 4, "interest_by": { "devops_maturity": 1.5 }, "reaction": "Vous y travaillez comment ?" }
+    ] },
+    { "id": "opensource", "prompt": "Est-ce que je pourrai contribuer à l'open source ?", "answers": [
+      { "text": "Oui, on encourage et on reverse nos correctifs.", "interest": 12, "interest_by": { "sovereignty": 1 }, "reaction": "Ça, c'est rare. Bravo." },
+      { "text": "Il faudra une validation juridique au cas par cas.", "interest": -4, "reaction": "Combien de temps, la validation ?" },
+      { "text": "L'open source ? On a un comité pour ça. Il ne s'est jamais réuni.", "interest": -10, "reaction": "Je vois." }
+    ] },
+    { "id": "impact", "prompt": "Concrètement, quel sera mon impact ?", "answers": [
+      { "text": "Vous allez travailler sur le cœur du métier, avec les utilisateurs.", "interest": 10, "interest_by": { "make": 1.2 }, "reaction": "C'est exactement ce que je cherche." },
+      { "text": "Vous piloterez des prestataires.", "interest": -14, "reaction": "Piloter… Je voulais construire." },
+      { "text": "Vous migrerez du COBOL.", "interest": -6, "reaction": "Pourquoi pas. Il y a de la doc ?", "lie_if": { "max": { "make": 10 } } }
+    ] },
+    { "id": "stack", "prompt": "Quelle est votre stack ?", "answers": [
+      { "text": "Moderne : conteneurs, CI/CD, cloud.", "interest": 10, "lie_if": { "no_tech": "containers" }, "reaction": "Top. Je pourrai voir le repo ?" },
+      { "text": "Hétérogène : du COBOL au Kubernetes, en passant par Excel.", "interest": 2, "interest_by": { "devops_maturity": 1 }, "reaction": "Au moins c'est honnête. Et varié." },
+      { "text": "Un peu de tout. Surtout de l'Oracle.", "interest": -6, "reaction": "D'accord." }
+    ] },
+    { "id": "salary_q", "prompt": "Vous êtes alignés sur le marché ?", "answers": [
+      { "text": "On a une grille interne. Elle date de 2015.", "interest": -12, "reaction": "Une grille. Bien sûr." },
+      { "text": "On s'aligne pour les profils clés.", "interest": 8, "reaction": "Bonne réponse." },
+      { "text": "On compense par du sens et une mutuelle excellente.", "interest": -2, "reaction": "La mutuelle, c'est important. Vraiment." }
+    ] },
+    { "id": "management", "prompt": "Est-ce qu'il y a une filière technique, ou faut-il devenir manager pour évoluer ?", "roles": ["senior", "staff", "architecte", "sre", "platform"], "answers": [
+      { "text": "Il y a une vraie filière d'expertise.", "interest": 12, "lie_if": { "no_flags": "tech_track" }, "reaction": "Parfait. Je ne veux pas manager 40 personnes." },
+      { "text": "Après deux ans, vous devenez chef de projet.", "interest": -16, "reaction": "Ah. Non merci." },
+      { "text": "On est en train de la créer avec la DRH.", "interest": 3, "reaction": "Je reviendrai la voir." }
+    ] },
+    { "id": "oncall", "prompt": "Les astreintes, ça se passe comment ?", "roles": ["sre", "platform", "secu"], "answers": [
+      { "text": "Rémunérées, outillées, avec des post-mortems sans coupable.", "interest": 10, "interest_by": { "resilience": 1 }, "reaction": "Ça a l'air sain." },
+      { "text": "On appelle le premier qui répond.", "interest": -14, "reaction": "Le premier qui répond. Ok." }
+    ] },
+    { "id": "data_q", "prompt": "Vos données sont documentées ?", "roles": ["data_eng", "ml_eng"], "answers": [
+      { "text": "Catalogue, lineage, owners : tout est là.", "interest": 12, "lie_if": { "no_tech": "data_catalog" }, "reaction": "Wow. Je signe presque." },
+      { "text": "On a un Data Lake. Enfin, un marécage.", "interest": 0, "reaction": "Honnête. Au moins il y aura du travail." },
+      { "text": "C'est surtout des Excel.", "interest": -8, "reaction": "Combien d'Excel ?" }
+    ] }
+  ],
+  "offers": [
+    { "label": "Grille interne", "interest": -18, "salary_mult": 0.85, "hint": "Moins cher. Probablement refusé." },
+    { "label": "Prix du marché", "interest": 0, "salary_mult": 1.0, "hint": "Raisonnable." },
+    { "label": "Marché + 15 % et filière tech", "interest": 15, "salary_mult": 1.2, "hint": "Coûteux. Presque sûr." }
+  ],
+  "first_names": ["Camille", "Léa", "Hugo", "Inès", "Lucas", "Sarah", "Yanis", "Chloé", "Mehdi", "Manon", "Julien", "Aïcha", "Théo", "Emma", "Karim", "Louise", "Antoine", "Fatou", "Nathan", "Jade"],
+  "last_names": ["Martin", "Bernard", "Haddad", "Petit", "Nguyen", "Moreau", "Diallo", "Lefèvre", "Garcia", "Roux", "Benali", "Fontaine", "Rousseau", "Lambert", "Mercier", "Kaya"],
+  "quirks": [
+    "A un sticker « I ♥ Rust » sur son laptop.",
+    "Arrive en vélo, casque sous le bras.",
+    "A lu votre rapport annuel. Et le code de votre site.",
+    "Porte un sweat d'une conférence open source.",
+    "A préparé une liste de 12 questions sur votre CI.",
+    "Demande s'il y a un vrai café ou juste « la machine »."
+  ]
+}

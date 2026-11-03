@@ -1,0 +1,13 @@
+[package]
+name = "dsi-core"
+description = "DSI — Le Jeu : simulation déterministe d'une Direction des Systèmes d'Information, indépendante du moteur."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true

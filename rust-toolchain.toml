@@ -1,0 +1,5 @@
+[toolchain]
+# Bevy 0.19 exige rustc >= 1.95. Le build navigateur demande en plus :
+#   rustup target add wasm32-unknown-unknown
+channel = "stable"
+components = ["rustfmt", "clippy"]

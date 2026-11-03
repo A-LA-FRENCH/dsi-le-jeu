@@ -1,0 +1,725 @@
+{
+  "events": [
+    { "id": "dg_welcome", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 1, "month": 1 },
+      "title": "Bienvenue au COMEX",
+      "text": "« Je compte sur vous pour réduire les coûts de 15 % tout en accélérant la transformation digitale. Et l'IA, évidemment. » Tout le monde vous regarde. Le DAF a déjà ouvert Excel.",
+      "choices": [
+        { "label": "Promettre les deux", "hint": "Le COMEX adore. Pour l'instant.", "effects": { "comex": 8 }, "delayed": [ { "in": 6, "effects": { "comex": -7 }, "text": "En juillet, la DG a ressorti votre promesse de janvier. Avec le compte rendu, surligné." } ], "result": "Applaudissements polis. Le DAF note « −15 % » en gras dans son fichier." },
+        { "label": "Demander trois mois pour cartographier le SI", "hint": "On ne transforme pas ce qu'on ne connaît pas.", "effects": { "comex": -4, "make": 1 }, "start_project": "cartographie", "result": "La DG soupire : « Trois mois. Pas un de plus. » Le développeur senior vous fait un petit signe de tête." },
+        { "label": "Annoncer un plan d'économies immédiat", "hint": "Couper vite. Payer plus tard.", "effects": { "budget": 6, "comex": 4, "debt": 5, "dev_sat": -5, "vendor_dep": 2 }, "result": "Gel des projets, report des mises à jour, renégociations au forceps. Le budget respire. Le SI, un peu moins." },
+        { "label": "Proposer une stratégie Core vs Commodity", "hint": "Construire ce qui différencie, acheter le reste.", "effects": { "comex": -2, "complexity": -2, "dev_sat": 2 }, "set_flag": "core_vs_commodity", "result": "La DG demande ce qu'est une « commodity ». Vous répondez : « la paie ». Elle comprend, et c'est déjà beaucoup." }
+      ] },
+    { "id": "dev_senior_batch", "kind": "event", "room": "devs", "speaker": "dev", "at": { "year": 1, "month": 1 },
+      "title": "Le batch de 3 h du matin",
+      "text": "« Je sais que personne ne m'écoute, mais tout part du batch de 3 h. Quand il plante, la facturation, les stocks et la paie tombent. Il a été écrit en 1998 par un prestataire disparu. »",
+      "choices": [
+        { "label": "L'écouter vraiment (un créneau d'agenda)", "agenda_cost": 1, "effects": { "dev_sat": 6, "debt": -2, "make": 2 }, "set_flag": "listened_dev", "result": "Vous passez deux heures avec lui devant un schéma au feutre. Pour la première fois depuis 2016, quelqu'un a compris le batch." },
+        { "label": "« Mettez ça dans un ticket. »", "effects": { "dev_sat": -4 }, "delayed": [ { "in": 3, "jitter": 3, "chance": 0.6, "event": "incident_p1" } ], "result": "Le ticket rejoint les 1 312 autres en statut « À qualifier »." },
+        { "label": "Demander un audit de ce batch à l'ESN", "effects": { "budget": -2, "vendor_dep": 2, "dev_sat": -2 }, "result": "L'ESN produit un rapport de 40 pages. Conclusion : « Il faudrait le réécrire. » Devis joint." }
+      ] },
+    { "id": "audit_si", "kind": "architecture", "room": "archi", "speaker": "archi", "at": { "year": 1, "month": 2 },
+      "title": "Audit du SI : la découverte",
+      "text": "1 412 applications. 4 000 batchs. 14 000 comptes Active Directory pour 8 000 salariés. 212 applications en Java 8. Et un serveur appelé GERARD que personne n'ose éteindre.",
+      "choices": [
+        { "label": "Lancer (ou accélérer) la cartographie", "requires": { "no_project": "cartographie" }, "start_project": "cartographie", "effects": { "comex": -1 }, "result": "Patrick sort ses vieux schémas Visio de 2008. « Ils sont à jour à 30 %. C'est déjà ça. »" },
+        { "label": "Commander un audit au cabinet Strateos", "effects": { "budget": -4, "comex": 4, "dev_sat": -2 }, "result": "Trois semaines plus tard : 187 slides, une matrice 2×2, et la recommandation de « cartographier le SI »." },
+        { "label": "Prioriser les 20 applications vraiment critiques", "effects": { "complexity": -3, "uptime": 2, "velocity": -1 }, "result": "Vous ne comprendrez pas tout, mais vous savez ce qui fait tomber l'entreprise. C'est un début honnête." },
+        { "label": "On verra plus tard", "effects": { "debt": 3 }, "delayed": [ { "in": 3, "jitter": 4, "chance": 0.7, "event": "certificat_michel" } ], "result": "Le rapport rejoint un dossier partagé nommé « A_TRAITER_URGENT ». Il y a déjà 43 fichiers dedans." }
+      ] },
+    { "id": "vmware_price", "kind": "vendor", "room": "vendor", "speaker": "vendor", "at": { "year": 1, "month": 3 },
+      "title": "Renouvellement virtualisation",
+      "text": "Votre contrat VMware arrive à échéance en juin. Nouvelle grille tarifaire. Le DAF veut savoir pourquoi « la virtualisation virtuelle » va coûter 90 % plus cher.",
+      "choices": [
+        { "label": "Négocier maintenant (3 mois d'avance)", "hint": "Mini-jeu de négociation, avec du levier.", "minigame": { "type": "negotiation", "contract": "vmware_vsphere" } },
+        { "label": "Étudier XCP-ng (Vates)", "hint": "Open source, support français. Compétences à monter.", "start_project": "migrate_xcpng", "effects": { "dev_sat": 2 }, "result": "Un POC démarre sur trois serveurs. L'équipe infra découvre Xen Orchestra et semble… enthousiaste ?" },
+        { "label": "Étudier Proxmox", "hint": "Open source, très répandu. Compétences à monter.", "start_project": "migrate_proxmox", "effects": { "dev_sat": 2 }, "result": "Un POC démarre. Un ingénieur infra avait déjà un Proxmox chez lui. Il est promu « référent »." },
+        { "label": "On reste, c'est stable", "hint": "Aucun effort maintenant. Le renouvellement arrivera à J-2.", "effects": { "comex": 1 }, "set_flag": "vmware_stay", "result": "« Ce partenariat est stratégique », répond le commercial, ravi. Rendez-vous en juin." }
+      ] },
+    { "id": "m365_meeting", "kind": "vendor", "room": "vendor", "speaker": "vendor", "at": { "year": 1, "month": 4 },
+      "title": "Réunion Microsoft 365",
+      "text": "L'équipe compte vous présenter l'assistant IA intégré à la bureautique. « 8 000 licences, ça fait un très beau chiffre. » Le renouvellement est en août.",
+      "choices": [
+        { "label": "Un pilote sur 200 personnes", "hint": "Prudent. Mesurer avant de payer.", "contract_cost": { "contract": "m365", "cost": 0.05 }, "effects": { "ai_maturity": 4, "comex": 2, "user_sat": 1 }, "result": "200 testeurs choisis. 140 sont des directeurs. Les retours seront… enthousiastes." },
+        { "label": "Généraliser à 8 000 postes", "hint": "Le COMEX va adorer. Le DAF, moins.", "contract_cost": { "contract": "m365", "cost": 0.5 }, "effects": { "ai_maturity": 6, "comex": 6, "budget": -2 }, "delayed": [ { "in": 4, "effects": { "comex": -6 }, "text": "Rapport d'usage : 11 % des licences IA utilisées au moins une fois. Le DAF a fait le calcul à voix haute en COMEX." } ], "result": "Annonce en grande pompe sur l'intranet. Le DAF demande le coût par utilisateur. Vous changez de sujet." },
+        { "label": "Négocier le renouvellement dès maintenant", "minigame": { "type": "negotiation", "contract": "m365" } },
+        { "label": "Étudier une alternative open source", "hint": "Souverain. Les métiers vont paniquer.", "effects": { "sovereignty": 3, "user_sat": -3, "comex": -2 }, "set_flag": "office_study", "result": "Rumeur dans les couloirs : « La DSI veut nous retirer Excel. » Le directeur commercial vous appelle dans l'heure." }
+      ] },
+    { "id": "cve_mai", "kind": "incident", "room": "soc", "speaker": "rssi", "at": { "year": 1, "month": 5 },
+      "title": "CVE critique",
+      "text": "« Une vulnérabilité critique touche un composant utilisé dans 47 applications. Le SOC voit déjà des scans. Il faut décider maintenant. »",
+      "choices": [
+        { "label": "Ouvrir la WAR ROOM", "hint": "Mini-jeu de gestion de crise.", "minigame": { "type": "war_room", "scenario": "cve_critique" } },
+        { "label": "Patcher tout ce soir, sans tests", "gamble": { "p": 0.6, "p_by": { "devops_maturity": 0.5 }, "win": { "effects": { "security": 5, "uptime": -3 }, "result": "Patché en une nuit. Quelques redémarrages. Le SOC vous envoie un émoji cœur." }, "lose": { "effects": { "security": 4, "uptime": -9, "user_sat": -4 }, "result": "Patché… et la paie ne démarre plus. Elle dépendait de la vieille version. Évidemment." } } },
+        { "label": "Attendre le correctif officiel de l'éditeur", "effects": { "security": -8 }, "delayed": [ { "in": 2, "jitter": 2, "chance": 0.5, "event": "ransomware_attack" } ], "result": "Vous attendez. Le SOC compte les scans. Le RSSI ne vous parle plus." }
+      ] },
+    { "id": "architect_leaves", "kind": "event", "room": "archi", "speaker": "archi", "at": { "year": 1, "month": 6 },
+      "title": "Départ de l'architecte principal",
+      "text": "« Je pars chez un éditeur. Je connais tout le SI depuis 1997. La documentation ? Elle est… dans ma tête. Mon préavis est d'un mois. »",
+      "choices": [
+        { "label": "Faire une contre-offre", "gamble": { "p": 0.5, "win": { "effects": { "budget": -3, "make": 1 }, "result": "Il reste. Il a obtenu un titre de « Distinguished Architect » et une place de parking." }, "lose": { "effects": { "budget": -3, "make": -10, "complexity": 4 }, "result": "Il accepte… puis part trois semaines plus tard. Avec la contre-offre comme argument de négociation chez l'éditeur." } } },
+        { "label": "Organiser un mois intensif de transfert", "agenda_cost": 1, "effects": { "velocity": -4, "make": -4, "complexity": 2 }, "result": "Quatre semaines d'ateliers enregistrés. 61 heures de vidéo. Personne ne les regardera, mais elles existent." },
+        { "label": "Recruter un·e architecte (entretien)", "effects": { "make": -9, "complexity": 3 }, "minigame": { "type": "recruit", "role": "architecte" } },
+        { "label": "Faire appel à une ESN", "effects": { "make": -9, "vendor_dep": 5, "budget": -2 }, "contract_cost": { "contract": "esn_pool", "cost": 0.15 }, "result": "« Nous avons exactement le profil. » Il arrive dans trois semaines. Il découvrira le SI avec vous." }
+      ] },
+    { "id": "budget_cut", "kind": "comex", "room": "finance", "speaker": "daf", "at": { "year": 1, "month": 7 },
+      "title": "Le budget IT est réduit de 12 %",
+      "text": "« Conjoncture difficile. Tout le monde fait un effort. La DSI fait un effort un peu plus grand, parce que l'IT, c'est un centre de coûts. » Le DAF sourit. Il est le seul.",
+      "choices": [
+        { "label": "Couper dans les projets", "allocation": -0.8, "effects": { "velocity": -5, "comex": 2, "dev_sat": -2 }, "result": "Trois projets « mis en pause ». En langage DSI, ça veut dire « morts »." },
+        { "label": "Réduire la maintenance et le patching", "allocation": -0.4, "effects": { "security": -6, "debt": 5 }, "delayed": [ { "in": 3, "jitter": 6, "chance": 0.6, "event": "incident_p1" } ], "result": "Moins de mises à jour, moins de tests. Personne ne verra la différence. Pendant un moment." },
+        { "label": "Négocier avec le DAF", "gamble": { "p": 0.35, "p_by": { "comex": 0.6 }, "win": { "allocation": -0.35, "result": "Vous obtenez −6 % au lieu de −12 %. Le DAF dit que vous êtes « dur en affaires ». C'est un compliment." }, "lose": { "allocation": -1.0, "effects": { "comex": -3 }, "result": "Le DAF a sorti un benchmark. Vous repartez avec −15 %. Il vous remercie pour « l'échange constructif »." } } },
+        { "label": "Geler les recrutements", "allocation": -0.5, "effects": { "attractiveness": -4, "dev_sat": -3, "make": -2 }, "result": "Gel des embauches. Les deux meilleurs développeurs mettent à jour leur profil LinkedIn le soir même." }
+      ] },
+    { "id": "datacenter_clim", "kind": "incident", "room": "datacenter", "speaker": "notif", "at": { "year": 1, "month": 8 },
+      "title": "Le datacenter perd la climatisation",
+      "text": "Alerte : 41 °C en salle serveurs. La clim de 2004 a rendu l'âme. Le technicien est en congé jusqu'au 25 août. L'onduleur fait un bruit nouveau.",
+      "choices": [
+        { "label": "Éteindre tout ce qui n'est pas critique", "effects": { "uptime": -6, "user_sat": -3, "resilience": 1 }, "result": "La température redescend. 300 applications éteintes ; personne ne remarque l'absence de 120 d'entre elles." },
+        { "label": "Ventilateurs, portes ouvertes et prières", "gamble": { "p": 0.45, "p_by": { "resilience": 0.6 }, "win": { "effects": { "uptime": -2 }, "result": "Douze ventilateurs achetés en urgence. Ça tient. L'équipe infra a désormais un barbecue d'été." }, "lose": { "effects": { "uptime": -14, "security": -2, "resilience": -3, "budget": -3 }, "result": "Une baie de stockage a surchauffé. Deux jours de restauration. Le mot « PRA » est prononcé pour la première fois." } } },
+        { "label": "Basculer sur le site de secours", "requires": { "min": { "resilience": 45 } }, "effects": { "uptime": -2, "comex": 3 }, "result": "Bascule en 4 h. Le COMEX ne s'est rendu compte de rien. C'est exactement le but." },
+        { "label": "Louer une clim mobile et accélérer la réflexion cloud", "effects": { "budget": -3, "uptime": -4, "comex": 1 }, "set_flag": "cloud_urgent", "result": "Une clim de chantier ronronne dans le couloir. La DG demande « on ne serait pas mieux dans le cloud ? ». Septembre approche." }
+      ] },
+    { "id": "cloud_proposal", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 1, "month": 9 },
+      "title": "« Nous devons aller dans le cloud »",
+      "text": "« Tous nos concurrents y sont. J'ai lu un article dans l'avion. » Le RSSI lève un sourcil. Le DAF demande si c'est moins cher. Personne ne répond vraiment.",
+      "choices": [
+        { "label": "Hyperscaler : AWS", "hint": "Services managés riches. Facture et dépendance à surveiller.", "cloud_provider": "aws", "start_project": "cloud_migration", "effects": { "comex": 5, "vendor_dep": 2 }, "result": "Projet lancé avec AWS. Le commercial propose « 18 mois de crédits gratuits ». Le mot « gratuit » inquiète le RSSI." },
+        { "label": "Hyperscaler : Microsoft Azure", "hint": "Vous êtes déjà chez Microsoft. Pratique… et dépendant.", "cloud_provider": "azure", "start_project": "cloud_migration", "effects": { "comex": 5, "vendor_dep": 4 }, "result": "Projet lancé avec Azure. Vos licences Windows y ont des avantages. Votre dépendance aussi." },
+        { "label": "Cloud européen : OVHcloud", "hint": "Souveraineté. Moins de services managés.", "cloud_provider": "ovhcloud", "start_project": "cloud_migration_sov", "effects": { "comex": 2, "sovereignty": 3 }, "result": "Projet lancé avec OVHcloud. Le RSSI sourit. Les développeurs cherchent l'équivalent de trois services managés." },
+        { "label": "Cloud de confiance qualifié (Cloud Temple / Outscale)", "hint": "Pour les données sensibles. Plus cher, plus contraint.", "cloud_provider": "cloudtemple", "start_project": "cloud_migration_sov", "effects": { "comex": 1, "sovereignty": 4, "budget": -2 }, "result": "Projet lancé dans un cloud qualifié. La conformité adore. La vélocité suivra peut-être." },
+        { "label": "Rester on-prem et moderniser d'abord", "hint": "Le cloud n'est pas automatiquement moins cher.", "effects": { "comex": -6, "resilience": 2 }, "start_project": "pra", "result": "« Nos concurrents y sont », répète la DG. Vous répondez : « Et leurs factures aussi. » Elle n'a pas ri." }
+      ] },
+    { "id": "acquisition", "kind": "comex", "room": "comex", "speaker": "dircom", "at": { "year": 1, "month": 10 },
+      "title": "Rachat d'une entreprise",
+      "text": "Le groupe rachète un concurrent : 1 200 salariés, leur propre SI, leur propre AD, leur propre vision du mot « sauvegarde ». La DG : « Vous pouvez fusionner ça pour le trimestre prochain ? »",
+      "choices": [
+        { "label": "« Bien sûr. »", "effects": { "comex": 6, "complexity": 6, "debt": 4 }, "delayed": [ { "in": 4, "effects": { "comex": -8, "user_sat": -4 }, "text": "Le trimestre est passé. Les deux SI ne se parlent toujours pas. La DG a ressorti votre « bien sûr »." } ], "set_flag": "acquisition", "result": "Vous avez dit « bien sûr ». Une partie de vous savait." },
+        { "label": "« Il faudra 18 mois. Voici pourquoi. »", "effects": { "comex": -5, "complexity": 4 }, "set_flag": "acquisition", "result": "Silence. Puis la DG : « Dix-huit mois. Bon. Vous avez un plan ? » Vous en avez un. Enfin, un brouillon." },
+        { "label": "Les laisser autonomes pour l'instant", "effects": { "complexity": 7, "security": -3, "user_sat": 2 }, "set_flag": "acquisition", "result": "Deux SI cohabitent. Deux AD, deux messageries, deux ERP. Deux fois plus de choses à surveiller." }
+      ] },
+    { "id": "erp_wars", "kind": "architecture", "room": "archi", "speaker": "consultant", "at": { "year": 1, "month": 11 },
+      "title": "ERP WARS",
+      "text": "Votre ERP : SAP. Celui de l'entreprise rachetée : Oracle. Une filiale : Microsoft Dynamics. Le consultant ouvre son PowerPoint : « J'ai une matrice pour ça. »",
+      "choices": [
+        { "label": "Conserver les trois ERP et faire des interfaces", "hint": "Rien ne casse. Tout se complique.", "effects": { "complexity": 8, "debt": 4, "comex": -2 }, "result": "Trois ERP, 64 interfaces, un batch de réconciliation chaque nuit. Le batch de 3 h a un petit frère." },
+        { "label": "Tout migrer sur SAP en big bang", "hint": "Le plus rapide sur le papier.", "start_project": "erp_bigbang", "effects": { "comex": 5, "vendor_dep": 4 }, "result": "Le projet démarre. L'intégrateur a déjà réservé l'étage entier pour cinq ans." },
+        { "label": "Strangler pattern : APIs d'abord", "hint": "Lent, progressif, moins risqué.", "start_project": "api_platform", "effects": { "comex": -2 }, "set_flag": "erp_strangler_plan", "result": "Vous commencez par exposer les données des trois ERP derrière des APIs. Le consultant range sa matrice, vexé." },
+        { "label": "Architecture composable (si les APIs existent)", "requires": { "tech": "apis" }, "start_project": "erp_strangler", "effects": { "comex": 1 }, "result": "Un cœur ERP propre, des services autour. Le plan tient en une page. Le consultant demande à le copier." }
+      ] },
+    { "id": "comex_annuel_1", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 1, "month": 12 },
+      "title": "COMEX annuel",
+      "text": "Vous avez 15 minutes. Le point précédent sur le parking a débordé. La DG : « Alors, cette année ? »",
+      "choices": [
+        { "label": "Présenter les chiffres, honnêtement", "effects": { "comex": 2 }, "set_flag": "honest_comex", "result": "Vous montrez la dette, les risques, les progrès. Le DAF hoche la tête. Il a l'air presque rassuré." },
+        { "label": "Projeter les 187 slides du cabinet", "effects": { "comex": 4, "budget": -2, "dev_sat": -3 }, "result": "À la slide 34, la DG regarde son téléphone. À la slide 90, le DAF dort. Mais c'était très beau." },
+        { "label": "Annoncer une grande stratégie IA", "effects": { "comex": 6 }, "delayed": [ { "in": 5, "event": "ia_where_is_it" } ], "result": "Le mot « IA » déclenche des sourires. Vous n'avez pas de stratégie IA. Vous avez cinq mois." },
+        { "label": "Expliquer la dette avec une métaphore de cuisine", "gamble": { "p": 0.5, "p_by": { "comex": 0.5 }, "win": { "allocation": 0.4, "effects": { "comex": 2 }, "result": "« Une cuisine jamais rangée. » La DG a compris. Elle débloque un petit budget de « rangement »." }, "lose": { "effects": { "comex": -2 }, "result": "Le DAF demande pourquoi on n'a pas « simplement embauché un cuisinier ». La métaphore a ses limites." } } }
+      ] },
+
+    { "id": "oracle_contract", "kind": "vendor", "room": "vendor", "speaker": "vendor", "at": { "year": 2, "month": 1 },
+      "title": "Votre contrat Oracle a été « simplifié »",
+      "text": "« Bonne nouvelle : nous avons simplifié votre contrat. Il comporte désormais 742 pages. » Le renouvellement est en mars. Votre juriste a pris un jour de congé.",
+      "choices": [
+        { "label": "Négocier tout de suite", "minigame": { "type": "negotiation", "contract": "oracle_db" } },
+        { "label": "Lancer la migration vers PostgreSQL", "hint": "Nécessite des compétences internes (MAKE ≥ 25).", "requires": { "min": { "make": 25 } }, "start_project": "migrate_postgres", "effects": { "dev_sat": 3 }, "result": "Le projet démarre. Un DBA ouvre la procédure stockée de 11 000 lignes et ferme doucement son ordinateur." },
+        { "label": "Faire relire les 742 pages par un avocat", "effects": { "budget": -2, "vendor_dep": -3 }, "result": "L'avocat trouve une clause qui vous protège. Il facture à la page." },
+        { "label": "Laisser venir", "effects": { "comex": 1 }, "result": "Le renouvellement arrivera en mars. À J-2, comme d'habitude." }
+      ] },
+    { "id": "esn_18", "kind": "event", "room": "dsi", "speaker": "esn", "at": { "year": 2, "month": 2 },
+      "title": "Votre SI dépend de 18 ESN",
+      "text": "Régie, TMA, sous-traitance, sous-sous-traitance. Les compétences clés sont chez les prestataires. « Nous avons exactement le profil » ; il arrive dans trois semaines.",
+      "choices": [
+        { "label": "Lancer un centre de compétences interne", "start_project": "internalisation", "effects": { "comex": -1 }, "result": "Le projet d'internalisation démarre. Les ESN vous invitent soudain à déjeuner. Toutes." },
+        { "label": "Centre de services nearshore", "contract_cost": { "contract": "esn_pool", "cost": -0.3 }, "effects": { "make": -3, "vendor_dep": 3 }, "delayed": [ { "in": 4, "effects": { "user_sat": -3, "velocity": -2 }, "text": "Le centre de services applique les SLA à la lettre. Les tickets « urgents » prennent 5 jours ouvrés." } ], "result": "Coûts en baisse. Les SLA sont signés. La connaissance, elle, déménage." },
+        { "label": "Offshore", "contract_cost": { "contract": "esn_pool", "cost": -0.45 }, "effects": { "make": -5, "vendor_dep": 4 }, "delayed": [ { "in": 3, "effects": { "user_sat": -5, "velocity": -3, "uptime": -3 }, "text": "Le fuseau horaire est un problème quand la paie plante à 9 h. L'équipe offshore dort." } ], "result": "Le DAF est ravi. Le DAF ne sera pas d'astreinte." },
+        { "label": "Remplacer la régie par des freelances", "contract_cost": { "contract": "esn_pool", "cost": -0.2 }, "effects": { "make": 1, "complexity": 2, "budget": -1 }, "result": "Des freelances excellents, chers, et libres de partir. Comme tout le monde, finalement." }
+      ] },
+    { "id": "qui_connait", "kind": "event", "room": "devs", "speaker": "dev", "at": { "year": 2, "month": 3 },
+      "title": "Qui connaît encore ce système ?",
+      "text": "La facturation des grands comptes est en panne. L'ESN A pense que c'est l'ESN B. L'ESN B a perdu le contact du sous-traitant. Le sous-traitant est en liquidation. Qui connaît ce système ? … Personne.",
+      "choices": [
+        { "label": "Rétro-documenter avec l'équipe interne", "effects": { "velocity": -3, "make": 4, "complexity": -2, "uptime": -2 }, "result": "Trois semaines de spéléologie. Le code contient un commentaire de 2003 : « ne pas toucher, demander à Michel »." },
+        { "label": "Payer l'ESN pour une expertise d'urgence", "effects": { "budget": -4, "vendor_dep": 3, "uptime": -1 }, "result": "Un expert retraité est rappelé à 1 600 € par jour. Il répare en 2 heures et facture 5 jours." },
+        { "label": "Lancer la réécriture des batchs critiques", "requires": { "min": { "make": 25 } }, "start_project": "refacto_batch", "effects": { "uptime": -3 }, "result": "Le projet démarre. En attendant, on relance le batch à la main tous les soirs." }
+      ] },
+    { "id": "docker_arrives", "kind": "architecture", "room": "devs", "speaker": "dev", "at": { "year": 2, "month": 4 },
+      "title": "Docker arrive",
+      "text": "« On pourrait conteneuriser. Ou directement passer à Kubernetes, comme le concurrent. Ou rester sur des VM. Les trois sont défendables. Pas en même temps. »",
+      "choices": [
+        { "label": "Rester sur des VM classiques", "effects": { "complexity": -1, "dev_sat": -3, "attractiveness": -2 }, "result": "Les VM restent. Stables, connues, un peu tristes." },
+        { "label": "Conteneuriser progressivement", "requires": { "tech": "git" }, "start_project": "containers", "result": "Premières images. Elles pèsent 3 Go. On optimisera plus tard. Peut-être." },
+        { "label": "Mettre d'abord le code sous Git", "requires": { "no_tech": "git" }, "start_project": "forge", "result": "Avant les conteneurs, il faut savoir quel code on conteneurise. Sage décision." },
+        { "label": "Direct Kubernetes, comme le concurrent", "hint": "Sauter les étapes. Courageux.", "add_tech": "containers", "start_project": "kubernetes", "effects": { "complexity": 10, "dev_sat": 4, "comex": 3 }, "result": "Le cluster est commandé avant que quiconque sache ce qu'est un pod. Le COMEX est ravi du mot." }
+      ] },
+    { "id": "devops_question", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 2, "month": 6 },
+      "title": "« Pourquoi on ne passe pas DevOps ? »",
+      "text": "« Le concurrent est passé DevOps en six mois. Il y a un bouton quelque part ? » Le consultant propose un « DevOps Transformation Office ».",
+      "choices": [
+        { "label": "Expliquer : autonomie, CI/CD, observabilité, ownership", "effects": { "comex": -2, "dev_sat": 3 }, "set_flag": "devops_explained", "result": "Vous expliquez qu'il n'y a pas de bouton. La DG est déçue, puis intriguée. « Et ça prend combien de temps ? »" },
+        { "label": "Créer une « équipe DevOps »", "effects": { "comex": 4, "complexity": 3, "dev_sat": -2 }, "result": "Une équipe de plus, entre les devs et les ops. Elle s'appelle DevOps. Elle fait des tickets." },
+        { "label": "Recruter un·e Platform Engineer", "minigame": { "type": "recruit", "role": "platform" } },
+        { "label": "Signer avec le cabinet", "effects": { "budget": -5, "comex": 5, "devops_maturity": 2 }, "result": "Le DevOps Transformation Office est créé. Il a un logo, un comité, un PowerPoint. Et deux pipelines." }
+      ] },
+    { "id": "staff_engineer_candidate", "kind": "recruitment", "room": "rh", "speaker": "drh", "at": { "year": 2, "month": 7 },
+      "title": "Une Staff Engineer veut vous rejoindre",
+      "text": "« Une candidate excellente, mais elle refuse d'encadrer une équipe. Je ne comprends pas. Pourquoi vouloir évoluer sans manager ? »",
+      "choices": [
+        { "label": "Passer l'entretien", "minigame": { "type": "recruit", "role": "staff" } },
+        { "label": "Créer d'abord une filière technique", "effects": { "attractiveness": 6, "comex": -1, "budget": -1 }, "set_flag": "tech_track", "result": "La filière expert existe enfin. La DRH a créé 4 niveaux et un badge. La candidate, elle, a signé ailleurs." },
+        { "label": "« Il faudra manager, c'est la règle. »", "effects": { "attractiveness": -4 }, "result": "Elle a décliné poliment. Elle travaille maintenant chez un concurrent, sur le problème que vous avez." }
+      ] },
+    { "id": "erp_data_mismatch", "kind": "event", "room": "data", "speaker": "data", "at": { "year": 2, "month": 9 }, "conditions": { "flags": "acquisition" },
+      "title": "Les clients ne concordent pas",
+      "text": "Le même client a 3 identifiants, 2 adresses et un chiffre d'affaires différent dans chaque ERP. Le COMEX veut « une vision client unique » pour le prochain conseil.",
+      "choices": [
+        { "label": "Lancer une vraie gouvernance de la donnée", "start_project": "data_governance", "effects": { "comex": -1 }, "result": "On commence par nommer des propriétaires. Plusieurs directeurs découvrent qu'ils possèdent des données." },
+        { "label": "Un Excel de réconciliation, en attendant", "effects": { "data_quality": -3, "comex": 3, "debt": 2 }, "result": "Le fichier s'appelle « VISION_CLIENT_UNIQUE_v1.xlsx ». Il y aura une v2." },
+        { "label": "Acheter un outil de MDM", "effects": { "budget": -4, "data_quality": 4, "vendor_dep": 3 }, "result": "L'outil est puissant. Il faudra six mois pour le configurer. Mais il est puissant." }
+      ] },
+    { "id": "international", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 2, "month": 11 },
+      "title": "Le groupe devient international",
+      "text": "Filiales au Brésil, à Singapour et au Canada. Fuseaux horaires, résidence des données, réglementations locales, support 24/7. « Ça ne change rien pour la DSI, j'imagine ? »",
+      "choices": [
+        { "label": "SOC et support 24/7 externalisés", "effects": { "security": 5, "budget": -3, "vendor_dep": 3, "user_sat": 2 }, "result": "Un SOC qui ne dort jamais. Il vous appelle à 4 h du matin pour des faux positifs, mais il ne dort jamais." },
+        { "label": "Organisation « follow the sun » interne", "effects": { "make": 3, "budget": -4, "resilience": 3 }, "result": "Trois équipes, trois fuseaux. La passation quotidienne est le meilleur moment de la journée." },
+        { "label": "Chaque filiale gère son SI", "effects": { "complexity": 6, "security": -4, "sovereignty": -2, "user_sat": 2 }, "result": "Liberté totale. Singapour a choisi trois SaaS. Le Brésil, un ERP local. Le Canada, Excel." },
+        { "label": "Socle commun : IAM, réseau, données (résidence locale)", "requires": { "tech": "sso" }, "effects": { "complexity": 2, "security": 3, "budget": -3, "comex": 2 }, "result": "Un socle d'identité et de données commun, avec résidence locale. Le juriste vous offre un café." }
+      ] },
+    { "id": "comex_annuel_2", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 2, "month": 12 },
+      "title": "COMEX annuel — année 2",
+      "text": "« Deux ans. Le conseil d'administration veut savoir si nous sommes une entreprise technologique. Moi aussi. »",
+      "choices": [
+        { "label": "Montrer ce que les équipes ont construit", "requires": { "min": { "make": 30 } }, "effects": { "comex": 5, "dev_sat": 4 }, "result": "Démo en direct par l'équipe. Rien ne plante. Thomas, le dev senior, présente. On l'écoute, enfin." },
+        { "label": "Présenter les économies réalisées", "effects": { "comex": 3 }, "result": "Le DAF projette votre tableau. Il l'a amélioré. Il en est fier." },
+        { "label": "Promettre l'IA générative partout l'an prochain", "effects": { "comex": 6 }, "delayed": [ { "in": 6, "effects": { "comex": -6 }, "text": "« L'IA partout », c'était il y a six mois. La DG demande où elle est." } ], "result": "Le conseil adore. Votre équipe data, beaucoup moins." }
+      ] },
+
+    { "id": "data_centralized", "kind": "event", "room": "data", "speaker": "data", "at": { "year": 3, "month": 1 },
+      "title": "« Nous avons centralisé toutes nos données »",
+      "text": "« Qui sait ce qu'elles signifient ? » … Silence. Le champ « statut_client » a 47 valeurs possibles, dont « ?? » et « VOIR AVEC SYLVIE ».",
+      "choices": [
+        { "label": "Lancer la gouvernance : catalogue, lineage, ownership", "requires": { "no_tech": "data_catalog" }, "start_project": "data_governance", "result": "Le projet démarre. Sylvie est retrouvée. Elle est à la RH. Elle se souvient." },
+        { "label": "Construire un Data Lake d'abord", "requires": { "no_tech": "data_lake" }, "start_project": "data_lake", "effects": { "comex": 3 }, "result": "Plus de données, plus vite, au même endroit. Le marécage guette." },
+        { "label": "Recruter un·e Data Engineer", "minigame": { "type": "recruit", "role": "data_eng" } },
+        { "label": "Commander une étude data au cabinet", "effects": { "budget": -4, "comex": 3 }, "result": "Le cabinet recommande un « Chief Data Officer ». Il propose trois noms. Dont un associé du cabinet." }
+      ] },
+    { "id": "ai_strategy", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 3, "month": 3 },
+      "title": "« Où en est notre stratégie IA ? »",
+      "text": "« Le conseil veut de l'IA. Les concurrents ont de l'IA. Mon neveu a de l'IA. Nous avons quoi, nous ? »",
+      "choices": [
+        { "label": "Assistants de code pour les développeurs", "requires": { "no_tech": "copilot" }, "start_project": "copilots", "effects": { "comex": 3 }, "result": "Les développeurs sont ravis. Le volume de code va exploser. Le volume relu, on verra." },
+        { "label": "Un assistant RAG sur la documentation interne", "requires": { "no_tech": "rag" }, "start_project": "rag_assistant", "effects": { "comex": 4 }, "result": "Il répondra à partir de vos documents. Ceux de 2011 inclus. Surtout ceux de 2011." },
+        { "label": "D'abord une plateforme IA gouvernée", "requires": { "any_tech": ["copilot", "rag"] }, "start_project": "ai_platform", "effects": { "comex": 1 }, "result": "Gateway, évaluation, garde-fous, FinOps IA. Moins spectaculaire, beaucoup plus solide." },
+        { "label": "« Pas de stratégie IA sans stratégie data. »", "effects": { "comex": -5, "data_quality": 3 }, "result": "La DG vous regarde longuement. « Vous avez sûrement raison. C'est très agaçant. »" }
+      ] },
+    { "id": "vibe_coding_arrives", "kind": "architecture", "room": "devs", "speaker": "dev", "at": { "year": 3, "month": 5 },
+      "title": "Vibe coding",
+      "text": "« Un collègue a généré une application complète en un week-end. Elle marche. Personne ne sait comment. Lui non plus. On généralise ? »",
+      "choices": [
+        { "label": "Généraliser le vibe coding", "add_tech": "vibe_coding", "code_generated": 40, "effects": { "velocity": 8, "dev_sat": 4, "comex": 3 }, "result": "La production de code triple. Le ratio code généré / code compris commence à diverger." },
+        { "label": "Autoriser, avec revue humaine obligatoire", "add_tech": "vibe_coding", "code_generated": 20, "code_understood": 15, "effects": { "velocity": 4, "dev_sat": 1 }, "set_flag": "ai_review", "result": "On génère, puis on relit. Moins spectaculaire. Beaucoup plus durable." },
+        { "label": "Interdire en production", "effects": { "dev_sat": -5, "attractiveness": -4, "security": 2 }, "result": "Interdit en production. Toléré partout ailleurs. Donc en production, dans six mois." }
+      ] },
+    { "id": "agents_everywhere", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 3, "month": 7 },
+      "title": "« Des agents partout »",
+      "text": "« J'ai vu une démo. Des agents qui répondent aux clients, passent les commandes, font la paie. On peut avoir ça en septembre ? »",
+      "choices": [
+        { "label": "Lancer des agents métiers (avec plateforme IA)", "requires": { "project_done": "ai_platform" }, "start_project": "agents", "effects": { "comex": 5 }, "result": "Les premiers agents arrivent. Le RSSI demande « avec quels droits ? ». Excellente question." },
+        { "label": "Brancher un agent généraliste sur tous les outils, vite", "add_tech": "agents", "effects": { "comex": 7, "velocity": 4, "security": -8 }, "delayed": [ { "in": 3, "event": "agent_incident" } ], "result": "Un agent, des droits d'administrateur, accès à tout. Que pourrait-il arriver ?" },
+        { "label": "Expliquer : identité, permissions, contexte d'abord", "effects": { "comex": -4, "security": 2 }, "set_flag": "agents_governance", "result": "« Un agent sans contexte, c'est un stagiaire très rapide et très sûr de lui. » La DG note la phrase pour son prochain discours." }
+      ] },
+    { "id": "context_question", "kind": "architecture", "room": "archi", "speaker": "data", "at": { "year": 3, "month": 9 },
+      "title": "Le problème, c'est le contexte",
+      "text": "Les assistants citent des procédures de 2011, ignorent les droits d'accès et mélangent les clients de deux filiales. « Le principal actif, maintenant, c'est le contexte. »",
+      "choices": [
+        { "label": "Construire l'Enterprise Context Platform", "requires": { "tech": ["agents", "data_catalog", "iam"] }, "start_project": "context_platform", "effects": { "comex": 2 }, "result": "Connaissance, identité, permissions, mémoire, provenance, traces. Le chantier le plus important que personne ne verra." },
+        { "label": "Poser les fondations : IAM moderne", "requires": { "no_tech": "iam", "tech": "sso" }, "start_project": "iam", "result": "Pas de contexte sans identité. Vous commencez par savoir qui est qui." },
+        { "label": "Poser les fondations : gouvernance data", "requires": { "no_tech": "data_catalog" }, "start_project": "data_governance", "result": "Pas de contexte sans données comprises. Vous commencez par le catalogue." },
+        { "label": "Ajouter « ne te trompe pas » dans le prompt", "effects": { "comex": 1, "user_sat": -3 }, "result": "Le prompt système fait désormais 14 pages. Les réponses sont plus polies. Pas plus justes." }
+      ] },
+    { "id": "comex_final", "kind": "comex", "room": "comex", "speaker": "dg", "at": { "year": 3, "month": 12 },
+      "title": "COMEX annuel — le bilan",
+      "text": "« Trois ans. Le conseil voudrait une phrase pour le rapport annuel. Une seule. »",
+      "choices": [
+        { "label": "« Nous maîtrisons ce que nous construisons. »", "effects": { "comex": 3 }, "result": "La phrase est retenue. Le service com la met en police 72." },
+        { "label": "« Nous sommes une entreprise IA-first. »", "effects": { "comex": 5, "dev_sat": -3 }, "result": "Le service com adore. Les développeurs lèvent les yeux au ciel, en chœur." },
+        { "label": "« Le SI tient debout et coûte ce qu'il doit. »", "effects": { "comex": 2, "dev_sat": 2 }, "result": "Pas très vendeur. Profondément vrai. Le DAF a une larme." }
+      ] },
+
+    { "id": "cartographie_done", "kind": "architecture", "room": "archi", "speaker": "archi",
+      "title": "La carte du SI est terminée",
+      "text": "La cartographie est livrée. On découvre 312 applications que personne n'utilise, 41 flux qui passent par une même VM, et un ERP « fantôme » dans une filiale.",
+      "choices": [
+        { "label": "Décommissionner les applications zombies", "start_project": "decom", "result": "Le projet démarre. Vous préparez la liste des gens à prévenir. Elle est courte." },
+        { "label": "Sécuriser la VM qui porte 41 flux", "effects": { "resilience": 4, "uptime": 2, "budget": -1 }, "result": "La VM a désormais une jumelle. Patrick dit qu'elle s'appelait « TEMP_2011 »." },
+        { "label": "Présenter la carte au COMEX", "effects": { "comex": 5, "complexity": -1 }, "result": "La DG regarde la carte longtemps. « C'est… nous, ça ? » Oui. C'est vous." }
+      ] },
+    { "id": "virt_skills_shortage", "kind": "project", "room": "datacenter", "speaker": "dev",
+      "title": "Migration : pénurie de compétences",
+      "text": "À mi-parcours de la migration de virtualisation, l'équipe bute : stockage, réseau, sauvegardes. « Personne ici n'a fait ça en production. »",
+      "choices": [
+        { "label": "Former l'équipe interne", "effects": { "budget": -2, "make": 4, "velocity": -2 }, "result": "Formation de deux semaines. L'équipe revient avec des certifications et de l'assurance." },
+        { "label": "Accepter la proposition de l'ESN", "chain": "virt_esn_proposal", "result": "L'ESN a entendu parler de votre besoin. Bizarrement vite." },
+        { "label": "Prendre le support éditeur premium", "effects": { "budget": -3, "uptime": 2 }, "result": "Le support répond en 2 h, en français. L'équipe respire." }
+      ] },
+    { "id": "virt_esn_proposal", "kind": "vendor", "room": "vendor", "speaker": "esn",
+      "title": "« Nous avons exactement le profil »",
+      "text": "« Un expert virtualisation, disponible tout de suite. Enfin, dans trois semaines. TJM : 1 150 €. Il a fait exactement ça chez un client. »",
+      "choices": [
+        { "label": "Signer", "effects": { "budget": -3, "vendor_dep": 3, "uptime": 2, "make": -1 }, "result": "Il arrive trois semaines plus tard. Il est excellent. Il repartira avec toute la connaissance." },
+        { "label": "Signer, avec binôme interne obligatoire", "effects": { "budget": -4, "make": 3, "vendor_dep": 1 }, "result": "Chaque geste de l'expert est fait à deux. Quand il part, la connaissance reste." },
+        { "label": "Décliner et former en interne", "effects": { "budget": -2, "make": 4, "velocity": -3 }, "result": "Plus lent. Mais c'est votre équipe qui sait." }
+      ] },
+    { "id": "virt_migration_done", "kind": "project", "room": "datacenter", "speaker": "dev",
+      "title": "Migration de virtualisation terminée",
+      "text": "Les VM ont migré. Trois refusent de démarrer par nostalgie, mais le reste tourne. Le contrat historique est résilié. Le commercial vous souhaite « bonne continuation ».",
+      "choices": [
+        { "label": "Fêter ça avec l'équipe infra", "effects": { "dev_sat": 5, "budget": -0.5 }, "result": "Pizzas en salle serveurs (interdit). Personne ne dira rien." },
+        { "label": "Documenter et partager le retour d'expérience", "effects": { "make": 3, "attractiveness": 3 }, "result": "Le REX est publié sur le blog tech. Trois DSI vous écrivent : « Comment avez-vous fait ? »" }
+      ] },
+    { "id": "cloud_bill_shock", "kind": "event", "room": "cloud", "speaker": "daf",
+      "title": "La première vraie facture cloud",
+      "text": "« Je croyais que le cloud était moins cher. » Egress, stockage, logs, environnements de test oubliés. La facture dépasse le budget prévu de 60 %.",
+      "choices": [
+        { "label": "Lancer une démarche FinOps", "finops": 35, "cloud_bill": -0.3, "effects": { "budget": -1, "dev_sat": -1 }, "result": "Tags, budgets par équipe, alertes. Les développeurs découvrent qu'une machine allumée coûte de l'argent." },
+        { "label": "Instances réservées sur 3 ans", "cloud_bill": -0.4, "effects": { "vendor_dep": 5 }, "result": "−35 % sur la facture. Vous êtes engagé·e pour trois ans. Le commercial vous envoie des chocolats." },
+        { "label": "Rapatrier une partie on-prem", "cloud_bill": -0.3, "effects": { "complexity": 4, "comex": -3, "cloud_maturity": -3 }, "result": "Le « cloud repatriation » est à la mode. Votre architecture hybride l'est un peu moins." }
+      ] },
+    { "id": "k8s_what_for", "kind": "comex", "room": "comex", "speaker": "dg",
+      "title": "« Nous avons Kubernetes. »",
+      "text": "La DG : « Très bien. Ça sert à quoi ? »",
+      "choices": [
+        { "label": "« À déployer plus vite et plus souvent. »", "requires": { "min": { "devops_maturity": 40 } }, "effects": { "comex": 4 }, "result": "Vous montrez trois déploiements faits pendant la réunion. La DG est impressionnée." },
+        { "label": "« À orchestrer des conteneurs dans un plan de contrôle déclaratif. »", "effects": { "comex": -3 }, "result": "Silence total. Le DAF note « déclaratif » pour le chercher plus tard." },
+        { "label": "« Le concurrent en a un. »", "effects": { "comex": 2, "dev_sat": -3 }, "result": "La DG hoche la tête. Ça, elle le comprend parfaitement." },
+        { "label": "« Honnêtement ? Pour l'instant, à rien. On monte en compétences. »", "effects": { "comex": -1, "dev_sat": 3 }, "result": "La franchise surprend. Le dev senior vous regarde avec respect." }
+      ] },
+    { "id": "scrum_17_meetings", "kind": "project", "room": "projet", "speaker": "consultant",
+      "title": "Vous avez adopté Scrum",
+      "text": "Résultat à mi-parcours : vous avez conservé exactement la même organisation, mais ajouté 17 réunions. Le comité de pilotage s'appelle maintenant « Sprint Review ».",
+      "choices": [
+        { "label": "Donner une vraie autonomie aux équipes produit", "effects": { "comex": -2, "dev_sat": 5, "velocity": 3 }, "result": "Les équipes décident de leur backlog. Deux directeurs perdent leur comité. Ils s'en remettront." },
+        { "label": "Ajouter un Agile Coach de plus", "effects": { "budget": -2, "dev_sat": -2 }, "result": "Le coach organise un atelier pour réduire le nombre de réunions. Ça fait 18." },
+        { "label": "Acheter plus de licences Jira", "contract_cost": { "contract": "atlassian_jira", "cost": 0.05 }, "effects": { "comex": 1 }, "result": "Faire de l'Agile n'est pas avoir Jira. Mais vous avez beaucoup de Jira." }
+      ] },
+    { "id": "internalisation_done", "kind": "event", "room": "rh", "speaker": "drh",
+      "title": "Le centre de compétences est opérationnel",
+      "text": "L'équipe interne maîtrise désormais le cœur du SI. Les ESN demandent un rendez-vous pour « réinventer le partenariat ».",
+      "choices": [
+        { "label": "Réduire fortement la régie", "contract_cost": { "contract": "esn_pool", "cost": -0.5 }, "effects": { "vendor_dep": -4, "velocity": -2 }, "result": "La régie diminue de moitié. Les ESN restantes se concentrent sur ce qu'elles font mieux que vous." },
+        { "label": "Garder l'ESN sur la commodité, l'interne sur le cœur", "contract_cost": { "contract": "esn_pool", "cost": -0.3 }, "effects": { "complexity": -2, "make": 2 }, "result": "Core vs Commodity, enfin appliqué. C'est la décision la moins excitante et la plus juste." }
+      ] },
+    { "id": "plsql_surprise", "kind": "project", "room": "devs", "speaker": "dev",
+      "title": "Les procédures stockées",
+      "text": "Mi-parcours de la migration PostgreSQL : on découvre que la logique métier de la facturation vit dans 412 procédures stockées. Dont une de 11 000 lignes, commentée en allemand.",
+      "choices": [
+        { "label": "Réécrire la logique dans les applications", "effects": { "velocity": -4, "debt": -5, "make": 3 }, "result": "Long, douloureux, salutaire. La procédure de 11 000 lignes devient 400 lignes de code testé." },
+        { "label": "Utiliser un outil de conversion automatique", "effects": { "budget": -2, "debt": 4 }, "result": "L'outil convertit 90 %. Les 10 % restants sont ceux qui comptent." },
+        { "label": "Garder Oracle pour la facturation seulement", "effects": { "complexity": 4, "vendor_dep": 2 }, "result": "Hybride. Pragmatique. Deux moteurs à maintenir." }
+      ] },
+    { "id": "data_swamp", "kind": "event", "room": "data", "speaker": "data",
+      "title": "Félicitations, vous avez créé un Data Swamp",
+      "text": "Le Data Lake contient maintenant 14 Po de données. Personne ne sait ce qu'il y a dedans. Trois équipes ont copié les mêmes tables, sous des noms différents.",
+      "choices": [
+        { "label": "Lancer la gouvernance data", "requires": { "no_tech": "data_catalog" }, "start_project": "data_governance", "result": "Catalogue, lineage, ownership : le marécage commence à s'assécher." },
+        { "label": "Purger tout ce qui n'a pas de propriétaire", "effects": { "data_quality": 5, "user_sat": -4, "complexity": -2 }, "result": "8 Po supprimés. Un analyste pleure son dataset « tmp_test_final ». Il ne l'ouvrait jamais." },
+        { "label": "Ajouter un outil d'IA pour « comprendre les données »", "effects": { "budget": -3, "ai_maturity": 2, "data_quality": -2 }, "result": "L'outil résume les tables avec beaucoup d'assurance. Il se trompe avec la même assurance." }
+      ] },
+    { "id": "apis_4812", "kind": "architecture", "room": "archi", "speaker": "archi",
+      "title": "« Nous avons 4 812 APIs. »",
+      "text": "« Combien sont documentées ? » « 37. » La plateforme API est en place. Le catalogue est vide. Le portail développeurs affiche « Bienvenue ! ».",
+      "choices": [
+        { "label": "API-first : pas de nouvelle API sans contrat ni doc", "effects": { "velocity": -2, "complexity": -4, "dev_sat": 2 }, "result": "Les nouvelles APIs sont propres. Les 4 775 anciennes attendent leur tour." },
+        { "label": "Lancer une architecture événementielle", "requires": { "no_tech": "event_driven" }, "start_project": "event_driven", "result": "Des événements plutôt que des appels en chaîne. Kafka arrive. Avec ses propres règles." },
+        { "label": "Faire documenter par une IA", "effects": { "complexity": -1, "ai_maturity": 2 }, "gamble": { "p": 0.5, "p_by": { "data_quality": 0.4 }, "win": { "effects": { "velocity": 2 }, "result": "La doc générée est utile à 70 %. C'est mieux que 37 sur 4 812." }, "lose": { "effects": { "user_sat": -2 }, "result": "La doc générée décrit avec précision des paramètres qui n'existent pas." } } }
+      ] },
+    { "id": "mcp_340", "kind": "architecture", "room": "cloud", "speaker": "rssi",
+      "title": "« Nous avons maintenant 340 serveurs MCP. »",
+      "text": "Chaque équipe a branché ses agents sur ses outils. « Qui peut appeler quoi ? » … Silence.",
+      "choices": [
+        { "label": "Passerelle MCP gouvernée (auth, scopes, logs)", "requires": { "tech": "iam" }, "start_project": "mcp_gateway", "effects": { "comex": -1 }, "result": "Chaque outil aura un propriétaire, des permissions et des traces. Les équipes râlent, puis comprennent." },
+        { "label": "Inventaire et coupure des serveurs non déclarés", "effects": { "security": 5, "velocity": -3, "dev_sat": -3 }, "result": "212 serveurs coupés. Trois étaient critiques pour un processus que personne n'avait documenté." },
+        { "label": "Laisser fleurir l'innovation", "add_tech": "mcp", "effects": { "velocity": 3, "security": -6, "complexity": 5 }, "delayed": [ { "in": 4, "chance": 0.6, "event": "agent_incident" } ], "result": "340 serveurs. Puis 412. L'innovation fleurit. Les droits d'accès aussi." }
+      ] },
+    { "id": "context_platform_done", "kind": "event", "room": "cloud", "speaker": "data",
+      "title": "L'Enterprise Context Platform est en production",
+      "text": "Les agents savent qui demande, ce qu'ils ont le droit de voir, d'où vient chaque information, et laissent une trace. Les hallucinations diminuent. Les audits deviennent possibles.",
+      "choices": [
+        { "label": "Ouvrir la plateforme à toutes les équipes", "effects": { "velocity": 4, "complexity": 2, "comex": 3 }, "result": "Chaque équipe branche ses agents sur un contexte gouverné. C'est le début de l'entreprise agentique." },
+        { "label": "Commencer par trois cas d'usage critiques", "effects": { "security": 3, "user_sat": 3 }, "result": "Trois cas d'usage, mesurés, réussis. La suite se fera sur des preuves." }
+      ] },
+    { "id": "lie_discovered", "kind": "recruitment", "room": "devs", "speaker": "dev",
+      "title": "La nouvelle recrue a découvert la vérité",
+      "text": "Votre dernière recrue a ouvert le dépôt de code. « Vous m'aviez parlé d'une stack moderne et de déploiements continus. Il y a un dossier qui s'appelle prod_backup_old_2. »",
+      "choices": [
+        { "label": "Lui confier la modernisation", "effects": { "dev_sat": 2, "debt": -3, "make": 1 }, "result": "Elle accepte le défi. « Au moins, il y a du travail. » C'est presque un compliment." },
+        { "label": "S'excuser et promettre que ça va changer", "gamble": { "p": 0.5, "p_by": { "devops_maturity": 0.6 }, "win": { "effects": { "dev_sat": 1 }, "result": "Elle vous laisse une chance. Une." }, "lose": { "lose_hire": true, "effects": { "attractiveness": -4, "make": -3 }, "result": "Elle part au bout de sa période d'essai. Son avis sur les sites d'entreprises est… détaillé." } } }
+      ] },
+    { "id": "vibe_catastrophe", "kind": "incident", "room": "devs", "speaker": "dev",
+      "title": "Personne ne comprend le module de facturation",
+      "text": "Le module de facturation, entièrement généré par IA, a envoyé 12 000 factures en double. Personne ne comprend son code. Il fait 48 000 lignes. Le ratio code généré / code compris a divergé.",
+      "choices": [
+        { "label": "Geler la génération et tout relire", "effects": { "velocity": -8, "debt": -4, "uptime": -3 }, "code_understood": 30, "result": "Trois semaines de relecture. On découvre 14 dépendances inutiles et une clé d'API en clair." },
+        { "label": "Demander à l'IA de corriger son propre code", "gamble": { "p": 0.4, "win": { "effects": { "uptime": -2 }, "result": "Ça marche. Personne ne sait pourquoi. Encore." }, "lose": { "effects": { "uptime": -8, "user_sat": -6, "comex": -5, "debt": 6 }, "result": "L'IA a corrigé le bug en en créant trois. Les factures sont maintenant en triple." } } },
+        { "label": "Mettre en place des garde-fous IA", "add_tech": "ai_guardrails", "effects": { "budget": -3, "velocity": -3, "security": 3 }, "code_understood": 20, "result": "Tests obligatoires, revue humaine, limites de génération. L'IA devient un outil, pas un oracle." }
+      ] },
+    { "id": "agent_incident", "kind": "incident", "room": "crise", "speaker": "rssi",
+      "title": "Un agent a pris des initiatives",
+      "text": "Un agent connecté aux outils internes a modifié des données de facturation en masse, en suivant une instruction cachée dans un document fournisseur.",
+      "choices": [
+        { "label": "Ouvrir la WAR ROOM", "minigame": { "type": "war_room", "scenario": "agent_rogue" } },
+        { "label": "Couper tous les agents", "effects": { "velocity": -6, "comex": -4, "security": 3 }, "result": "Tous les agents sont coupés. Les équipes découvrent qu'elles avaient oublié comment faire sans." }
+      ] },
+    { "id": "ransomware_attack", "kind": "incident", "room": "crise", "speaker": "soc",
+      "title": "Ransomware",
+      "text": "2 h 14. Les fichiers du serveur de fichiers deviennent illisibles. Une note de rançon apparaît dans chaque dossier. Yanis, au SOC, vous appelle. Sa voix tremble un peu.",
+      "choices": [
+        { "label": "Ouvrir la WAR ROOM", "minigame": { "type": "war_room", "scenario": "ransomware" } },
+        { "label": "Tout éteindre et attendre le matin", "effects": { "uptime": -18, "security": -6, "comex": -8, "user_sat": -6 }, "result": "Vous éteignez tout. Au matin, personne ne sait par où recommencer. Le PRA s'appelait « Gérard »." }
+      ] },
+    { "id": "ia_where_is_it", "kind": "comex", "room": "comex", "speaker": "dg",
+      "title": "« Et cette stratégie IA ? »",
+      "text": "« En décembre, vous avez annoncé une grande stratégie IA. Nous sommes en mai. Le conseil demande où elle est. Moi aussi. »",
+      "choices": [
+        { "label": "Montrer un premier cas d'usage réel", "requires": { "any_tech": ["copilot", "rag"] }, "effects": { "comex": 4 }, "result": "Une démo modeste, qui marche. La DG préfère ça à une promesse." },
+        { "label": "Présenter une feuille de route IA", "effects": { "comex": -3, "ai_maturity": 2 }, "result": "La feuille de route est belle. Elle commence par « Étape 1 : la data ». La DG soupire." },
+        { "label": "Lancer un assistant en urgence", "start_project": "copilots", "effects": { "comex": -1, "dev_sat": -2 }, "result": "Lancé dans la précipitation. Les développeurs sont contents quand même." }
+      ] },
+
+    { "id": "budget_alert", "kind": "comex", "room": "finance", "speaker": "daf", "weight": 6, "repeatable": true, "cooldown": 4, "conditions": { "max": { "budget": 18 } },
+      "title": "Alerte budgétaire",
+      "text": "« Au rythme actuel, la DSI sera à découvert avant la fin du trimestre. Je propose qu'on en parle. Maintenant. »",
+      "choices": [
+        { "label": "Demander une rallonge exceptionnelle à la DG", "effects": { "budget": 12, "comex": -8 }, "result": "Rallonge accordée. La DG a dit « exceptionnelle » quatre fois. Vous avez compris le message." },
+        { "label": "Reporter les mises à jour et les renouvellements matériels", "effects": { "budget": 8, "debt": 6, "security": -4 }, "result": "On repousse. Le matériel de 2016 tiendra bien encore un an. Probablement." },
+        { "label": "Réduire la régie", "contract_cost": { "contract": "esn_pool", "cost": -0.2 }, "effects": { "budget": 3, "velocity": -4, "make": -2 }, "result": "Douze prestataires remerciés. Deux d'entre eux étaient les seuls à connaître la paie." },
+        { "label": "Mettre en pause tous les recrutements et formations", "effects": { "budget": 5, "attractiveness": -5, "dev_sat": -4 }, "result": "Gel total. L'ambiance de l'open space baisse de deux degrés." }
+      ] },
+    { "id": "excel_db", "kind": "event", "room": "data", "speaker": "notif", "weight": 1.5, "repeatable": true, "cooldown": 4, "weight_by": { "data_quality": -0.8 },
+      "title": "Une équipe utilise Excel comme base de données",
+      "text": "Le fichier PLANNING_PROD_2026_v12_FINAL.xlsx est ouvert par 34 personnes en même temps. Il vient de se corrompre. La production est à l'arrêt.",
+      "choices": [
+        { "label": "Restaurer la version d'hier et passer à autre chose", "effects": { "user_sat": 1, "data_quality": -2 }, "result": "Restauré. La v13 est déjà en préparation." },
+        { "label": "Développer une petite application", "effects": { "make": 1, "budget": -2, "data_quality": 3, "debt": 1 }, "result": "Une application simple remplace le fichier. Trois personnes continuent d'exporter vers Excel. Par habitude." },
+        { "label": "Acheter un outil no-code", "effects": { "budget": -1, "vendor_dep": 2, "data_quality": 2, "user_sat": 2 }, "result": "Un SaaS no-code de plus. Il remplace l'Excel. Il exporte en Excel." },
+        { "label": "Interdire Excel pour les données critiques", "effects": { "user_sat": -7, "comex": -2, "data_quality": 2 }, "result": "Insurrection au 3e étage. La compta a imprimé ses tableaux. Par principe." }
+      ] },
+    { "id": "shadow_saas", "kind": "event", "room": "dsi", "speaker": "notif", "weight": 1, "repeatable": true, "cooldown": 8,
+      "title": "Shadow IT",
+      "text": "Une filiale vient d'acheter un SaaS sans prévenir la DSI. Avec une carte bancaire. Il contient les données de 40 000 clients.",
+      "choices": [
+        { "label": "Régulariser : contrat, SSO, revue sécurité", "effects": { "budget": -2, "vendor_dep": 2, "security": 2 }, "result": "Le SaaS rentre dans le rang. La filiale vous trouve « bureaucratique », mais coopère." },
+        { "label": "Interdire et migrer les données", "effects": { "user_sat": -4, "comex": -2, "security": 3 }, "result": "La filiale proteste auprès de la DG. Elle aimait vraiment cet outil." },
+        { "label": "Ignorer", "effects": { "security": -3 }, "delayed": [ { "in": 4, "chance": 0.4, "effects": { "security": -6, "comex": -5 }, "text": "Le SaaS de la filiale a subi une fuite de données. Vos clients ont reçu un e-mail. Le vôtre, pas." } ], "result": "Ce qu'on ne voit pas n'existe pas. En théorie." },
+        { "label": "En faire un pilote officiel", "effects": { "velocity": 2, "complexity": 3, "user_sat": 2 }, "result": "Le shadow IT devient de l'innovation. Il suffisait de changer le nom." }
+      ] },
+    { "id": "mongodb_modern", "kind": "architecture", "room": "devs", "speaker": "dev", "weight": 0.8,
+      "title": "« MongoDB, c'est plus moderne »",
+      "text": "Une équipe veut une base MongoDB pour le nouveau portail client. Argument principal : « C'est plus moderne. » Argument secondaire : aucun.",
+      "choices": [
+        { "label": "Accepter", "effects": { "dev_sat": 4, "complexity": 4 }, "delayed": [ { "in": 8, "chance": 0.5, "effects": { "data_quality": -4, "debt": 3 }, "text": "Les données « sans schéma » ont fini par avoir 14 schémas différents. Tous implicites." } ], "result": "L'équipe est ravie. Le portail sortira vite." },
+        { "label": "Refuser", "effects": { "dev_sat": -4 }, "result": "« La DSI bloque l'innovation », dit le Slack. Vous avez l'habitude." },
+        { "label": "Écrire un ADR : quels besoins, quelles options ?", "effects": { "complexity": -1, "dev_sat": 1, "make": 1 }, "result": "Conclusion de l'ADR : PostgreSQL avec du JSON suffit. L'équipe est convaincue. Un peu déçue, mais convaincue." }
+      ] },
+    { "id": "powerapps_4000", "kind": "event", "room": "dsi", "speaker": "notif", "weight": 0.8,
+      "title": "4 000 applications low-code",
+      "text": "Les métiers ont créé 4 000 applications low-code. Certaines gèrent la paie des intérimaires. L'une d'elles s'appelle « test_ne_pas_utiliser » et elle est critique.",
+      "choices": [
+        { "label": "Gouverner : inventaire, propriétaires, règles", "effects": { "budget": -2, "complexity": -2, "security": 2, "user_sat": -2 }, "result": "Inventaire en cours. 1 900 applications n'ont plus de propriétaire actif." },
+        { "label": "Laisser faire, ça les rend autonomes", "effects": { "velocity": 3, "complexity": 5, "security": -3 }, "result": "Les métiers adorent. Le SOC un peu moins." },
+        { "label": "Créer un centre d'excellence low-code", "effects": { "budget": -3, "make": 2, "user_sat": 2, "complexity": 1 }, "result": "Un centre d'excellence aide les métiers. Ils construisent mieux. Ils construisent plus. Hmm." }
+      ] },
+    { "id": "cloud_cluster_forgot", "kind": "incident", "room": "cloud", "speaker": "daf", "weight": 1.2, "repeatable": true, "cooldown": 8, "conditions": { "cloud": true }, "weight_by": { "cloud_maturity": -0.5 },
+      "title": "La facture cloud a augmenté de 240 %",
+      "text": "Un développeur avait oublié un cluster de test. Avec 64 GPU. Depuis six semaines.",
+      "immediate": { "budget": -4 },
+      "choices": [
+        { "label": "Mettre en place budgets et alertes FinOps", "finops": 30, "cloud_bill": -0.2, "effects": { "budget": -1 }, "result": "Chaque équipe a un budget et une alerte. Le développeur a fait une présentation « lessons learned »." },
+        { "label": "Sermonner le développeur", "effects": { "dev_sat": -4 }, "cloud_bill": -0.1, "result": "Le développeur a compris. Les 40 autres n'étaient pas là." },
+        { "label": "Instances réservées 3 ans pour compenser", "cloud_bill": -0.4, "effects": { "vendor_dep": 4 }, "result": "La facture baisse. Votre liberté aussi." }
+      ] },
+    { "id": "rssi_refuse", "kind": "project", "room": "cyber", "speaker": "rssi", "weight": 1, "repeatable": true, "cooldown": 6, "conditions": { "any_project": true },
+      "title": "Le RSSI refuse votre mise en production",
+      "text": "« Pas de mise en production sans analyse de risque. Je vous l'ai envoyée il y a trois semaines. Vous ne l'avez pas lue. »",
+      "choices": [
+        { "label": "Elle a raison. On décale.", "effects": { "velocity": -3, "security": 3 }, "result": "Une semaine de décalage. Deux failles corrigées. La RSSI vous sourit (c'est rare)." },
+        { "label": "Passer en force avec une dérogation", "effects": { "velocity": 3, "security": -5, "comex": 1 }, "delayed": [ { "in": 3, "jitter": 3, "chance": 0.4, "event": "incident_p1" } ], "result": "Dérogation signée par la DG. La RSSI l'imprime et la range dans un classeur intitulé « Pour plus tard »." },
+        { "label": "Revue de sécurité express ensemble", "agenda_cost": 1, "effects": { "security": 2 }, "result": "Deux heures en tête-à-tête. Le projet passe. Vous comprenez mieux son métier, et elle le vôtre." }
+      ] },
+    { "id": "intern_admin", "kind": "incident", "room": "cyber", "speaker": "rssi", "weight": 1, "conditions": { "no_tech": "iam" },
+      "title": "Le stagiaire est toujours admin",
+      "text": "Le stagiaire possède encore les droits administrateur six mois après son départ. Il s'est connecté hier. « Pour voir si ça marchait encore. »",
+      "choices": [
+        { "label": "Revue complète des accès", "effects": { "security": 4, "user_sat": -1, "budget": -1 }, "result": "On trouve 213 autres comptes dans son cas, dont celui d'un directeur parti en 2017." },
+        { "label": "Lancer le projet SSO + MFA", "requires": { "no_tech": "sso" }, "start_project": "sso_mfa", "result": "Le projet démarre. L'identité devient un sujet. Enfin." },
+        { "label": "Supprimer son compte et oublier", "effects": { "security": 1 }, "delayed": [ { "in": 4, "chance": 0.5, "effects": { "security": -5 }, "text": "Un autre ancien compte, oublié, a servi de porte d'entrée. L'AD comptait 14 000 comptes pour 8 000 salariés." } ], "result": "Un compte de moins. Plus que 5 999 comptes en trop." }
+      ] },
+    { "id": "certificat_michel", "kind": "incident", "room": "datacenter", "speaker": "soc", "weight": 0.8, "weight_by": { "debt": 1 },
+      "title": "INCIDENT P1",
+      "text": "L'application critique est indisponible. Cause : le certificat a expiré. Responsable : le certificat était géré par Michel. Où est Michel ? Retraité depuis 2021.",
+      "immediate": { "uptime": -4 },
+      "choices": [
+        { "label": "Renouveler en urgence et passer à autre chose", "effects": { "comex": -2 }, "result": "Renouvelé en 3 h. Il en reste 412 autres, avec des dates d'expiration inconnues." },
+        { "label": "Inventorier tous les certificats", "effects": { "budget": -1, "resilience": 3, "security": 2 }, "result": "Inventaire fait. 17 expirent ce mois-ci. Vous venez d'éviter 17 incidents." },
+        { "label": "Automatiser leur renouvellement", "requires": { "tech": "observability" }, "effects": { "resilience": 5, "make": 1, "velocity": -1 }, "result": "Plus jamais de certificat expiré. Michel aurait été fier. Il a liké votre post LinkedIn." },
+        { "label": "Appeler Michel", "gamble": { "p": 0.5, "win": { "effects": { "make": 2, "comex": 1 }, "result": "Michel répond depuis son camping-car. Il vous dicte la procédure de mémoire. Une légende." }, "lose": { "effects": { "uptime": -3 }, "result": "Michel est en randonnée dans les Pyrénées. Sans réseau. C'est bien, pour lui." } } }
+      ] },
+    { "id": "incident_p1", "kind": "incident", "room": "datacenter", "speaker": "soc", "weight": 1, "repeatable": true, "cooldown": 4, "weight_by": { "debt": 1.5, "complexity": 1, "resilience": -1 },
+      "title": "Incident P1 : la facturation est à l'arrêt",
+      "text": "Cause : un batch de 1998 a reçu une date au format américain. Il a facturé 3 000 clients le 13e mois de l'année.",
+      "immediate": { "uptime": -5, "user_sat": -2 },
+      "choices": [
+        { "label": "Corriger à chaud", "effects": { "debt": 2, "comex": -1 }, "result": "Corrigé en 2 h. Le correctif s'appelle « fix_fix_date_v3 »." },
+        { "label": "Post-mortem sans coupable", "effects": { "resilience": 3, "velocity": -1, "dev_sat": 2 }, "result": "On trouve la vraie cause : personne n'avait les tests du batch. Une action est créée. Elle sera faite." },
+        { "label": "Accuser le prestataire", "effects": { "comex": 1, "dev_sat": -3, "vendor_dep": 1 }, "result": "Le prestataire accuse l'éditeur. L'éditeur accuse le format de date. Le format de date ne dit rien." }
+      ] },
+    { "id": "esn_profile", "kind": "vendor", "room": "vendor", "speaker": "esn", "weight": 0.9, "repeatable": true, "cooldown": 8,
+      "title": "« Nous avons exactement le profil »",
+      "text": "L'ESN vous propose un expert COBOL. « Exactement le profil. 25 ans d'expérience. TJM 1 400 €. » Le profil arrive trois semaines plus tard.",
+      "choices": [
+        { "label": "Accepter", "contract_cost": { "contract": "esn_pool", "cost": 0.1 }, "effects": { "make": 2, "vendor_dep": 3, "uptime": 2 }, "result": "Il arrive trois semaines plus tard. Il est très bon. Il est surtout très rare." },
+        { "label": "Négocier le TJM", "gamble": { "p": 0.5, "win": { "contract_cost": { "contract": "esn_pool", "cost": 0.05 }, "effects": { "make": 2, "vendor_dep": 2 }, "result": "TJM ramené à 1 150 €. Le business manager a « fait un effort exceptionnel »." }, "lose": { "effects": { "velocity": -2 }, "result": "Le profil est parti chez un autre client pendant la négociation. Il y en a un autre. Il arrive dans trois semaines." } } },
+        { "label": "Refuser et former en interne", "effects": { "velocity": -2, "make": 2, "budget": -1 }, "result": "Deux juniors apprennent le COBOL. Ils trouvent ça « vintage ». C'est un bon signe." }
+      ] },
+    { "id": "consultant_187", "kind": "comex", "room": "comex", "speaker": "consultant", "weight": 0.8,
+      "title": "187 slides de transformation",
+      "text": "Le cabinet Strateos propose une mission de « transformation digitale holistique ». 187 slides. La slide 112 s'intitule « Synergies ».",
+      "choices": [
+        { "label": "Signer la mission", "effects": { "budget": -5, "comex": 5, "complexity": 2, "dev_sat": -3 }, "result": "Les consultants arrivent. Ils posent beaucoup de questions. Vos équipes y répondent. Le rapport reprendra leurs réponses." },
+        { "label": "Prendre uniquement le diagnostic", "effects": { "budget": -2, "comex": 2 }, "result": "Le diagnostic dit ce que vous saviez. Mais avec un logo, ça passe mieux en COMEX." },
+        { "label": "Décliner poliment", "effects": { "comex": -2, "dev_sat": 2 }, "result": "Le consultant vous laisse sa carte. Il déjeune avec la DG jeudi." }
+      ] },
+    { "id": "dg_chatgpt_friday", "kind": "comex", "room": "comex", "speaker": "dg", "weight": 1.1, "conditions": { "no_flags": "ai_policy" },
+      "title": "« Un ChatGPT interne avant vendredi »",
+      "text": "« Tout le monde utilise des IA en douce. Je veux notre propre assistant avant vendredi. On est mardi. »",
+      "choices": [
+        { "label": "Ouvrir l'accès à un outil grand public", "effects": { "comex": 5, "security": -6, "user_sat": 3 }, "delayed": [ { "in": 3, "chance": 0.5, "effects": { "security": -6, "comex": -5 }, "text": "Un document stratégique confidentiel a été collé dans un outil IA grand public. Il est désormais… quelque part." } ], "result": "Vendredi, tout le monde a accès. Lundi, tout le monde y colle des documents confidentiels." },
+        { "label": "Un assistant interne en deux semaines", "effects": { "budget": -3, "ai_maturity": 5, "comex": 3, "complexity": 2, "dev_sat": -2 }, "result": "Pas vendredi, mais dans deux semaines. Il marche. L'équipe n'a pas dormi." },
+        { "label": "Charte IA + pilote encadré", "agenda_cost": 1, "effects": { "comex": 1, "ai_maturity": 3, "security": 2 }, "set_flag": "ai_policy", "result": "Une charte d'une page, un pilote de 300 personnes, des données protégées. La DG trouve ça « raisonnable ». C'est presque un compliment." },
+        { "label": "Expliquer qu'il faut d'abord un cadre", "effects": { "comex": -4, "security": 2 }, "set_flag": "ai_policy", "result": "La DG : « Vous êtes contre l'IA ? » Non. Vous êtes contre les fuites de données." }
+      ] },
+    { "id": "cobol_retirement", "kind": "event", "room": "rh", "speaker": "drh", "weight": 0.8, "conditions": { "tech": "cobol" },
+      "title": "Le dernier développeur COBOL part à la retraite",
+      "text": "« Jean-Pierre part dans six mois. Il est le seul à comprendre le calcul des primes. Il a proposé de faire un pot. »",
+      "choices": [
+        { "label": "Le garder à temps partiel après sa retraite", "effects": { "budget": -2, "make": 1 }, "result": "Jean-Pierre accepte. Deux jours par semaine. Il apporte des croissants." },
+        { "label": "Lui faire former deux juniors", "effects": { "velocity": -2, "make": 4, "budget": -2 }, "result": "Deux juniors apprennent le COBOL. L'un d'eux le trouve « étonnamment lisible »." },
+        { "label": "Externaliser à une ESN spécialisée", "contract_cost": { "contract": "esn_pool", "cost": 0.15 }, "effects": { "vendor_dep": 4 }, "result": "L'ESN a « exactement le profil ». C'est Jean-Pierre, en freelance. À 1 400 € par jour." },
+        { "label": "Lancer la sortie du COBOL", "requires": { "tech": "apis", "min": { "make": 35 } }, "start_project": "cobol_strangler", "result": "Le projet démarre. Jean-Pierre sera le premier formateur. Et le dernier sachant." }
+      ] },
+    { "id": "k8s_under_desk", "kind": "event", "room": "devs", "speaker": "dev", "weight": 0.7, "conditions": { "no_tech": "kubernetes" },
+      "title": "Un cluster sous le bureau",
+      "text": "Une équipe a installé un cluster Kubernetes sur trois vieux PC, sous un bureau. « Pour tester. » Il héberge déjà deux applications « un peu » en production.",
+      "choices": [
+        { "label": "Arrêter immédiatement", "effects": { "dev_sat": -3, "security": 2 }, "result": "Le cluster est éteint. Les deux applications aussi. Leurs utilisateurs aussi, d'une certaine façon." },
+        { "label": "En faire un vrai projet de conteneurisation", "requires": { "tech": "git", "no_tech": "containers" }, "start_project": "containers", "effects": { "dev_sat": 3 }, "result": "L'initiative devient officielle. L'équipe est fière. Les PC retournent au recyclage." },
+        { "label": "Laisser faire", "effects": { "complexity": 3, "dev_sat": 3, "security": -2 }, "result": "L'innovation par le bas. Le RSSI a ajouté une ligne à son registre des risques." }
+      ] },
+    { "id": "phishing_dg", "kind": "incident", "room": "cyber", "speaker": "rssi", "weight": 0.7, "weight_by": { "security": -1 },
+      "title": "La DG a cliqué",
+      "text": "La DG a cliqué sur un lien « Votre colis est bloqué » et saisi son mot de passe. « Mais j'attendais un colis ! »",
+      "choices": [
+        { "label": "Réinitialiser, investiguer, prévenir discrètement", "effects": { "security": 2, "budget": -1 }, "result": "Compte sécurisé en 20 minutes. La DG demande que la prochaine campagne de sensibilisation « ne vise personne en particulier »." },
+        { "label": "Généraliser le MFA, maintenant", "requires": { "no_tech": "mfa" }, "start_project": "sso_mfa", "effects": { "comex": 2 }, "result": "La DG soutient soudain le MFA avec une ferveur nouvelle." },
+        { "label": "En faire un cas d'école (anonymisé)", "effects": { "security": 3, "comex": -2 }, "result": "« Un membre du COMEX a cliqué. » Tout le monde a deviné. La sensibilisation n'a jamais aussi bien marché." }
+      ] },
+    { "id": "insurer_backups", "kind": "event", "room": "finance", "speaker": "daf", "weight": 0.7,
+      "title": "L'assureur cyber pose des questions",
+      "text": "Questionnaire de renouvellement de l'assurance cyber. Question 14 : « Vos sauvegardes sont-elles testées et isolées ? » Le DAF vous regarde.",
+      "choices": [
+        { "label": "Répondre « oui » et vérifier après", "effects": { "budget": 2 }, "delayed": [ { "in": 6, "chance": 0.4, "effects": { "budget": -6, "comex": -4 }, "text": "Après un sinistre, l'assureur a constaté que les sauvegardes n'étaient ni testées ni isolées. Il ne couvre pas." } ], "result": "Prime en baisse. Conscience un peu en hausse." },
+        { "label": "Répondre honnêtement et lancer un plan", "effects": { "budget": -2, "resilience": 3 }, "result": "Prime plus élevée cette année. Mais vous savez où vous en êtes." },
+        { "label": "Lancer un vrai PRA testé", "requires": { "no_project": "pra" }, "start_project": "pra", "effects": { "budget": -1 }, "result": "Le PRA est lancé. L'assureur vous propose une remise l'an prochain." }
+      ] },
+    { "id": "vendor_audit", "kind": "vendor", "room": "achats", "speaker": "achats", "weight": 0.8,
+      "title": "Audit de licences annoncé",
+      "text": "Un éditeur annonce un audit de conformité de vos licences. Délai : 30 jours. Votre inventaire date de 2019. « Ce n'est qu'une formalité », assure son courrier.",
+      "choices": [
+        { "label": "Préparer l'audit sérieusement", "agenda_cost": 1, "effects": { "budget": -1, "vendor_dep": -1 }, "result": "Inventaire refait. Vous êtes conformes à 97 %. Les 3 % restants sont négociés." },
+        { "label": "Faire confiance à l'inventaire", "gamble": { "p": 0.45, "p_by": { "data_quality": 0.5 }, "win": { "result": "L'audit se passe bien. Votre inventaire de 2019 était, miraculeusement, juste." }, "lose": { "effects": { "budget": -6, "vendor_dep": 3 }, "result": "Écart constaté : des machines virtuelles comptées deux fois. Régularisation coûteuse." } } },
+        { "label": "Proposer un « accord global »", "effects": { "budget": -2, "vendor_dep": 4, "comex": 1 }, "result": "L'audit disparaît, remplacé par un accord pluriannuel. Comme par magie." }
+      ] },
+    { "id": "esn_turnover", "kind": "event", "room": "devs", "speaker": "esn", "weight": 0.9, "repeatable": true, "cooldown": 10, "conditions": { "contract": "esn_pool" },
+      "title": "Turnover chez le prestataire",
+      "text": "Le consultant qui maintenait l'application de paie change de mission. Son remplaçant arrive lundi. Il découvrira l'application lundi aussi.",
+      "immediate": { "make": -2 },
+      "choices": [
+        { "label": "Exiger une passation de deux semaines", "effects": { "budget": -1, "velocity": -1 }, "result": "Passation faite. Le nouveau a pris 40 pages de notes. Il partira dans 8 mois." },
+        { "label": "Faire binômer avec un interne", "effects": { "make": 2, "velocity": -2 }, "result": "Un interne suit le dossier. Cette fois, la connaissance reste." },
+        { "label": "Laisser faire", "effects": { "uptime": -2, "user_sat": -2 }, "result": "La paie de mars a deux jours de retard. Le comité d'entreprise demande un rendez-vous." }
+      ] },
+    { "id": "network_slow", "kind": "event", "room": "dsi", "speaker": "notif", "weight": 0.8, "repeatable": true, "cooldown": 8,
+      "title": "« Le réseau est lent »",
+      "text": "487 tickets « le réseau est lent ». Après enquête : une mise à jour de l'antivirus scanne tous les fichiers à chaque ouverture. Y compris les fichiers de 4 Go de la compta.",
+      "choices": [
+        { "label": "Ajuster les exclusions avec la sécurité", "effects": { "user_sat": 3, "security": -1 }, "result": "Le réseau n'était pas lent. Mais tout le monde le remercie." },
+        { "label": "Augmenter les débits", "effects": { "budget": -2, "user_sat": 2 }, "contract_cost": { "contract": "orange_wan", "cost": 0.05 }, "result": "Plus de bande passante pour un problème qui n'était pas réseau. Classique." },
+        { "label": "Installer l'observabilité sur les postes", "requires": { "tech": "observability" }, "effects": { "user_sat": 2, "uptime": 2 }, "result": "On voit enfin ce qui se passe sur les postes. Ce n'est jamais le réseau." }
+      ] },
+    { "id": "sovereignty_board", "kind": "comex", "room": "comex", "speaker": "dg", "weight": 0.8, "conditions": { "year_min": 1 },
+      "title": "Stratégie de souveraineté",
+      "text": "Le conseil d'administration demande une stratégie de souveraineté numérique. Pour le prochain conseil. Dans trois semaines.",
+      "choices": [
+        { "label": "Un plan réaliste : données sensibles d'abord", "effects": { "sovereignty": 4, "comex": 3, "budget": -2 }, "result": "Classifier, protéger ce qui compte, accepter des dépendances choisies. Le conseil apprécie la nuance." },
+        { "label": "Un communiqué de presse ambitieux", "effects": { "comex": 4 }, "delayed": [ { "in": 6, "effects": { "comex": -5 }, "text": "Un journaliste a comparé votre communiqué « souverain » à vos contrats. L'article est cruel." } ], "result": "« 100 % souverain d'ici 2030. » Personne ne sait ce que ça veut dire. Tout le monde applaudit." },
+        { "label": "Expliquer les arbitrages : le lock-in n'est pas toujours mauvais", "effects": { "comex": 1, "sovereignty": 1, "complexity": -1 }, "result": "Vous présentez une matrice : criticité, réversibilité, coût. Le conseil comprend. Surtout le coût." }
+      ] },
+    { "id": "dircom_now", "kind": "event", "room": "comex", "speaker": "dircom", "weight": 1, "repeatable": true, "cooldown": 6,
+      "title": "« C'est pour lundi »",
+      "text": "« Il me faut une nouvelle fonctionnalité dans le CRM pour lundi. Le client la veut. Moi aussi. C'est simple, c'est juste un bouton. »",
+      "choices": [
+        { "label": "Développer en urgence", "effects": { "velocity": 2, "user_sat": 3, "debt": 4, "dev_sat": -3 }, "result": "Le bouton est livré lundi. Il déclenche 14 processus. Le client ne l'a jamais utilisé." },
+        { "label": "Faire paramétrer par l'éditeur", "effects": { "budget": -2, "vendor_dep": 2, "user_sat": 2 }, "result": "L'éditeur livre en trois semaines, avec une option payante « pour aller plus loin »." },
+        { "label": "« Ça passe dans la roadmap, comme le reste. »", "effects": { "comex": -3, "dev_sat": 2 }, "result": "Le directeur commercial appelle la DG. La DG vous appelle. Vous tenez bon." }
+      ] },
+    { "id": "drh_staff", "kind": "recruitment", "room": "rh", "speaker": "drh", "weight": 0.9, "conditions": { "team_min": 2, "no_flags": "tech_track" },
+      "title": "« Pourquoi refuse-t-il de manager ? »",
+      "text": "« Votre meilleur ingénieur refuse de devenir manager de 40 personnes. Je ne comprends pas. C'est une promotion ! »",
+      "choices": [
+        { "label": "Créer une filière d'expertise technique", "effects": { "attractiveness": 6, "dev_sat": 4, "comex": -1, "budget": -1 }, "set_flag": "tech_track", "result": "Une filière expert, avec des niveaux et des salaires. La DRH a fait un organigramme. Il est beau." },
+        { "label": "L'obliger : c'est la règle", "lose_hire": true, "effects": { "dev_sat": -5, "make": -4 }, "result": "Il a démissionné. Il est maintenant Staff Engineer chez un concurrent. Sans manager personne." },
+        { "label": "Lui confier un rôle de référent, sans changer la grille", "effects": { "dev_sat": 1 }, "result": "Il accepte, pour l'instant. Son profil LinkedIn affiche « Open to opportunities »." }
+      ] },
+    { "id": "cut_tests", "kind": "project", "room": "projet", "speaker": "consultant", "weight": 1.1, "repeatable": true, "cooldown": 6, "conditions": { "any_project": true },
+      "title": "Réduire les tests pour livrer plus tôt ?",
+      "text": "Le chef de projet propose de réduire la phase de tests pour livrer trois mois plus tôt. « Les tests, c'est surtout pour se rassurer. »",
+      "choices": [
+        { "label": "Réduire les tests", "hint": "Vitesse maintenant, risque plus tard.", "effects": { "velocity": 5, "comex": 3, "debt": 5 }, "delayed": [ { "in": 3, "jitter": 8, "chance": 0.55, "event": "incident_p1" } ], "result": "Livraison anticipée. Le COMEX félicite le chef de projet. Les tests manquants attendent leur heure." },
+        { "label": "Garder le plan", "effects": { "comex": -2 }, "result": "Le chef de projet soupire. La DG demande pourquoi ça ne va pas plus vite." },
+        { "label": "Automatiser les tests", "requires": { "tech": "ci" }, "effects": { "velocity": 2, "debt": -1 }, "result": "Les tests tournent en 12 minutes. Plus rapide et plus sûr. C'était donc possible." }
+      ] },
+    { "id": "spontaneous_sre", "kind": "recruitment", "room": "rh", "speaker": "drh", "weight": 0.9, "repeatable": true, "cooldown": 6, "weight_by": { "attractiveness": 1 },
+      "title": "Une candidature spontanée",
+      "text": "« Une ingénieure SRE a vu votre conférence et veut vous rencontrer. Je ne savais pas qu'on faisait des conférences. »",
+      "choices": [
+        { "label": "La rencontrer (entretien)", "minigame": { "type": "recruit", "role": "sre" } },
+        { "label": "Recevoir plutôt un·e security engineer", "minigame": { "type": "recruit", "role": "secu" } },
+        { "label": "Pas de budget pour l'instant", "effects": { "attractiveness": -1 }, "result": "La DRH classe la candidature. Elle ressortira dans un an, quand la candidate sera chez un concurrent." }
+      ] },
+    { "id": "junior_wave", "kind": "recruitment", "room": "rh", "speaker": "drh", "weight": 0.7, "repeatable": true, "cooldown": 8,
+      "title": "Recruter pour le MAKE ?",
+      "text": "« Les écoles nous envoient des CV. Des juniors, des seniors, même un data engineer. Vous voulez en voir un ? Il faudra les payer, hein. »",
+      "choices": [
+        { "label": "Entretien : développeur·se senior", "minigame": { "type": "recruit", "role": "senior" } },
+        { "label": "Entretien : développeur·se junior", "minigame": { "type": "recruit", "role": "junior" } },
+        { "label": "Entretien : data engineer", "minigame": { "type": "recruit", "role": "data_eng" } },
+        { "label": "Pas maintenant", "result": "La DRH note « besoin à confirmer ». C'est sa façon de dire non." }
+      ] },
+    { "id": "green_it", "kind": "event", "room": "dsi", "speaker": "notif", "weight": 0.6,
+      "title": "Le bilan carbone du SI",
+      "text": "Le rapport RSE doit inclure l'empreinte carbone du numérique. Personne ne sait la calculer. Le datacenter consomme autant qu'un petit village.",
+      "choices": [
+        { "label": "Allonger la durée de vie du matériel", "effects": { "budget": 2, "user_sat": -2 }, "result": "Les PC passent de 3 à 5 ans. Les utilisateurs râlent. La planète, elle, ne dit rien." },
+        { "label": "Éteindre les serveurs inutilisés", "effects": { "complexity": -2, "uptime": -1, "budget": 1 }, "result": "On a éteint 80 serveurs. L'un servait à quelque chose. On l'a rallumé, en vert." },
+        { "label": "Un beau rapport, et c'est tout", "effects": { "comex": 2 }, "result": "Le rapport est imprimé sur papier recyclé. C'est déjà ça." }
+      ] },
+    { "id": "mailbox_daf", "kind": "event", "room": "finance", "speaker": "daf", "weight": 0.5,
+      "title": "La boîte mail du DAF est pleine",
+      "text": "« Je ne reçois plus rien. » Il a 412 000 mails, dont 38 000 non lus, et un dossier « À lire » de 2014.",
+      "choices": [
+        { "label": "Augmenter son quota, exceptionnellement", "effects": { "comex": 2, "security": -1 }, "result": "Le DAF est ravi. Les 40 autres directeurs demandent la même chose." },
+        { "label": "L'aider à archiver", "agenda_cost": 1, "effects": { "comex": 3 }, "result": "Deux heures dans son bureau. Il vous a raconté sa carrière. Vous êtes désormais alliés." },
+        { "label": "Appliquer la règle pour tout le monde", "effects": { "comex": -2, "security": 1 }, "result": "La règle est la règle. Le DAF s'en souviendra au prochain budget." }
+      ] },
+    { "id": "teams_sprawl", "kind": "event", "room": "dsi", "speaker": "notif", "weight": 0.5,
+      "title": "4 000 équipes pour 8 000 salariés",
+      "text": "Votre messagerie collaborative compte 4 000 équipes. 2 300 n'ont qu'un membre. L'une s'appelle « Test ». Elle a 600 membres.",
+      "choices": [
+        { "label": "Gouvernance : expiration, propriétaires", "effects": { "complexity": -2, "user_sat": -1, "security": 1 }, "result": "1 900 équipes archivées. Personne ne les a réclamées." },
+        { "label": "Laisser vivre", "effects": { "complexity": 1 }, "result": "L'équipe « Test » est maintenant le principal canal de communication interne." }
+      ] },
+    { "id": "ups_noise", "kind": "incident", "room": "datacenter", "speaker": "notif", "weight": 0.6, "weight_by": { "resilience": -1 }, "conditions": { "tech": "datacenter" },
+      "title": "L'onduleur fait un bruit bizarre",
+      "text": "L'onduleur du datacenter émet un bip toutes les 30 secondes depuis mardi. Le contrat de maintenance a expiré en 2022. Le fabricant n'existe plus.",
+      "choices": [
+        { "label": "Le remplacer maintenant", "effects": { "budget": -3, "resilience": 4 }, "result": "Nouvel onduleur installé. Le silence est assourdissant." },
+        { "label": "Débrancher le bip", "gamble": { "p": 0.5, "p_by": { "resilience": 0.5 }, "win": { "result": "Le bip s'arrête. L'onduleur continue. Pour l'instant." }, "lose": { "effects": { "uptime": -12, "resilience": -3, "budget": -2 }, "result": "Coupure de courant le jeudi suivant. L'onduleur a tenu 4 secondes. Le bip, c'était pour ça." } } }
+      ] },
+    { "id": "salesforce_agents", "kind": "vendor", "room": "vendor", "speaker": "vendor", "weight": 0.6, "conditions": { "year_min": 2, "contract": "salesforce_crm" },
+      "title": "Démo d'agents commerciaux",
+      "text": "Votre éditeur CRM organise une démo d'agents IA pour vos commerciaux. Le directeur commercial est au premier rang. Il prend des notes.",
+      "choices": [
+        { "label": "Lancer un pilote", "contract_cost": { "contract": "salesforce_crm", "cost": 0.1 }, "effects": { "ai_maturity": 3, "user_sat": 2, "vendor_dep": 2 }, "result": "Le pilote démarre. Les agents rédigent des comptes rendus. Les commerciaux les lisent parfois." },
+        { "label": "Exiger d'abord une évaluation sur vos données", "effects": { "ai_maturity": 1, "comex": -1 }, "result": "L'évaluation montre 60 % de réponses utiles. Le directeur commercial ne retient que le mot « utiles »." },
+        { "label": "Décliner", "effects": { "comex": -2 }, "result": "Le directeur commercial vous envoie la vidéo de la démo. Trois fois." }
+      ] },
+    { "id": "snowflake_daf", "kind": "event", "room": "finance", "speaker": "daf", "weight": 0.8, "conditions": { "contract": "snowflake_dw" },
+      "title": "Le DAF découvre la facture data",
+      "text": "« Pourquoi payons-nous ça ? » La facture du data warehouse cloud a triplé. Un dashboard se rafraîchit toutes les 30 secondes. Personne ne le regarde.",
+      "choices": [
+        { "label": "Optimiser requêtes et rafraîchissements", "contract_cost": { "contract": "snowflake_dw", "cost": -0.2 }, "effects": { "budget": -1 }, "result": "Le dashboard se rafraîchit une fois par jour. Personne n'a remarqué." },
+        { "label": "Engagement annuel de consommation", "contract_cost": { "contract": "snowflake_dw", "cost": -0.15 }, "effects": { "vendor_dep": 4 }, "result": "Remise obtenue, engagement signé. Il faudra consommer pour rentabiliser." }
+      ] },
+    { "id": "gpu_shortage", "kind": "event", "room": "cloud", "speaker": "data", "weight": 0.7, "conditions": { "year_min": 3 },
+      "title": "Pénurie de GPU",
+      "text": "« Pour entraîner nos modèles, il nous faut des GPU. Délai de livraison : 9 mois. Ou de la location cloud, au prix d'un appartement parisien par mois. »",
+      "choices": [
+        { "label": "Louer chez un cloud européen", "effects": { "budget": -4, "ai_maturity": 4, "sovereignty": 2 }, "result": "GPU disponibles en Europe. Les data scientists dorment mieux. Le DAF, moins." },
+        { "label": "Utiliser des modèles plus petits", "effects": { "ai_maturity": 2, "complexity": -1 }, "result": "Un petit modèle bien évalué fait 90 % du travail. Pour 5 % du coût." },
+        { "label": "Commander et attendre 9 mois", "effects": { "budget": -3, "velocity": -2 }, "result": "Commande passée. Les GPU arriveront pour la prochaine stratégie IA." }
+      ] },
+    { "id": "token_bill", "kind": "event", "room": "finance", "speaker": "daf", "weight": 0.8, "conditions": { "contract": "llm_api" },
+      "title": "La facture de tokens",
+      "text": "« Qu'est-ce qu'un token, et pourquoi en avons-nous consommé 4 milliards ce mois-ci ? » Un agent s'est mis à se répondre à lui-même pendant un week-end.",
+      "immediate": { "budget": -2 },
+      "choices": [
+        { "label": "AI gateway : quotas et FinOps IA", "requires": { "no_tech": "ai_gateway" }, "effects": { "budget": -2, "complexity": -1 }, "add_tech": "ai_gateway", "result": "Chaque équipe a un quota. L'agent bavard a été mis au régime." },
+        { "label": "Négocier un engagement de volume", "minigame": { "type": "negotiation", "contract": "llm_api" } },
+        { "label": "Passer à des modèles open weights hébergés", "requires": { "project_done": "ai_platform", "no_tech": "open_weights" }, "start_project": "open_weights", "result": "Les modèles tourneront chez vous. Les tokens deviennent de l'électricité." }
+      ] },
+    { "id": "rag_hallucination", "kind": "incident", "room": "data", "speaker": "data", "weight": 0.8, "conditions": { "tech": "rag" }, "weight_by": { "data_quality": -1 },
+      "title": "L'assistant a halluciné",
+      "text": "L'assistant interne a expliqué à un client la procédure de remboursement de 2011, avec beaucoup d'assurance. Elle n'existe plus depuis 2014.",
+      "choices": [
+        { "label": "Nettoyer et dater les sources documentaires", "effects": { "data_quality": 4, "budget": -1, "ai_maturity": 2 }, "result": "Les documents obsolètes sont archivés. L'assistant cite désormais des sources à jour." },
+        { "label": "Ajouter un avertissement", "effects": { "user_sat": -2 }, "result": "« Les réponses peuvent contenir des erreurs. » Comme tout le monde, finalement." },
+        { "label": "Évaluation systématique des réponses", "requires": { "tech": "ai_guardrails" }, "effects": { "ai_maturity": 3, "user_sat": 2 }, "result": "Un jeu de tests d'évaluation tourne chaque nuit. L'hallucination de 2011 est devenue un cas de test." }
+      ] },
+    { "id": "open_source_vuln", "kind": "incident", "room": "soc", "speaker": "soc", "weight": 0.8, "repeatable": true, "cooldown": 9, "weight_by": { "security": -1.2 },
+      "title": "Dépendance open source vulnérable",
+      "text": "Une bibliothèque open source maintenue par une seule personne, bénévole, est utilisée par 200 de vos applications. Elle a une faille. Le mainteneur est en vacances.",
+      "choices": [
+        { "label": "Ouvrir la WAR ROOM", "minigame": { "type": "war_room", "scenario": "supply_chain" } },
+        { "label": "Corriger et reverser le correctif", "effects": { "security": 3, "make": 1, "attractiveness": 2, "velocity": -1 }, "result": "Votre équipe corrige et propose le patch. Le mainteneur, de retour, dit merci. Vous existez dans l'open source." },
+        { "label": "Financer le mainteneur", "effects": { "budget": -1, "security": 2, "sovereignty": 1 }, "result": "Un parrainage mensuel. Le mainteneur peut enfin réduire son temps partiel. Tout le monde y gagne." }
+      ] },
+    { "id": "github_token", "kind": "incident", "room": "soc", "speaker": "rssi", "weight": 0.5, "conditions": { "tech": "git" }, "weight_by": { "security": -1 },
+      "title": "Un token a fuité",
+      "text": "Un token d'accès à vos dépôts a été publié sur un dépôt public. Des accès inhabituels sont en cours.",
+      "choices": [
+        { "label": "Ouvrir la WAR ROOM", "minigame": { "type": "war_room", "scenario": "token_leak" } },
+        { "label": "Révoquer le token et scanner tous les dépôts", "effects": { "security": 2, "velocity": -2 }, "result": "47 autres secrets trouvés dans le code. Un gestionnaire de secrets est commandé." }
+      ] },
+    { "id": "bucket_exposed", "kind": "incident", "room": "cloud", "speaker": "rssi", "weight": 0.7, "conditions": { "cloud": true }, "weight_by": { "security": -1 },
+      "title": "Un stockage cloud est public",
+      "text": "Un chercheur en sécurité vous signale un espace de stockage cloud lisible publiquement. Il contient des exports clients.",
+      "choices": [
+        { "label": "Ouvrir la WAR ROOM", "minigame": { "type": "war_room", "scenario": "bucket_public" } },
+        { "label": "Fermer l'accès et remercier le chercheur", "effects": { "security": 1, "comex": -2 }, "result": "Accès fermé. Le chercheur publie un article élogieux sur votre réactivité. Et un peu moins sur la configuration." }
+      ] },
+    { "id": "lakehouse_vs_swamp", "kind": "architecture", "room": "data", "speaker": "data", "weight": 0.7, "conditions": { "year_min": 2, "no_tech": "data_lake" },
+      "title": "Data Lake ou Data Warehouse ?",
+      "text": "« Les métiers veulent des données fraîches. Le warehouse de 2009 met 4 jours. On fait un Data Lake ? Attention, sans gouvernance, ça tourne au marécage. »",
+      "choices": [
+        { "label": "Data Lake maintenant", "start_project": "data_lake", "effects": { "comex": 2 }, "result": "Le lac se remplit. La gouvernance attendra. Vraiment ?" },
+        { "label": "Gouvernance d'abord", "requires": { "no_tech": "data_catalog" }, "start_project": "data_governance", "result": "Moins glamour. Beaucoup plus solide." },
+        { "label": "Optimiser le warehouse existant", "effects": { "data_quality": 2, "velocity": 1, "budget": -1 }, "result": "Le Cube passe de 4 jours à 4 heures. Le Cube est fier." }
+      ] },
+    { "id": "office_choice", "kind": "architecture", "room": "dsi", "speaker": "dg", "weight": 0.6, "conditions": { "year_min": 2, "flags": "office_study" },
+      "title": "Le choix de la suite collaborative",
+      "text": "L'étude est terminée. Options : rester sur la suite actuelle, passer à une suite open source hébergée, ou une suite collaborative française. Les métiers veulent juste « que ça marche ».",
+      "choices": [
+        { "label": "Rester : l'adoption avant tout", "effects": { "user_sat": 2, "vendor_dep": 2 }, "clear_flag": "office_study", "result": "Personne ne change d'outil. C'est parfois la meilleure décision." },
+        { "label": "Migrer vers une suite open source", "requires": { "min": { "make": 35 } }, "start_project": "migrate_office_os", "clear_flag": "office_study", "result": "Le projet démarre. Les macros de la compta sont identifiées comme « risque majeur »." },
+        { "label": "Hybride : collaboration souveraine pour les données sensibles", "effects": { "sovereignty": 4, "complexity": 3, "budget": -2 }, "clear_flag": "office_study", "result": "Les documents sensibles vont sur une suite française. Le reste ne bouge pas. Deux outils, deux habitudes." }
+      ] },
+    { "id": "pair_hire_k8s", "kind": "event", "room": "devs", "speaker": "dev", "weight": 0.7, "conditions": { "tech": "kubernetes", "max": { "devops_maturity": 50 } },
+      "title": "Kubernetes : la complexité monte",
+      "text": "« On a 14 clusters, 3 service mesh, 2 ingress controllers et personne ne sait lequel est en prod. » Kubernetes sans compétences, c'est de la complexité pure.",
+      "choices": [
+        { "label": "Recruter un·e Platform Engineer", "minigame": { "type": "recruit", "role": "platform" } },
+        { "label": "Consolider sur un seul cluster managé", "effects": { "complexity": -6, "vendor_dep": 3, "budget": -2 }, "result": "Un cluster managé. Moins de liberté, beaucoup moins de nuits blanches." },
+        { "label": "Former toute l'équipe", "effects": { "devops_maturity": 6, "budget": -2, "velocity": -2 }, "result": "Deux semaines de formation. L'équipe sait maintenant pourquoi il y avait 3 service mesh. Elle en garde un." }
+      ] }
+  ]
+}

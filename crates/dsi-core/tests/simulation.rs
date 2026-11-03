@@ -1,0 +1,508 @@
+//! Tests de la simulation : contenu, règles économiques, événements, contrats,
+//! négociation, recrutement, war room, sauvegarde, score et campagne complète.
+
+use dsi_core::content::Content;
+use dsi_core::effects::Minigame;
+use dsi_core::game::{self, Command};
+use dsi_core::security::WarAction;
+use dsi_core::state::{Active, GameState, Inbox, Metric, Profile};
+use dsi_core::{save, score};
+
+fn content() -> Content {
+    Content::load().expect("les données doivent se charger")
+}
+
+fn new(seed: u64) -> (Content, GameState) {
+    let c = content();
+    let s = game::new_game(&c, seed, Profile::default());
+    (c, s)
+}
+
+/// Joue une scène active avec une stratégie simple (index de choix `pick`).
+fn resolve_active(c: &Content, s: &mut GameState, pick: usize) {
+    for _ in 0..40 {
+        let Some(a) = s.active.clone() else { return };
+        let r = match a {
+            Active::Event { id } => {
+                let def = c.event(&id).unwrap();
+                let n = def.choices.len();
+                let mut ok = Err(game::GameError::Busy);
+                for k in 0..n {
+                    ok = game::apply(c, s, Command::Choose((pick + k) % n));
+                    if ok.is_ok() {
+                        break;
+                    }
+                }
+                ok
+            }
+            Active::Renewal { .. } => game::apply(c, s, Command::Choose(pick % 2)),
+            Active::Negotiation(n) => {
+                if n.rounds_left > 0 && !n.hand.is_empty() {
+                    let card = n.hand.iter().find(|h| !n.played.contains(h)).cloned();
+                    match card {
+                        Some(card) => game::apply(c, s, Command::PlayCard(card))
+                            .or_else(|_| game::apply(c, s, Command::Conclude)),
+                        None => game::apply(c, s, Command::Conclude),
+                    }
+                } else {
+                    game::apply(c, s, Command::Conclude)
+                }
+            }
+            Active::Interview(iv) => {
+                if iv.gone || iv.step >= iv.questions.len() {
+                    game::apply(c, s, Command::MakeOffer(Some(1)))
+                } else {
+                    let n = dsi_core::people::current_question(c, &iv)
+                        .map(|q| q.answers.len())
+                        .unwrap_or(1);
+                    game::apply(c, s, Command::Answer((pick % 2 + 1).min(n - 1)))
+                }
+            }
+            Active::WarRoom(w) => {
+                if dsi_core::security::done(&w) {
+                    game::apply(c, s, Command::WarClose)
+                } else {
+                    let order = [
+                        WarAction::InformComex,
+                        WarAction::Isolate,
+                        WarAction::Investigate,
+                        WarAction::Patch,
+                        WarAction::Restore,
+                        WarAction::Communicate,
+                    ];
+                    let i = 6 - w.hours_left as usize;
+                    game::apply(c, s, Command::War(order[i.min(5)]))
+                }
+            }
+            _ => game::apply(c, s, Command::Continue),
+        };
+        r.expect("commande valide");
+    }
+}
+
+/// Joue une partie complète ; renvoie l'état final.
+fn play(seed: u64, pick: usize) -> GameState {
+    let (c, mut s) = new(seed);
+    for _ in 0..1500 {
+        if s.finished() {
+            break;
+        }
+        if s.active.is_some() {
+            resolve_active(&c, &mut s, pick);
+            continue;
+        }
+        if !s.inbox.is_empty() {
+            game::apply(&c, &mut s, Command::Open(0)).unwrap();
+            continue;
+        }
+        // Utilise l'agenda : un projet si possible, sinon une action.
+        if s.agenda > 0 {
+            let p = c
+                .projects
+                .iter()
+                .find(|p| p.catalog && dsi_core::projects::can_start(&c, &s, &p.id).is_ok())
+                .map(|p| p.id.clone());
+            if let Some(p) = p
+                && s.m(Metric::Budget) > 25.0
+            {
+                game::apply(&c, &mut s, Command::StartProject(p)).unwrap();
+                continue;
+            }
+            let a = c
+                .actions
+                .iter()
+                .find(|a| {
+                    a.requires.met(&s)
+                        && s.actions_done
+                            .get(&a.id)
+                            .is_none_or(|t| s.turn() >= t + a.cooldown.max(1))
+                })
+                .map(|a| a.id.clone());
+            if let Some(a) = a
+                && game::apply(&c, &mut s, Command::DoAction(a)).is_ok()
+            {
+                continue;
+            }
+        }
+        game::apply(&c, &mut s, Command::AdvanceMonth).unwrap();
+    }
+    s
+}
+
+#[test]
+fn le_contenu_est_valide() {
+    let c = content();
+    let errs = c.validate();
+    assert!(errs.is_empty(), "erreurs de contenu :\n{}", errs.join("\n"));
+    assert!(
+        c.events.len() >= 60,
+        "au moins 60 événements ({})",
+        c.events.len()
+    );
+    assert!(c.vendors.len() >= 5);
+    assert!(c.techs.len() >= 5);
+    assert!(c.projects.len() >= 3);
+}
+
+#[test]
+fn la_campagne_annee_1_suit_le_scenario() {
+    let c = content();
+    for (m, id) in [
+        (1, "dg_welcome"),
+        (2, "audit_si"),
+        (3, "vmware_price"),
+        (4, "m365_meeting"),
+        (5, "cve_mai"),
+        (6, "architect_leaves"),
+        (7, "budget_cut"),
+        (8, "datacenter_clim"),
+        (9, "cloud_proposal"),
+        (10, "acquisition"),
+        (11, "erp_wars"),
+        (12, "comex_annuel_1"),
+    ] {
+        let e = c.event(id).unwrap_or_else(|| panic!("{id} manquant"));
+        let at = e.at.expect("scripté");
+        assert_eq!((at.year, at.month), (1, m), "{id}");
+    }
+}
+
+#[test]
+fn une_nouvelle_partie_commence_en_janvier_avec_la_dg() {
+    let (_, s) = new(1);
+    assert_eq!((s.cal.year, s.cal.month), (1, 1));
+    assert!(
+        s.inbox
+            .iter()
+            .any(|i| matches!(i, Inbox::Event { id } if id == "dg_welcome"))
+    );
+    assert!(s.has_tech("vmware") && s.has_tech("cobol"));
+    assert!(
+        s.contracts
+            .iter()
+            .any(|c| c.id == "vmware_vsphere" && c.active)
+    );
+    assert!(s.baseline_run > 5.0);
+}
+
+#[test]
+fn on_ne_peut_pas_passer_le_mois_avec_des_sujets_en_attente() {
+    let (c, mut s) = new(2);
+    assert!(game::apply(&c, &mut s, Command::AdvanceMonth).is_err());
+}
+
+#[test]
+fn les_choix_ont_des_effets_et_les_consequences_sont_differees() {
+    let (c, mut s) = new(3);
+    let i = s
+        .inbox
+        .iter()
+        .position(|x| matches!(x, Inbox::Event { id } if id == "dg_welcome"))
+        .unwrap();
+    game::apply(&c, &mut s, Command::Open(i)).unwrap();
+    let comex = s.m(Metric::Comex);
+    game::apply(&c, &mut s, Command::Choose(0)).unwrap(); // « Promettre les deux »
+    assert!(s.m(Metric::Comex) > comex);
+    assert!(
+        s.scheduled.iter().any(|x| x.due == 6),
+        "conséquence programmée en juillet"
+    );
+    assert!(matches!(s.active, Some(Active::Result(_))));
+}
+
+#[test]
+fn le_temps_avance_et_l_economie_tourne() {
+    let (c, mut s) = new(4);
+    s.inbox.clear();
+    let debt = s.m(Metric::Debt);
+    game::apply(&c, &mut s, Command::AdvanceMonth).unwrap();
+    assert_eq!(s.cal.month, 2);
+    assert!(s.m(Metric::Debt) > debt, "la dette monte toute seule");
+    assert_eq!(s.agenda, s.agenda_max);
+}
+
+#[test]
+fn le_cout_de_fonctionnement_pese_sur_le_budget() {
+    let (c, mut s) = new(5);
+    let before = dsi_core::economy::monthly_balance(&c, &s);
+    s.contracts.iter_mut().for_each(|x| x.monthly_cost *= 2.0);
+    let after = dsi_core::economy::monthly_balance(&c, &s);
+    assert!(after < before);
+}
+
+#[test]
+fn les_projets_avancent_et_se_livrent() {
+    let (c, mut s) = new(6);
+    s.inbox.clear();
+    game::apply(&c, &mut s, Command::StartProject("forge".into())).unwrap();
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    assert_eq!(s.agenda, s.agenda_max - 1);
+    for _ in 0..8 {
+        s.inbox.clear();
+        s.active = None;
+        game::apply(&c, &mut s, Command::AdvanceMonth).unwrap();
+        if s.done_projects.contains("forge") {
+            break;
+        }
+    }
+    assert!(s.done_projects.contains("forge"));
+    assert!(s.has_tech("git") && !s.has_tech("svn"));
+}
+
+#[test]
+fn trois_projets_maximum() {
+    let (c, mut s) = new(7);
+    s.inbox.clear();
+    s.metrics.set(Metric::Budget, 90.0);
+    s.agenda = 6;
+    for p in ["forge", "pra", "cartographie"] {
+        game::apply(&c, &mut s, Command::StartProject(p.into())).unwrap();
+        game::apply(&c, &mut s, Command::Continue).unwrap();
+    }
+    assert!(game::apply(&c, &mut s, Command::StartProject("sso_mfa".into())).is_err());
+}
+
+#[test]
+fn negociation_anticipee_donne_un_pre_accord() {
+    let (c, mut s) = new(8);
+    s.inbox.clear();
+    // Mars : VMware renouvelle en juin.
+    s.cal = dsi_core::state::Calendar { year: 1, month: 3 };
+    game::apply(&c, &mut s, Command::Negotiate("vmware_vsphere".into())).unwrap();
+    let Some(Active::Negotiation(n)) = s.active.clone() else {
+        panic!()
+    };
+    assert!(n.early && n.months_left == 3);
+    let lev = n.leverage;
+    game::apply(&c, &mut s, Command::PlayCard("achats".into())).unwrap();
+    let Some(Active::Negotiation(n2)) = s.active.clone() else {
+        panic!()
+    };
+    assert!(n2.leverage >= lev - 30.0);
+    game::apply(&c, &mut s, Command::Conclude).unwrap();
+    let ct = s
+        .contracts
+        .iter()
+        .find(|x| x.id == "vmware_vsphere")
+        .unwrap();
+    assert!(ct.pre_deal.is_some());
+}
+
+#[test]
+fn attendre_j2_coute_cher() {
+    let (c, mut s) = new(9);
+    s.cal = dsi_core::state::Calendar { year: 1, month: 6 };
+    let early = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true).unwrap();
+    s.cal = dsi_core::state::Calendar { year: 1, month: 3 };
+    let early3 = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true).unwrap();
+    assert!(
+        early3.leverage > early.leverage + 30.0,
+        "{} vs {}",
+        early3.leverage,
+        early.leverage
+    );
+}
+
+#[test]
+fn le_renouvellement_arrive_a_echeance() {
+    let (c, mut s) = new(10);
+    for _ in 0..6 {
+        s.inbox.retain(|i| {
+            !matches!(
+                i,
+                Inbox::Event { .. } | Inbox::Chapter { .. } | Inbox::Consequence { .. }
+            )
+        });
+        if s.inbox
+            .iter()
+            .any(|i| matches!(i, Inbox::Renewal { contract } if contract == "vmware_vsphere"))
+        {
+            break;
+        }
+        s.inbox.clear();
+        s.active = None;
+        game::apply(&c, &mut s, Command::AdvanceMonth).unwrap();
+    }
+    assert!(
+        s.inbox
+            .iter()
+            .any(|i| matches!(i, Inbox::Renewal { contract } if contract == "vmware_vsphere"))
+    );
+    let idx = s
+        .inbox
+        .iter()
+        .position(|i| matches!(i, Inbox::Renewal { .. }))
+        .unwrap();
+    let cost = s
+        .contracts
+        .iter()
+        .find(|x| x.id == "vmware_vsphere")
+        .unwrap()
+        .monthly_cost;
+    game::apply(&c, &mut s, Command::Open(idx)).unwrap();
+    game::apply(&c, &mut s, Command::Choose(1)).unwrap(); // accepter
+    let after = s
+        .contracts
+        .iter()
+        .find(|x| x.id == "vmware_vsphere")
+        .unwrap();
+    assert!(after.monthly_cost > cost * 1.5);
+    assert!(after.next_renewal > s.turn());
+}
+
+#[test]
+fn recrutement_java_8_fait_fuir_le_candidat() {
+    let (c, mut s) = new(11);
+    let mut iv = dsi_core::people::start(&c, &mut s, "senior").unwrap();
+    iv.questions = vec!["java".into(), "remote".into(), "stack".into()];
+    dsi_core::people::answer(&c, &mut s, &mut iv, 0);
+    assert!(iv.gone);
+    let r = dsi_core::people::offer(&c, &mut s, &iv, Some(2));
+    assert!(r.title.contains("échec"));
+    assert!(s.team.is_empty());
+}
+
+#[test]
+fn recrutement_genereux_finit_par_embaucher() {
+    let c = content();
+    let mut hired = 0;
+    for seed in 0..20 {
+        let mut s = game::new_game(&c, seed, Profile::default());
+        s.metrics.set(Metric::Attractiveness, 70.0);
+        let mut iv = dsi_core::people::start(&c, &mut s, "junior").unwrap();
+        while iv.step < iv.questions.len() && !iv.gone {
+            let q = dsi_core::people::current_question(&c, &iv).unwrap();
+            let best = (0..q.answers.len())
+                .max_by(|a, b| q.answers[*a].interest.total_cmp(&q.answers[*b].interest))
+                .unwrap();
+            dsi_core::people::answer(&c, &mut s, &mut iv, best);
+        }
+        dsi_core::people::offer(&c, &mut s, &iv, Some(2));
+        hired += s.team.len();
+    }
+    assert!(hired >= 10, "{hired}/20");
+}
+
+#[test]
+fn war_room_bien_menee_vaut_mieux_que_le_chaos() {
+    let c = content();
+    let mut good = game::new_game(&c, 12, Profile::default());
+    let mut bad = good.clone();
+    let mut w = dsi_core::security::start(&c, &good, "ransomware").unwrap();
+    for a in [
+        WarAction::InformComex,
+        WarAction::Isolate,
+        WarAction::Investigate,
+        WarAction::Patch,
+        WarAction::Restore,
+        WarAction::Communicate,
+    ] {
+        dsi_core::security::act(&c, &mut good, &mut w, a);
+    }
+    dsi_core::security::close(&c, &mut good, &w);
+    let mut w2 = dsi_core::security::start(&c, &bad, "ransomware").unwrap();
+    for _ in 0..6 {
+        dsi_core::security::act(&c, &mut bad, &mut w2, WarAction::Restore);
+    }
+    dsi_core::security::close(&c, &mut bad, &w2);
+    assert!(good.m(Metric::Comex) > bad.m(Metric::Comex));
+    assert!(good.m(Metric::Security) > bad.m(Metric::Security));
+}
+
+#[test]
+fn sauvegarde_aller_retour() {
+    let (c, mut s) = new(13);
+    game::apply(&c, &mut s, Command::Open(0)).unwrap();
+    let json = save::to_json(&s).unwrap();
+    let back = save::from_json(&json).unwrap();
+    assert_eq!(back, s);
+    assert!(save::from_json("{}").is_err());
+}
+
+#[test]
+fn meme_graine_meme_partie() {
+    let a = play(42, 0);
+    let b = play(42, 0);
+    assert_eq!(save::to_json(&a).unwrap(), save::to_json(&b).unwrap());
+}
+
+#[test]
+fn score_et_classement() {
+    let (_, mut s) = new(14);
+    for m in Metric::ALL {
+        s.metrics.set(m, if m.inverted() { 0.0 } else { 100.0 });
+    }
+    assert_eq!(score::score(&s), 100);
+    assert_eq!(score::rank(97), "Vous avez probablement triché.");
+    assert_eq!(score::rank(10), "Directeur du PowerPoint");
+    assert_eq!(score::ending(&s).id, "pragmatic");
+}
+
+#[test]
+fn game_over_quand_le_comex_lache() {
+    let (c, mut s) = new(15);
+    game::apply(&c, &mut s, Command::DebugSet(Metric::Comex, 0.0)).unwrap();
+    s.check_game_over();
+    assert_eq!(s.over, Some(dsi_core::state::GameOver::Fired));
+    assert!(game::apply(&c, &mut s, Command::AdvanceMonth).is_err());
+}
+
+#[test]
+fn kubernetes_sans_competences_augmente_la_complexite() {
+    let (c, mut s) = new(16);
+    s.techs.insert("kubernetes".into());
+    s.metrics.set(Metric::DevopsMaturity, 10.0);
+    let cx = s.m(Metric::Complexity);
+    dsi_core::technology::monthly(&c, &mut s);
+    assert!(s.m(Metric::Complexity) > cx + 0.5);
+    let mut s2 = s.clone();
+    s2.metrics.set(Metric::DevopsMaturity, 70.0);
+    s2.metrics.set(Metric::Make, 60.0);
+    let v = s2.m(Metric::Velocity);
+    dsi_core::technology::monthly(&c, &mut s2);
+    assert!(s2.m(Metric::Velocity) > v);
+}
+
+#[test]
+fn les_mini_jeux_sont_branches() {
+    let c = content();
+    let mut kinds = std::collections::BTreeSet::new();
+    for e in &c.events {
+        for ch in &e.choices {
+            if let Some(m) = &ch.outcome.minigame {
+                kinds.insert(match m {
+                    Minigame::Negotiation { .. } => "nego",
+                    Minigame::Recruit { .. } => "recrue",
+                    Minigame::WarRoom { .. } => "warroom",
+                });
+            }
+        }
+    }
+    assert_eq!(kinds.len(), 3);
+}
+
+#[test]
+fn des_parties_completes_se_terminent() {
+    let mut endings = 0;
+    let mut overs = 0;
+    for seed in 0..12 {
+        let s = play(seed, (seed % 3) as usize);
+        assert!(
+            s.finished() || s.cal.year >= 3,
+            "la partie {seed} n'avance pas : {:?} active={:?} inbox={:?} agenda={}",
+            s.cal,
+            s.active
+                .as_ref()
+                .map(|a| format!("{a:?}").chars().take(300).collect::<String>()),
+            s.inbox,
+            s.agenda
+        );
+        if s.ending.is_some() {
+            endings += 1;
+        }
+        if s.over.is_some() {
+            overs += 1;
+        }
+    }
+    assert!(endings + overs >= 10, "fins {endings}, défaites {overs}");
+}

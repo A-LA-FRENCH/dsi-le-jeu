@@ -1,0 +1,7 @@
+/target
+/dist
+/dist-release
+/smoke-shots
+__pycache__/
+*.pyc
+.DS_Store

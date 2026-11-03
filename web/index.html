@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>DSI — Le Jeu</title>
+  <meta name="description" content="Jeu de gestion satirique : survivez trois ans comme DSI d'un grand groupe français. Dette technique, licences, ESN, cloud, Kubernetes, IA et agents.">
+  <meta name="theme-color" content="#0d1017">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="stage">
+    <canvas id="game-canvas" tabindex="0" aria-label="DSI — Le Jeu"></canvas>
+
+    <section id="boot" aria-live="polite">
+      <div class="boot-card">
+        <p class="kicker">LE JEU · DIRECTION DES SYSTÈMES D'INFORMATION</p>
+        <h1>DSI <span class="y">—</span> LE JEU</h1>
+        <p class="tagline">« Votre SI date de 1998. Votre budget vient d'être coupé de 15 %. Bonne chance. »</p>
+
+        <div id="progress" class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="bar"><div class="fill" id="fill"></div></div>
+          <p class="status" id="status">Vérification de votre navigateur…</p>
+        </div>
+
+        <div id="incompatible" class="incompatible" hidden>
+          <h2>Ticket refusé : navigateur non conforme</h2>
+          <p id="incompatible-reason"></p>
+          <p>Le jeu a besoin de <b>WebAssembly</b> et de <b>WebGPU</b> ou <b>WebGL2</b>.
+            Navigateurs compatibles : Chrome / Edge 113+, Firefox 115+, Safari 17+ (desktop).
+            Vérifiez aussi que l'accélération matérielle est activée.</p>
+          <p class="small">Statut du ticket : « En attente de retour utilisateur ». Priorité : P3.</p>
+        </div>
+
+        <div id="crash" class="incompatible" hidden>
+          <h2>INCIDENT P1</h2>
+          <p>Le jeu a rencontré une erreur. Rechargez la page ; votre partie est sauvegardée automatiquement.</p>
+          <pre id="crash-detail"></pre>
+          <button type="button" onclick="location.reload()">Recharger</button>
+        </div>
+
+        <p class="small disclaimer">Œuvre satirique et fictive. Les sociétés citées ne sont ni partenaires ni associées au jeu. Les situations commerciales représentées sont fictives.</p>
+        <p class="renderer small" id="renderer"></p>
+      </div>
+    </section>
+  </main>
+  <noscript><p class="noscript">DSI — Le Jeu a besoin de JavaScript pour charger son moteur WebAssembly.</p></noscript>
+  <script type="module" src="loader.js"></script>
+</body>
+</html>
