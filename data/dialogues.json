@@ -1,85 +1,430 @@
 {
   "disclaimer": "Ce jeu est une œuvre satirique et fictive. Les sociétés citées ne sont ni partenaires ni associées au jeu. Les situations commerciales représentées sont fictives.",
   "characters": [
-    { "id": "dg", "name": "Hélène Varenne", "role": "Directrice générale", "color": "#f6a23c", "portrait": 0 },
-    { "id": "daf", "name": "Bertrand Lemaire", "role": "Directeur administratif et financier", "color": "#fad65c", "portrait": 1 },
-    { "id": "rssi", "name": "Nadia Benali", "role": "RSSI", "color": "#e45b5b", "portrait": 2 },
-    { "id": "dircom", "name": "Marc-Antoine Delorme", "role": "Directeur commercial", "color": "#6ea0e6", "portrait": 3 },
-    { "id": "drh", "name": "Sylvie Rochard", "role": "DRH", "color": "#d58ad8", "portrait": 4 },
-    { "id": "dev", "name": "Thomas Nguyen", "role": "Développeur senior (sait où est le problème)", "color": "#7cff52", "portrait": 5 },
-    { "id": "consultant", "name": "Grégoire de Valmont", "role": "Associé, cabinet Strateos Partners", "color": "#b9c3ff", "portrait": 6 },
-    { "id": "vendor", "name": "Jean-Christophe", "role": "Key Account Manager", "color": "#ffb36b", "portrait": 7 },
-    { "id": "esn", "name": "Ludovic", "role": "Business Manager ESN", "color": "#ffd88a", "portrait": 8 },
-    { "id": "archi", "name": "Patrick Combes", "role": "Architecte principal (depuis 1997)", "color": "#9fd3c7", "portrait": 9 },
-    { "id": "achats", "name": "Isabelle Moreau", "role": "Directrice des achats", "color": "#c7e07b", "portrait": 10 },
-    { "id": "soc", "name": "Yanis", "role": "Analyste SOC (de nuit, toujours)", "color": "#ff7b7b", "portrait": 11 },
-    { "id": "data", "name": "Clara Fontaine", "role": "Head of Data", "color": "#7be0e0", "portrait": 12 },
-    { "id": "notif", "name": "Notification", "role": "Messagerie interne", "color": "#8c968e", "portrait": 13 }
+    {
+      "id": "dg",
+      "name": "Hélène Varenne",
+      "role": "Directrice générale",
+      "color": "#f6a23c",
+      "portrait": 0
+    },
+    {
+      "id": "daf",
+      "name": "Bertrand Lemaire",
+      "role": "Directeur administratif et financier",
+      "color": "#fad65c",
+      "portrait": 1
+    },
+    {
+      "id": "rssi",
+      "name": "Nadia Benali",
+      "role": "RSSI",
+      "color": "#e45b5b",
+      "portrait": 2
+    },
+    {
+      "id": "dircom",
+      "name": "Marc-Antoine Delorme",
+      "role": "Directeur commercial",
+      "color": "#6ea0e6",
+      "portrait": 3
+    },
+    {
+      "id": "drh",
+      "name": "Sylvie Rochard",
+      "role": "DRH",
+      "color": "#d58ad8",
+      "portrait": 4
+    },
+    {
+      "id": "dev",
+      "name": "Thomas Nguyen",
+      "role": "Développeur senior (sait où est le problème)",
+      "color": "#7cff52",
+      "portrait": 5
+    },
+    {
+      "id": "consultant",
+      "name": "Grégoire de Valmont",
+      "role": "Associé, cabinet Strateos Partners",
+      "color": "#b9c3ff",
+      "portrait": 6
+    },
+    {
+      "id": "vendor",
+      "name": "Jean-Christophe",
+      "role": "Key Account Manager",
+      "color": "#ffb36b",
+      "portrait": 7
+    },
+    {
+      "id": "esn",
+      "name": "Ludovic",
+      "role": "Business Manager ESN",
+      "color": "#ffd88a",
+      "portrait": 8
+    },
+    {
+      "id": "archi",
+      "name": "Patrick Combes",
+      "role": "Architecte principal (depuis 1997)",
+      "color": "#9fd3c7",
+      "portrait": 9
+    },
+    {
+      "id": "achats",
+      "name": "Isabelle Moreau",
+      "role": "Directrice des achats",
+      "color": "#c7e07b",
+      "portrait": 10
+    },
+    {
+      "id": "soc",
+      "name": "Yanis",
+      "role": "Analyste SOC (de nuit, toujours)",
+      "color": "#ff7b7b",
+      "portrait": 11
+    },
+    {
+      "id": "data",
+      "name": "Clara Fontaine",
+      "role": "Head of Data",
+      "color": "#7be0e0",
+      "portrait": 12
+    },
+    {
+      "id": "notif",
+      "name": "Notification",
+      "role": "Messagerie interne",
+      "color": "#8c968e",
+      "portrait": 13
+    }
   ],
   "backgrounds": [
-    { "id": "ex_dev", "label": "Ex-développeur·se", "desc": "Vous savez lire une stack trace. Le COMEX, lui, se méfie un peu.", "effects": { "make": 6, "dev_sat": 8, "comex": -6 } },
-    { "id": "ex_consultant", "label": "Ex-consultant·e Big Four", "desc": "Vous parlez couramment le PowerPoint. Les développeurs aussi se méfient.", "effects": { "comex": 10, "dev_sat": -8, "vendor_dep": 3 } },
-    { "id": "ex_esn", "label": "Ex-directeur·rice d'agence ESN", "desc": "Vous connaissez les TJM par cœur, des deux côtés de la table.", "effects": { "vendor_dep": -6, "budget": 4, "attractiveness": -3 } },
-    { "id": "ex_ops", "label": "Ex-ingénieur·e infrastructure", "desc": "Vous avez dormi dans un datacenter. Deux fois. Par choix.", "effects": { "uptime": 6, "resilience": 8, "velocity": -4 } }
+    {
+      "id": "ex_dev",
+      "label": "Ex-développeur·se",
+      "desc": "Vous savez lire une stack trace. Le COMEX, lui, se méfie un peu.",
+      "effects": {
+        "make": 6,
+        "dev_sat": 8,
+        "comex": -6
+      }
+    },
+    {
+      "id": "ex_consultant",
+      "label": "Ex-consultant·e Big Four",
+      "desc": "Vous parlez couramment le PowerPoint. Les développeurs aussi se méfient.",
+      "effects": {
+        "comex": 10,
+        "dev_sat": -8,
+        "vendor_dep": 3
+      }
+    },
+    {
+      "id": "ex_esn",
+      "label": "Ex-directeur·rice d'agence ESN",
+      "desc": "Vous connaissez les TJM par cœur, des deux côtés de la table.",
+      "effects": {
+        "vendor_dep": -6,
+        "budget": 4,
+        "attractiveness": -3
+      }
+    },
+    {
+      "id": "ex_ops",
+      "label": "Ex-ingénieur·e infrastructure",
+      "desc": "Vous avez dormi dans un datacenter. Deux fois. Par choix.",
+      "effects": {
+        "uptime": 6,
+        "resilience": 8,
+        "velocity": -4
+      }
+    }
   ],
   "chapters": [
-    { "at": { "year": 1, "month": 1 }, "title": "Chapitre 1 — Le SI hérité", "subtitle": "Comprendre le SI avant qu'il ne s'effondre.", "lines": [
-      { "speaker": "dg", "text": "Bienvenue {dsi}. Je compte sur vous pour réduire les coûts de 15 % tout en accélérant la transformation digitale." },
-      { "speaker": "daf", "text": "Et en recrutant moins. Au passage : pourquoi payons-nous autant de licences ?" },
-      { "speaker": "dev", "text": "Le vrai problème, c'est le batch de 3 h du matin. Mais bon, personne ne m'écoute." }
-    ] },
-    { "at": { "year": 1, "month": 5 }, "title": "Chapitre 2 — Les failles", "subtitle": "Le SI tient. Pour l'instant.", "lines": [
-      { "speaker": "rssi", "text": "J'ai besoin de votre attention. Et d'un budget. Surtout d'un budget." },
-      { "speaker": "archi", "text": "J'ai une annonce à faire, mais ça peut attendre juin." }
-    ] },
-    { "at": { "year": 1, "month": 9 }, "title": "Chapitre 3 — Cloud & fusions", "subtitle": "Tous nos concurrents y sont. Paraît-il.", "lines": [
-      { "speaker": "dg", "text": "J'ai lu un article dans l'avion. Nous devons aller dans le cloud." },
-      { "speaker": "dircom", "text": "Et on rachète une boîte en octobre. Rien à voir. Enfin, si, un peu." }
-    ] },
-    { "at": { "year": 2, "month": 1 }, "title": "Chapitre 4 — La guerre des licences", "subtitle": "Les renouvellements arrivent tous en même temps. Comme par hasard.", "lines": [
-      { "speaker": "achats", "text": "Trois contrats majeurs arrivent à échéance cette année. Je vous conseille de négocier tôt." },
-      { "speaker": "vendor", "text": "Bonne nouvelle : nous avons simplifié notre tarification." }
-    ] },
-    { "at": { "year": 2, "month": 5 }, "title": "Chapitre 5 — L'ESN et le MAKE", "subtitle": "Votre SI dépend de 18 ESN. Qui connaît encore ce système ?", "lines": [
-      { "speaker": "esn", "text": "Nous avons exactement le profil." },
-      { "speaker": "dev", "text": "Si on construisait nous-mêmes ce qui nous différencie ? Juste ça. Pas la paie, hein." }
-    ] },
-    { "at": { "year": 2, "month": 9 }, "title": "Chapitre 6 — Conteneurs & Kubernetes", "subtitle": "Remplacer douze problèmes simples par un problème distribué.", "lines": [
-      { "speaker": "dev", "text": "Docker, c'est bien. Kubernetes, c'est bien si on sait s'en servir." },
-      { "speaker": "dg", "text": "Les deux mots sont dans le rapport annuel du concurrent. On les veut." }
-    ] },
-    { "at": { "year": 3, "month": 1 }, "title": "Chapitre 7 — Data & ERP Wars", "subtitle": "14 Po de données. Personne ne sait ce qu'il y a dedans.", "lines": [
-      { "speaker": "data", "text": "On a centralisé toutes les données. La question, maintenant : qui sait ce qu'elles signifient ?" },
-      { "speaker": "consultant", "text": "J'ai un framework en neuf cases pour ça. Le dixième est payant." }
-    ] },
-    { "at": { "year": 3, "month": 5 }, "title": "Chapitre 8 — IA & vibe coding", "subtitle": "L'IA accélère tout. Y compris la dette.", "lines": [
-      { "speaker": "dg", "text": "Où en est notre stratégie IA ? Le conseil d'administration demande. Moi aussi." },
-      { "speaker": "dev", "text": "On produit trois fois plus de code. Je ne suis pas sûr qu'on en comprenne trois fois plus." }
-    ] },
-    { "at": { "year": 3, "month": 9 }, "title": "Chapitre 9 — Agents, MCP & contexte", "subtitle": "Le principal actif devient le contexte.", "lines": [
-      { "speaker": "rssi", "text": "Les agents peuvent appeler nos outils internes. Qui leur a donné les droits ?" },
-      { "speaker": "data", "text": "Un agent sans contexte, c'est un stagiaire très rapide et très sûr de lui." }
-    ] }
+    {
+      "at": {
+        "year": 1,
+        "month": 1
+      },
+      "title": "Chapitre 1 — Le SI hérité",
+      "subtitle": "Comprendre le SI avant qu'il ne s'effondre.",
+      "lines": [
+        {
+          "speaker": "dg",
+          "text": "Bienvenue {dsi}. Je compte sur vous pour réduire les coûts de 15 % tout en accélérant la transformation digitale."
+        },
+        {
+          "speaker": "daf",
+          "text": "Et en recrutant moins. Au passage : pourquoi payons-nous autant de licences ?"
+        },
+        {
+          "speaker": "dev",
+          "text": "Le vrai problème, c'est le batch de 3 h du matin. Mais bon, personne ne m'écoute."
+        },
+        {
+          "speaker": "mentor",
+          "text": "Et moi, je suis {mentor}, ton mentor. Je te guide pendant les premiers mois, et tu peux m'appeler pour un conseil : clique sur mon portrait en bas à gauche."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 1,
+        "month": 5
+      },
+      "title": "Chapitre 2 — Les failles",
+      "subtitle": "Le SI tient. Pour l'instant.",
+      "lines": [
+        {
+          "speaker": "rssi",
+          "text": "J'ai besoin de votre attention. Et d'un budget. Surtout d'un budget."
+        },
+        {
+          "speaker": "archi",
+          "text": "J'ai une annonce à faire, mais ça peut attendre juin."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 1,
+        "month": 9
+      },
+      "title": "Chapitre 3 — Cloud & fusions",
+      "subtitle": "Tous nos concurrents y sont. Paraît-il.",
+      "lines": [
+        {
+          "speaker": "dg",
+          "text": "J'ai lu un article dans l'avion. Nous devons aller dans le cloud."
+        },
+        {
+          "speaker": "dircom",
+          "text": "Et on rachète une boîte en octobre. Rien à voir. Enfin, si, un peu."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 2,
+        "month": 1
+      },
+      "title": "Chapitre 4 — La guerre des licences",
+      "subtitle": "Les renouvellements arrivent tous en même temps. Comme par hasard.",
+      "lines": [
+        {
+          "speaker": "achats",
+          "text": "Trois contrats majeurs arrivent à échéance cette année. Je vous conseille de négocier tôt."
+        },
+        {
+          "speaker": "vendor",
+          "text": "Bonne nouvelle : nous avons simplifié notre tarification."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 2,
+        "month": 5
+      },
+      "title": "Chapitre 5 — L'ESN et le MAKE",
+      "subtitle": "Votre SI dépend de 18 ESN. Qui connaît encore ce système ?",
+      "lines": [
+        {
+          "speaker": "esn",
+          "text": "Nous avons exactement le profil."
+        },
+        {
+          "speaker": "dev",
+          "text": "Si on construisait nous-mêmes ce qui nous différencie ? Juste ça. Pas la paie, hein."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 2,
+        "month": 9
+      },
+      "title": "Chapitre 6 — Conteneurs & Kubernetes",
+      "subtitle": "Remplacer douze problèmes simples par un problème distribué.",
+      "lines": [
+        {
+          "speaker": "dev",
+          "text": "Docker, c'est bien. Kubernetes, c'est bien si on sait s'en servir."
+        },
+        {
+          "speaker": "dg",
+          "text": "Les deux mots sont dans le rapport annuel du concurrent. On les veut."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 3,
+        "month": 1
+      },
+      "title": "Chapitre 7 — Data & ERP Wars",
+      "subtitle": "14 Po de données. Personne ne sait ce qu'il y a dedans.",
+      "lines": [
+        {
+          "speaker": "data",
+          "text": "On a centralisé toutes les données. La question, maintenant : qui sait ce qu'elles signifient ?"
+        },
+        {
+          "speaker": "consultant",
+          "text": "J'ai un framework en neuf cases pour ça. Le dixième est payant."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 3,
+        "month": 5
+      },
+      "title": "Chapitre 8 — IA & vibe coding",
+      "subtitle": "L'IA accélère tout. Y compris la dette.",
+      "lines": [
+        {
+          "speaker": "dg",
+          "text": "Où en est notre stratégie IA ? Le conseil d'administration demande. Moi aussi."
+        },
+        {
+          "speaker": "dev",
+          "text": "On produit trois fois plus de code. Je ne suis pas sûr qu'on en comprenne trois fois plus."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 3,
+        "month": 9
+      },
+      "title": "Chapitre 9 — Agents, MCP & contexte",
+      "subtitle": "Le principal actif devient le contexte.",
+      "lines": [
+        {
+          "speaker": "rssi",
+          "text": "Les agents peuvent appeler nos outils internes. Qui leur a donné les droits ?"
+        },
+        {
+          "speaker": "data",
+          "text": "Un agent sans contexte, c'est un stagiaire très rapide et très sûr de lui."
+        }
+      ]
+    }
   ],
   "years": [
-    { "year": 1, "title": "Le SI hérité", "objectives": [
-      { "label": "Réduire le coût de fonctionnement mensuel de 15 %", "run_cut": 0.15, "reward": 12, "penalty": -10 },
-      { "label": "Disponibilité du SI ≥ 70", "conditions": { "min": { "uptime": 70 } } },
-      { "label": "Cartographier le SI", "conditions": { "project_done": "cartographie" } },
-      { "label": "Sécurité ≥ 40", "conditions": { "min": { "security": 40 } } }
-    ] },
-    { "year": 2, "title": "Licences, ESN & conteneurs", "objectives": [
-      { "label": "Dépendance fournisseurs ≤ 62", "conditions": { "max": { "vendor_dep": 62 } } },
-      { "label": "Capacité interne (MAKE) ≥ 35", "conditions": { "min": { "make": 35 } } },
-      { "label": "Maturité DevOps ≥ 30", "conditions": { "min": { "devops_maturity": 30 } } },
-      { "label": "Budget ≥ 20 en fin d'année", "conditions": { "min": { "budget": 20 } } }
-    ] },
-    { "year": 3, "title": "Data, IA & agents", "objectives": [
-      { "label": "Une stratégie IA présentable (maturité IA ≥ 35)", "conditions": { "min": { "ai_maturity": 35 } } },
-      { "label": "Sécurité ≥ 55", "conditions": { "min": { "security": 55 } } },
-      { "label": "Dette technique ≤ 55", "conditions": { "max": { "debt": 55 } } },
-      { "label": "Satisfaction utilisateurs ≥ 55", "conditions": { "min": { "user_sat": 55 } } }
-    ] }
+    {
+      "year": 1,
+      "title": "Le SI hérité",
+      "objectives": [
+        {
+          "label": "Réduire le coût de fonctionnement mensuel de 15 %",
+          "run_cut": 0.15,
+          "reward": 12,
+          "penalty": -10
+        },
+        {
+          "label": "Disponibilité du SI ≥ 70",
+          "conditions": {
+            "min": {
+              "uptime": 70
+            }
+          }
+        },
+        {
+          "label": "Cartographier le SI",
+          "conditions": {
+            "project_done": "cartographie"
+          }
+        },
+        {
+          "label": "Sécurité ≥ 40",
+          "conditions": {
+            "min": {
+              "security": 40
+            }
+          }
+        }
+      ]
+    },
+    {
+      "year": 2,
+      "title": "Licences, ESN & conteneurs",
+      "objectives": [
+        {
+          "label": "Dépendance fournisseurs ≤ 62",
+          "conditions": {
+            "max": {
+              "vendor_dep": 62
+            }
+          }
+        },
+        {
+          "label": "Capacité interne (MAKE) ≥ 35",
+          "conditions": {
+            "min": {
+              "make": 35
+            }
+          }
+        },
+        {
+          "label": "Maturité DevOps ≥ 30",
+          "conditions": {
+            "min": {
+              "devops_maturity": 30
+            }
+          }
+        },
+        {
+          "label": "Budget ≥ 20 en fin d'année",
+          "conditions": {
+            "min": {
+              "budget": 20
+            }
+          }
+        }
+      ]
+    },
+    {
+      "year": 3,
+      "title": "Data, IA & agents",
+      "objectives": [
+        {
+          "label": "Une stratégie IA présentable (maturité IA ≥ 35)",
+          "conditions": {
+            "min": {
+              "ai_maturity": 35
+            }
+          }
+        },
+        {
+          "label": "Sécurité ≥ 55",
+          "conditions": {
+            "min": {
+              "security": 55
+            }
+          }
+        },
+        {
+          "label": "Dette technique ≤ 55",
+          "conditions": {
+            "max": {
+              "debt": 55
+            }
+          }
+        },
+        {
+          "label": "Satisfaction utilisateurs ≥ 55",
+          "conditions": {
+            "min": {
+              "user_sat": 55
+            }
+          }
+        }
+      ]
+    }
   ],
   "daf_lines": [
     "Pourquoi payons-nous ça ?",

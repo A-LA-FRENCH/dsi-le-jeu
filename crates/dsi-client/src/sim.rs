@@ -37,6 +37,18 @@ pub struct Settings {
     pub high_contrast: bool,
     #[serde(default)]
     pub seen_disclaimer: bool,
+    #[serde(default = "yes")]
+    pub music: bool,
+    #[serde(default = "default_volume")]
+    pub music_volume: f32,
+}
+
+fn yes() -> bool {
+    true
+}
+
+fn default_volume() -> f32 {
+    0.35
 }
 
 impl Default for Settings {
@@ -47,6 +59,8 @@ impl Default for Settings {
             reduce_motion: false,
             high_contrast: false,
             seen_disclaimer: false,
+            music: true,
+            music_volume: 0.35,
         }
     }
 }

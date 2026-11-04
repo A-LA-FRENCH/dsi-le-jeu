@@ -78,7 +78,7 @@ log "Copie de la page web et des ressources"
 cp web/index.html web/style.css web/loader.js web/favicon.png "$OUT/"
 [ -f web/_headers ] && cp web/_headers "$OUT/"
 mkdir -p "$OUT/assets"
-for d in sprites ui fonts; do
+for d in sprites ui fonts audio; do
   cp -r "assets/$d" "$OUT/assets/"
 done
 log "Terminé → $OUT"

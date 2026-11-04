@@ -56,6 +56,7 @@ pub struct Sprites {
     pub people: Handle<Image>,
     pub fx: Handle<Image>,
     pub portraits: Handle<Image>,
+    pub mentors: Handle<Image>,
 }
 
 #[derive(Component)]
@@ -146,6 +147,7 @@ fn setup(
         people: server.load("sprites/people.png"),
         fx: server.load("sprites/fx.png"),
         portraits: server.load("ui/portraits.png"),
+        mentors: server.load("ui/mentors.png"),
     };
     // Caméra du monde.
     commands.spawn((Camera2d, MainCamera, Transform::from_xyz(0.0, 0.0, 100.0)));

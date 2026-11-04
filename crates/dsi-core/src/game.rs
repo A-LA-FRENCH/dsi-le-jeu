@@ -41,6 +41,10 @@ pub enum Command {
     DebugAgenda,
     DebugSkip,
     DebugHire(String),
+    /// Demande un conseil à un mentor (gratuit en agenda, délai entre deux conseils).
+    ConsultMentor(String),
+    /// Règle l'étape du tutoriel (voir `state::TUTORIAL_*`).
+    SetTutorial(u32),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -87,6 +91,7 @@ pub fn new_game(content: &Content, seed: u64, profile: Profile) -> GameState {
         s.contracts.push(ContractState::from_def(c, 0));
     }
     s.baseline_run = score::run_cost(&s);
+    crate::mentors::apply_passive(content, &mut s);
     s.push_log(s.tx("{dsi} prend ses fonctions de DSI chez {company}. Badge visiteur fourni « en attendant »."), Tone::Story);
     begin_month(content, &mut s);
     s
@@ -498,7 +503,7 @@ fn result(
         text: text.into(),
         deltas,
         notes,
-        delayed_hint: hidden,
+        speaker: String::new(), delayed_hint: hidden,
     }))
 }
 
@@ -575,7 +580,7 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
                         text,
                         deltas,
                         notes: vec![],
-                        delayed_hint: false,
+                        speaker: String::new(), delayed_hint: false,
                     }))
                 }
                 Inbox::YearReview => Active::Review(Box::new(score::year_review(content, s))),
@@ -968,6 +973,16 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
         }
         Command::DebugAgenda => {
             s.agenda = s.agenda_max;
+            Ok(())
+        }
+        Command::ConsultMentor(id) => {
+            ensure_free(s)?;
+            let r = crate::mentors::consult(content, s, &id).map_err(GameError::NotNow)?;
+            s.active = Some(Active::Result(Box::new(r)));
+            Ok(())
+        }
+        Command::SetTutorial(step) => {
+            s.tutorial = step;
             Ok(())
         }
         Command::DebugHire(role) => {

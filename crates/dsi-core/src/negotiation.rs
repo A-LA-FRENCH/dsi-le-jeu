@@ -110,6 +110,14 @@ pub fn start(
             delta: -40.0,
         });
     }
+    if s.flags.remove("mentor_leverage") {
+        lev += 10.0;
+        log.push(NegLine {
+            who: Who::Hazard,
+            text: "Vous avez suivi le conseil de votre mentor : vous arrivez préparé.".into(),
+            delta: 10.0,
+        });
+    }
     let hand: Vec<String> = content
         .cards
         .iter()
@@ -326,6 +334,6 @@ pub fn conclude(content: &Content, s: &mut GameState, n: &Negotiation, accept: b
         text,
         deltas,
         notes,
-        delayed_hint: false,
+        speaker: String::new(), delayed_hint: false,
     }
 }

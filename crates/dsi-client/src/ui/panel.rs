@@ -27,14 +27,11 @@ pub fn show(ui: &mut egui::Ui, c: &mut Ctx) {
         ];
         for (tab, label, key) in tabs {
             let sel = c.ui.tab == tab;
-            if ui
-                .add(egui::Button::selectable(
-                    sel,
-                    RichText::new(label).size(13.5),
-                ))
-                .on_hover_text(format!("Raccourci : {key}"))
-                .clicked()
-            {
+            let b = ui.add(egui::Button::selectable(sel, RichText::new(label).size(13.5)));
+            if tab == Tab::Contracts {
+                mark(&mut c.ui.marks, "tab_contracts", b.rect);
+            }
+            if b.on_hover_text(format!("Raccourci : {key}")).clicked() {
                 c.ui.tab = tab;
                 c.click();
             }
@@ -87,6 +84,9 @@ fn inbox(ui: &mut egui::Ui, c: &mut Ctx) {
             })
             .response
             .interact(egui::Sense::click());
+        if i == 0 {
+            mark(&mut c.ui.marks, "inbox_first", resp.rect);
+        }
         if resp
             .on_hover_cursor(egui::CursorIcon::PointingHand)
             .clicked()
@@ -237,6 +237,8 @@ fn metrics(ui: &mut egui::Ui, c: &mut Ctx) {
 }
 
 fn contracts(ui: &mut egui::Ui, c: &mut Ctx) {
+    let top = ui.cursor().min;
+    mark(&mut c.ui.marks, "contracts_list", egui::Rect::from_min_size(top, egui::vec2(ui.available_width(), 220.0)));
     section(ui, "CONTRATS FOURNISSEURS");
     muted(
         ui,

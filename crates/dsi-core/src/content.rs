@@ -21,6 +21,7 @@ pub const PROJECTS_JSON: &str = include_str!("../../../data/projects.json");
 pub const CAREERS_JSON: &str = include_str!("../../../data/careers.json");
 pub const DIALOGUES_JSON: &str = include_str!("../../../data/dialogues.json");
 pub const CRISES_JSON: &str = include_str!("../../../data/crises.json");
+pub const MENTORS_JSON: &str = include_str!("../../../data/mentors.json");
 
 /// Action optionnelle dans une salle : coûte du temps d'agenda.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -131,6 +132,10 @@ struct ProjectsFile {
     actions: Vec<ActionDef>,
 }
 #[derive(Deserialize)]
+struct MentorsFile {
+    mentors: Vec<crate::mentors::MentorDef>,
+}
+#[derive(Deserialize)]
 struct CrisesFile {
     crises: Vec<CrisisDef>,
 }
@@ -148,6 +153,7 @@ pub struct Content {
     pub careers: Careers,
     pub dialogues: Dialogues,
     pub crises: Vec<CrisisDef>,
+    pub mentors: Vec<crate::mentors::MentorDef>,
 }
 
 fn parse<T: for<'de> Deserialize<'de>>(name: &str, s: &str) -> Result<T, String> {
@@ -197,7 +203,12 @@ impl Content {
             careers: c,
             dialogues: d,
             crises: k.crises,
+            mentors: parse::<MentorsFile>("mentors.json", MENTORS_JSON)?.mentors,
         })
+    }
+
+    pub fn mentor(&self, id: &str) -> Option<&crate::mentors::MentorDef> {
+        self.mentors.iter().find(|m| m.id == id)
     }
 
     pub fn event(&self, id: &str) -> Option<&EventDef> {
@@ -361,12 +372,23 @@ impl Content {
         }
         for ch in &self.dialogues.chapters {
             for l in &ch.lines {
-                if self.character(&l.speaker).is_none() {
+                if l.speaker != "mentor" && self.character(&l.speaker).is_none() {
                     errs.push(format!(
                         "chapitre {}: personnage inconnu {}",
                         ch.title, l.speaker
                     ));
                 }
+            }
+        }
+        if self.mentors.len() != 3 {
+            errs.push("il faut exactement 3 mentors".into());
+        }
+        for m in &self.mentors {
+            if m.advice.last().is_none_or(|a| !a.conditions.is_empty()) {
+                errs.push(format!("mentor {} : le dernier conseil doit être sans condition", m.id));
+            }
+            for (i, a) in m.advice.iter().enumerate() {
+                check_outcome(&format!("mentor {}#{i}", m.id), &a.outcome, &mut errs);
             }
         }
         errs

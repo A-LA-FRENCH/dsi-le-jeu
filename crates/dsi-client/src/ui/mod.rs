@@ -5,10 +5,12 @@
 mod debug;
 mod hud;
 mod menu;
+mod mentor;
 mod minigames;
 mod panel;
 mod rooms;
 mod scenes;
+mod tutorial;
 pub mod style;
 pub mod widgets;
 
@@ -27,8 +29,12 @@ pub enum Screen {
     #[default]
     Title,
     Create,
+    Mentor,
     Playing,
 }
+
+/// Premier slot des avatars de DSI dans `ui/portraits.png`.
+pub const AVATAR_SLOT: u32 = 16;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum Tab {
@@ -60,6 +66,14 @@ pub struct UiState {
     pub company: String,
     pub background: String,
     pub seed_text: String,
+    pub avatar: u32,
+    pub mentor: String,
+    pub tutorial: bool,
+    pub show_mentors: bool,
+    /// Rectangles d'éléments d'interface que le tutoriel peut désigner.
+    pub marks: std::collections::HashMap<&'static str, egui::Rect>,
+    /// Mois où le joueur a masqué la bulle de conseil.
+    pub tip_hidden: Option<u32>,
     // Debug.
     pub debug_filter: String,
     pub debug_json: bool,
@@ -86,6 +100,12 @@ impl Default for UiState {
             company: "Groupe Duval-Montaigne".into(),
             background: "ex_dev".into(),
             seed_text: String::new(),
+            avatar: 0,
+            mentor: "mehdi".into(),
+            tutorial: true,
+            show_mentors: false,
+            marks: Default::default(),
+            tip_hidden: None,
             debug_filter: String::new(),
             debug_json: false,
             project_filter: String::new(),
@@ -104,6 +124,7 @@ impl UiState {
 #[derive(Resource, Default)]
 pub struct UiTextures {
     pub portraits: Option<egui::TextureId>,
+    pub mentors: Option<egui::TextureId>,
 }
 
 /// Tout ce dont les écrans ont besoin.
@@ -115,6 +136,7 @@ pub struct Ctx<'a> {
     pub settings: &'a mut Settings,
     pub store: &'a mut Store,
     pub tex: Option<egui::TextureId>,
+    pub mentors_tex: Option<egui::TextureId>,
     pub view: &'a mut WorldView,
 }
 
@@ -159,16 +181,48 @@ impl Ctx<'_> {
     /// Index de portrait d'un personnage (dialogues.json), ou du ou de la DSI.
     pub fn portrait_of(&self, speaker: &str) -> u32 {
         if speaker == "player" {
-            return if self.session.game.as_ref().is_some_and(|g| g.profile.female) {
-                14
-            } else {
-                15
+            let Some(g) = self.session.game.as_ref() else { return 14 };
+            return match g.profile.avatar {
+                Some(a) => AVATAR_SLOT + a,
+                None if g.profile.female => 14,
+                None => 15,
             };
         }
         self.content
             .character(speaker)
             .map(|c| c.portrait)
             .unwrap_or(13)
+    }
+}
+
+impl Ctx<'_> {
+    /// Identifiant du mentor désigné par `speaker` (« mentor » = mentor principal, « mentor:jb »).
+    pub fn mentor_id(&self, speaker: &str) -> Option<String> {
+        if speaker == "mentor" {
+            return self.session.game.as_ref().map(|g| g.profile.mentor.clone()).filter(|m| !m.is_empty());
+        }
+        speaker.strip_prefix("mentor:").map(|s| s.to_string())
+    }
+
+    pub fn mentor_index(&self, id: &str) -> u32 {
+        self.content.mentors.iter().position(|m| m.id == id).unwrap_or(0) as u32
+    }
+
+    /// Dessine le portrait d'un personnage, d'un mentor ou du ou de la DSI.
+    pub fn face(&self, ui: &mut egui::Ui, speaker: &str, size: f32) {
+        if let Some(id) = self.mentor_id(speaker) {
+            widgets::mentor_portrait(ui, self.mentors_tex, self.mentor_index(&id), size);
+        } else {
+            widgets::portrait(ui, self.tex, self.portrait_of(speaker), size);
+        }
+    }
+
+    /// Nom et couleur d'un interlocuteur.
+    pub fn speaker_name(&self, speaker: &str) -> Option<(String, egui::Color32)> {
+        if let Some(id) = self.mentor_id(speaker) {
+            return self.content.mentor(&id).map(|m| (format!("{} — ton mentor", m.name), hex(&m.color)));
+        }
+        self.content.character(speaker).map(|ch| (ch.name.clone(), hex(&ch.color)))
     }
 }
 
@@ -222,6 +276,7 @@ fn register_textures(
     let Some(s) = sprites else { return };
     if tex.portraits.is_none() {
         tex.portraits = Some(contexts.add_image(EguiTextureHandle::Strong(s.portraits.clone())));
+        tex.mentors = Some(contexts.add_image(EguiTextureHandle::Strong(s.mentors.clone())));
     }
 }
 
@@ -271,8 +326,10 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
         settings,
         store,
         tex: tex.portraits,
+        mentors_tex: tex.mentors,
         view,
     };
+    c.ui.marks.clear();
 
     if c.session.game.is_none() && c.ui.screen == Screen::Playing {
         c.ui.screen = Screen::Title;
@@ -289,11 +346,11 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
     );
 
     let central = match c.ui.screen {
-        Screen::Title | Screen::Create => {
-            if c.ui.screen == Screen::Title {
-                menu::title(&ctx, &mut c);
-            } else {
-                menu::create(&ctx, &mut c);
+        Screen::Title | Screen::Create | Screen::Mentor => {
+            match c.ui.screen {
+                Screen::Title => menu::title(&ctx, &mut c),
+                Screen::Create => menu::create(&ctx, &mut c),
+                _ => menu::mentor_choice(&ctx, &mut c),
             }
             ctx.content_rect()
         }
@@ -335,6 +392,8 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
                 person.0.as_ref(),
                 stats,
             );
+            mentor::widget(&ctx, &mut c, central);
+            hud::next_button(&ctx, &mut c, central);
             scenes::show(&ctx, &mut c);
             if c.session
                 .game
@@ -342,8 +401,12 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
                 .is_some_and(|g| g.active.is_none() && !g.finished())
             {
                 rooms::show(&ctx, &mut c);
+                if c.ui.show_mentors {
+                    mentor::panel(&ctx, &mut c);
+                }
             }
             hud::shortcuts(&ctx, &mut c);
+            tutorial::show(&ctx, &mut c, central, vp);
             central
         }
     };
@@ -374,6 +437,7 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
         .as_ref()
         .is_some_and(|g| g.active.is_some() || g.finished())
         || c.ui.room_panel.is_some()
+        || c.ui.show_mentors
         || c.ui.show_settings;
     vp.pointer_over_ui = modal_open
         || ctx.egui_wants_pointer_input()

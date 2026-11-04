@@ -47,7 +47,7 @@ C = {
     "cyan": (90, 220, 230), "blue": (90, 140, 230), "red": (230, 80, 80), "orange": (246, 162, 60),
     "yellow": (250, 214, 92), "purple": (170, 110, 210), "plant": (70, 150, 80), "plant_d": (44, 104, 58),
     "glass": (120, 170, 200), "metal": (150, 156, 166), "black": (10, 12, 14), "rack": (34, 38, 46),
-    "skin1": (246, 206, 170), "skin2": (222, 170, 128), "skin3": (176, 120, 84), "skin4": (120, 80, 56),
+    "skin0": (252, 224, 198), "skin1": (246, 206, 170), "skin2": (222, 170, 128), "skin3": (176, 120, 84), "skin4": (120, 80, 56), "skin5": (88, 56, 40),
 }
 
 
@@ -512,9 +512,31 @@ PORTRAITS = [
     ("skin4", (20, 16, 14), "curly", (130, 40, 40), (255, 123, 123), False, False, False),      # 11 SOC
     ("skin1", (110, 70, 40), "bun", (40, 140, 150), (123, 224, 224), True, False, True),        # 12 Data
     None,                                                                                       # 13 notification
-    ("skin2", (40, 28, 20), "long", (30, 40, 70), (240, 240, 240), False, False, True),         # 14 DSI femme
-    ("skin1", (40, 30, 20), "short", (30, 40, 70), (240, 240, 240), False, False, False),       # 15 DSI homme
+    ("skin2", (40, 28, 20), "long", (30, 40, 70), (240, 240, 240), False, False, True),         # 14 DSI femme (anciennes sauvegardes)
+    ("skin1", (40, 30, 20), "short", (30, 40, 70), (240, 240, 240), False, False, False),       # 15 DSI homme (anciennes sauvegardes)
 ]
+
+# Avatars du ou de la DSI (slots 16–31) : 0–7 directrices, 8–15 directeurs.
+# (peau, cheveux, style, vêtement, accent, lunettes, barbe, femme) — partagé avec gen_iso.py.
+AVATARS = [
+    ("skin1", (54, 36, 24), "long", (30, 40, 70), (240, 240, 240), False, False, True),
+    ("skin4", (24, 18, 14), "afro", (110, 40, 60), (250, 214, 92), False, False, True),
+    ("skin2", (40, 110, 120), "hijab", (40, 50, 80), (240, 240, 240), False, False, True),
+    ("skin0", (226, 196, 120), "bob", (60, 60, 72), (240, 240, 240), True, False, True),
+    ("skin5", (20, 16, 14), "braids", (40, 100, 70), (250, 214, 92), False, False, True),
+    ("skin3", (40, 26, 18), "bun", (90, 60, 110), (240, 240, 240), True, False, True),
+    ("skin1", (170, 70, 36), "curly", (40, 70, 110), (240, 240, 240), False, False, True),
+    ("skin2", (18, 18, 22), "pony", (70, 40, 40), (240, 240, 240), True, False, True),
+    ("skin1", (54, 36, 24), "short", (30, 40, 70), (240, 240, 240), False, False, False),
+    ("skin4", (20, 16, 14), "short", (60, 60, 72), (240, 240, 240), False, True, False),
+    ("skin3", (24, 18, 14), "curly", (40, 90, 70), (240, 240, 240), False, True, False),
+    ("skin0", (226, 196, 120), "slick", (40, 40, 52), (110, 160, 230), True, False, False),
+    ("skin5", (20, 16, 14), "bald", (90, 50, 50), (240, 240, 240), False, True, False),
+    ("skin2", (18, 18, 22), "messy", (40, 60, 100), (240, 240, 240), True, False, False),
+    ("skin1", (168, 168, 160), "short", (70, 70, 80), (240, 240, 240), True, True, False),
+    ("skin3", (24, 18, 14), "locs", (110, 80, 40), (240, 240, 240), False, False, False),
+]
+PORTRAITS = PORTRAITS + AVATARS
 
 
 def portrait(d, ox, spec, bg):
@@ -596,6 +618,43 @@ def portrait(d, ox, spec, bg):
         rect(d, ox + 13, 2, 6, 4, hair)
         rect(d, ox + 9, 9, 2, 4, hair)
         rect(d, ox + 21, 9, 2, 4, hair)
+    elif style == "afro":
+        d.ellipse((ox + 4, 0, ox + 27, 17), fill=hair)
+        rect(d, ox + 6, 10, 4, 9, hair)
+        rect(d, ox + 22, 10, 4, 9, hair)
+        # Le visage repasse devant la chevelure.
+        rect(d, ox + 10, 11, 12, 12, sk)
+        rect(d, ox + 11, 22, 10, 2, shade)
+        rect(d, ox + 12, 14, 2, 2, C["ink"])
+        rect(d, ox + 18, 14, 2, 2, C["ink"])
+        px(d, ox + 12, 14, C["white"])
+        px(d, ox + 18, 14, C["white"])
+        rect(d, ox + 14, 19, 4, 1, (150, 70, 70))
+        px(d, ox + 16, 17, shade)
+    elif style == "braids":
+        rect(d, ox + 9, 6, 14, 4, hair)
+        for bx in (7, 9, 21, 23):
+            for by in range(9, 27, 2):
+                px(d, ox + bx, by, hair)
+                px(d, ox + bx + 1, by + 1, tuple(min(255, v + 30) for v in hair))
+    elif style == "locs":
+        rect(d, ox + 9, 5, 14, 5, hair)
+        for bx in (8, 10, 20, 22, 12):
+            rect(d, ox + bx, 8, 2, 14 if bx != 12 else 4, hair)
+    elif style == "hijab":
+        scarf = hair
+        d.ellipse((ox + 7, 3, ox + 24, 20), fill=scarf)
+        rect(d, ox + 7, 12, 18, 14, scarf)
+        rect(d, ox + 5, 22, 22, 6, scarf)
+        rect(d, ox + 11, 9, 10, 13, sk)
+        rect(d, ox + 12, 14, 2, 2, C["ink"])
+        rect(d, ox + 18, 14, 2, 2, C["ink"])
+        px(d, ox + 12, 14, C["white"])
+        px(d, ox + 18, 14, C["white"])
+        rect(d, ox + 14, 19, 4, 1, (150, 70, 70))
+        if glasses:
+            for gx in (11, 17):
+                outline(d, ox + gx, 13, 4, 4, (40, 40, 48))
     elif style == "curly":
         for k in range(8):
             d.ellipse((ox + 8 + k * 2, 4 + (k % 2), ox + 11 + k * 2, 8 + (k % 2)), fill=hair)
@@ -609,12 +668,14 @@ def portrait(d, ox, spec, bg):
 
 def gen_portraits():
     n = len(PORTRAITS)
+    n = 32
     img = Image.new("RGBA", (32 * n, 32))
     d = ImageDraw.Draw(img)
     bgs = [(70, 58, 40), (70, 66, 36), (70, 36, 40), (36, 50, 76), (60, 44, 70), (34, 66, 40), (50, 54, 80), (76, 56, 36),
            (72, 66, 40), (40, 70, 66), (52, 66, 36), (76, 40, 40), (36, 66, 70), (44, 48, 70), (34, 46, 70), (34, 46, 70)]
     for i, spec in enumerate(PORTRAITS):
-        portrait(d, i * 32, spec, bgs[i % len(bgs)])
+        bg = bgs[i % len(bgs)] if i < 16 else (34, 46, 70)
+        portrait(d, i * 32, spec, bg)
     img.save(os.path.join(ROOT, "assets/ui/portraits.png"))
     # Favicon : le portrait DSI.
     fav = img.crop((14 * 32, 0, 15 * 32, 32)).resize((64, 64), Image.NEAREST)

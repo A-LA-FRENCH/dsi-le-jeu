@@ -32,7 +32,7 @@ pub struct AudioPlugin;
 
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Sfx>().add_systems(Last, play);
+        app.init_resource::<Sfx>().add_systems(Last, (play, music));
     }
 }
 
@@ -63,6 +63,57 @@ function tone(c, t0, freq, dur, type, vol, slide) {
   o.start(t0);
   o.stop(t0 + dur + 0.02);
 }
+// Musique d'A la French : thème au menu, playlist au bureau. <audio> HTML, Ogg ou MP3 (Safari).
+let music = null;
+let musicMode = 0;
+let playlist = [];
+let track = 0;
+function src(name) {
+  const ogg = music.canPlayType('audio/ogg; codecs="vorbis"');
+  return "assets/audio/" + name + (ogg ? ".ogg" : ".mp3");
+}
+function playMusic() {
+  const p = music.play();
+  if (p && p.catch) {
+    p.catch(() => {
+      // Le navigateur attend un geste de l'utilisateur.
+      const retry = () => {
+        window.removeEventListener("pointerdown", retry, true);
+        window.removeEventListener("keydown", retry, true);
+        if (musicMode !== 0) music.play().catch(() => {});
+      };
+      window.addEventListener("pointerdown", retry, true);
+      window.addEventListener("keydown", retry, true);
+    });
+  }
+}
+export function dsi_music(mode, volume) {
+  musicMode = mode;
+  if (mode === 0) {
+    if (music) music.pause();
+    return;
+  }
+  if (!music) {
+    music = new Audio();
+    music.preload = "auto";
+    music.addEventListener("ended", () => {
+      if (playlist.length > 1) {
+        track = (track + 1) % playlist.length;
+        music.src = src(playlist[track]);
+        playMusic();
+      }
+    });
+  }
+  music.volume = Math.max(0, Math.min(1, volume));
+  const list = mode === 1 ? ["music_theme"] : ["music_theme", "music_office_1", "music_office_2"];
+  if (list.join() !== playlist.join()) {
+    playlist = list;
+    track = 0;
+    music.src = src(list[0]);
+  }
+  music.loop = list.length === 1;
+  if (music.paused) playMusic();
+}
 export function dsi_sfx(kind) {
   const c = ac();
   if (!c) return;
@@ -82,6 +133,7 @@ export function dsi_sfx(kind) {
 "#)]
     extern "C" {
         pub fn dsi_sfx(kind: u32);
+        pub fn dsi_music(mode: u32, volume: f32);
     }
 }
 
@@ -121,4 +173,23 @@ fn play(mut sfx: ResMut<Sfx>, settings: Res<Settings>) {
     };
     #[cfg(target_arch = "wasm32")]
     js::dsi_sfx(_kind);
+}
+
+/// Musique : 0 = coupée, 1 = menu (thème en boucle), 2 = bureau (playlist).
+fn music(settings: Res<Settings>, ui: Option<Res<crate::ui::UiState>>, mut last: Local<Option<(u32, u32)>>) {
+    let Some(ui) = ui else { return };
+    let mode = if !settings.music || !ui.fonts_ready {
+        0
+    } else if ui.screen == crate::ui::Screen::Playing {
+        2
+    } else {
+        1
+    };
+    let vol = (settings.music_volume.clamp(0.0, 1.0) * 100.0).round() as u32;
+    if *last == Some((mode, vol)) {
+        return;
+    }
+    *last = Some((mode, vol));
+    #[cfg(target_arch = "wasm32")]
+    js::dsi_music(mode, vol as f32 / 100.0);
 }

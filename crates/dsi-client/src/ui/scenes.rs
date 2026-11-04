@@ -24,7 +24,7 @@ fn key_choice(ctx: &egui::Context) -> Option<usize> {
 }
 
 fn enter(ctx: &egui::Context) -> bool {
-    !ctx.egui_wants_keyboard_input() && ctx.input(|i| i.key_pressed(egui::Key::Enter))
+    !ctx.egui_wants_keyboard_input() && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Enter))
 }
 
 pub fn show(ctx: &egui::Context, c: &mut Ctx) {
@@ -56,7 +56,7 @@ pub fn show(ctx: &egui::Context, c: &mut Ctx) {
 fn speaker_header(ui: &mut egui::Ui, c: &Ctx, speaker: &str, title: &str, title_color: Color32) {
     ui.horizontal_top(|ui| {
         if !speaker.is_empty() {
-            portrait(ui, c.tex, c.portrait_of(speaker), 72.0);
+            c.face(ui, speaker, 72.0);
         }
         ui.vertical(|ui| {
             ui.add(
@@ -276,13 +276,25 @@ fn renewal(ctx: &egui::Context, c: &mut Ctx, contract: &str) {
 }
 
 fn result(ctx: &egui::Context, c: &mut Ctx, r: &dsi_core::state::Resolution) {
-    let go = enter(ctx) || ctx.input(|i| i.key_pressed(egui::Key::Space));
+    let go = enter(ctx) || (!ctx.egui_wants_keyboard_input() && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Space)));
     let mut cont = false;
     modal(ctx, "result", 560.0, YELLOW, |ui| {
         ui.label(RichText::new(&r.title).font(pixel(22.0)).color(YELLOW));
         if !r.text.is_empty() {
             ui.add_space(4.0);
-            wrap(ui, RichText::new(&r.text).size(15.5).color(TEXT));
+            if r.speaker.is_empty() {
+                wrap(ui, RichText::new(&r.text).size(15.5).color(TEXT));
+            } else {
+                ui.horizontal_top(|ui| {
+                    c.face(ui, &r.speaker, 72.0);
+                    ui.vertical(|ui| {
+                        if let Some((name, col)) = c.speaker_name(&r.speaker) {
+                            ui.label(RichText::new(name).font(pixel(14.0)).color(col));
+                        }
+                        wrap(ui, RichText::new(format!("« {} »", r.text)).size(15.5).color(TEXT));
+                    });
+                });
+            }
         }
         ui.add_space(6.0);
         if r.deltas.is_empty() {
@@ -336,14 +348,10 @@ fn chapter(ctx: &egui::Context, c: &mut Ctx, index: usize) {
         ui.add_space(8.0);
         for l in &ch.lines {
             ui.horizontal_top(|ui| {
-                portrait(ui, c.tex, c.portrait_of(&l.speaker), 56.0);
+                c.face(ui, &l.speaker, 56.0);
                 ui.vertical(|ui| {
-                    if let Some(p) = c.content.character(&l.speaker) {
-                        ui.label(
-                            RichText::new(&p.name)
-                                .font(pixel(13.0))
-                                .color(hex(&p.color)),
-                        );
+                    if let Some((name, col)) = c.speaker_name(&l.speaker) {
+                        ui.label(RichText::new(name).font(pixel(13.0)).color(col));
                     }
                     wrap(ui, RichText::new(c.g().tx(&l.text)).size(15.0).color(TEXT));
                 });

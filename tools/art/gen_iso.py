@@ -280,7 +280,7 @@ SHIRTS = [
 VARIANTS = [((246, 206, 170), (60, 40, 25), False), ((176, 120, 84), (20, 16, 14), True), ((222, 170, 128), (150, 90, 40), False)]
 
 
-def person(d, ox, oy, shirt, skin, hair, long_hair, frame, lanyard):
+def person(d, ox, oy, shirt, skin, hair, long_hair, frame, lanyard, style=None):
     # 16×24, pieds en (8, 23)
     pants = (40, 44, 60)
     sk = skin
@@ -319,10 +319,21 @@ def person(d, ox, oy, shirt, skin, hair, long_hair, frame, lanyard):
         px(d, ox + 3, oy + 16, sk)
         px(d, ox + 12, oy + 16, sk)
     # tête
+    if style == "afro":
+        d.ellipse((ox + 3, oy - 1, ox + 12, oy + 7), fill=hair)
+    if style == "hijab":
+        d.rectangle((ox + 4, oy + 1, ox + 11, oy + 10), fill=hair)
+        d.rectangle((ox + 6, oy + 3, ox + 9, oy + 8), fill=sk)
+        px(d, ox + 6, oy + 5, (20, 20, 24))
+        px(d, ox + 9, oy + 5, (20, 20, 24))
+        return
     d.rectangle((ox + 5, oy + 2, ox + 10, oy + 8), fill=sk)
-    d.rectangle((ox + 5, oy + 1, ox + 10, oy + 3), fill=hair)
-    px(d, ox + 4, oy + 3, hair)
-    px(d, ox + 11, oy + 3, hair)
+    if style != "bald":
+        d.rectangle((ox + 5, oy + 1, ox + 10, oy + 3), fill=hair)
+        px(d, ox + 4, oy + 3, hair)
+        px(d, ox + 11, oy + 3, hair)
+    if style in ("bun",):
+        d.rectangle((ox + 7, oy - 1, ox + 8, oy + 0), fill=hair)
     if long_hair:
         d.rectangle((ox + 4, oy + 3, ox + 4, oy + 9), fill=hair)
         d.rectangle((ox + 11, oy + 3, ox + 11, oy + 9), fill=hair)
@@ -332,9 +343,22 @@ def person(d, ox, oy, shirt, skin, hair, long_hair, frame, lanyard):
     px(d, ox + 8, oy + 7, shade(sk, 0.75))
 
 
+def avatar_rows():
+    """Une ligne de sprites par avatar de DSI (même peau, mêmes cheveux que le portrait)."""
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import gen_art
+    out = []
+    for skin, hair, style, _cloth, _acc, _gl, _beard, _f in gen_art.AVATARS:
+        long_hair = style in ("long", "bob", "braids", "locs", "pony", "curly")
+        out.append((gen_art.C[skin], hair, long_hair, style))
+    return out
+
+
 def gen_people():
     fw, fh, frames = 16, 24, 5
-    rows = len(SHIRTS) * len(VARIANTS)
+    avatars = avatar_rows()
+    rows = len(SHIRTS) * len(VARIANTS) + len(avatars)
     img = Image.new("RGBA", (fw * frames, fh * rows), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     for si, shirt in enumerate(SHIRTS):
@@ -342,13 +366,17 @@ def gen_people():
             row = si * len(VARIANTS) + vi
             for f in range(frames):
                 person(d, f * fw, row * fh, shirt, skin, hair, long_hair, f, si == 9)
+    base = len(SHIRTS) * len(VARIANTS)
+    for k, (skin, hair, long_hair, style) in enumerate(avatars):
+        for f in range(frames):
+            person(d, f * fw, (base + k) * fh, (34, 44, 80), skin, hair, long_hair, f, True, style)
     img.save(os.path.join(ROOT, "assets/sprites/iso_people.png"))
 
 
 def gen_fx_extra():
     """Ajoute des bulles à fx.png : 5 café, 6 code, 7 nuage gris, 8 ampoule."""
     p = os.path.join(ROOT, "assets/sprites/fx.png")
-    base = Image.open(p).convert("RGBA")
+    base = Image.open(p).convert("RGBA").crop((0, 0, 13 * 5, 14))
     img = Image.new("RGBA", (13 * 9, 14), (0, 0, 0, 0))
     img.paste(base, (0, 0))
     d = ImageDraw.Draw(img)

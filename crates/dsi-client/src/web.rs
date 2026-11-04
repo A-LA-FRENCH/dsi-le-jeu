@@ -42,8 +42,7 @@ fn signal_ready(
         s.building.id(),
         s.people.id(),
         s.fx.id(),
-        s.portraits.id(),
-    ];
+        s.portraits.id(), s.mentors.id()];
     let total = ids.len() as u32;
     let loaded = ids
         .iter()

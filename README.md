@@ -42,6 +42,23 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
 - **18 indicateurs** dont 6 en barre du haut (budget, sécurité, dette, COMEX, engineering,
   uptime), antagonistes entre eux ; les métriques « de flux » tendent vers une cible
   calculée à partir du reste du SI.
+- **Votre DSI** : directrice ou directeur, 16 avatars aux origines, teints et coiffures
+  variés (afro, tresses, locks, hijab…), avec le sprite assorti sur le plateau.
+- **Trois mentors d'A la French** : Mehdi (APIs et écosystèmes), Steeve (infra, cloud et
+  inférence IA) et Jean-Baptiste (open source, souveraineté et recrutement). Le mentor
+  principal, choisi à la création, apporte un bonus permanent et revient tous les 2 mois ;
+  les autres, tous les 4. Chaque conseil (touche `M` ou portrait en bas à gauche) dépend de
+  la situation : un renouvellement qui approche, une facture cloud qui dérive, un Kubernetes
+  ingérable… et rapporte un petit bonus (par exemple +10 de levier à la négociation suivante).
+- **Tutoriel guidé par le mentor** pendant les premiers mois : des bulles désignent
+  l'élément à utiliser (jauges, agenda, sujets, salle projet, bouton du mois, contrats,
+  plateau, mentors) et avancent quand l'action est faite. Ensuite, une bulle « prochaine
+  action » accompagne le premier semestre. Désactivable dans les réglages.
+- **Le gros bouton d'action** en bas à droite du monde : orange « SUJET SUIVANT » tant que
+  des sujets attendent, puis jaune « MOIS SUIVANT ▶ » (ou barre d'espace).
+- **Musique d'A la French** : le thème du podcast en 16 bits au menu, puis une playlist au
+  bureau (thème, « La Marseillaise » 8-bit, gigue celtique), reprise d'« A la French — le
+  jeu ». Volume réglable.
 - **Deux vues du monde** (touche `V`) :
   - **Le siège** en coupe : COMEX, bureau DSI, DAF, RH, achats, architecture, open space,
     salle projet, data, cloud control room, vendor meeting room, salle de crise, cyber,
@@ -96,7 +113,8 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
 | Traiter un sujet | clic sur la salle qui a une bulle, ou sur la liste « À traiter » | |
 | Choisir une option | clic | `1`–`5` |
 | Continuer | « Continuer » | `Entrée` |
-| Mois suivant | « MOIS SUIVANT ▶ » | `Espace` |
+| Sujet suivant / mois suivant | gros bouton en bas à droite | `Espace` |
+| Mentors | portrait en bas à gauche | `M` |
 | Siège / plateau DSI | boutons en haut à gauche | `V` |
 | Onglets (à traiter, indicateurs, contrats, tech map, équipe) | onglets | `A` `I` `C` `T` `E` |
 | Réglages (texte, sons, animations, contraste, reset) | ⚙ | `Échap` |
@@ -172,6 +190,7 @@ crates/dsi-core       Simulation déterministe en Rust pur, testable sans rendu
   technology.rs       Technology Map et effets passifs conditionnels
   skills.rs           échelle de culture engineering, curseur BUY/MAKE
   security.rs         war room
+  mentors.rs          mentors : bonus permanent, conseils contextuels, délais
   cloud.rs            facture cloud, FinOps, dérive
   ai.rs               vibe coding, code généré / code compris
   score.rs            score, classement, revue annuelle, fins
@@ -180,10 +199,11 @@ crates/platform       stockage (localStorage / fichiers), horloge, paramètres d
 crates/dsi-client     Bevy 0.19 + bevy_egui 0.42
   world.rs            le siège en coupe, caméra, sélection des salles
   plateau.rs          le plateau DSI isométrique (personnages, mobilier, comportements)
-  ui/                 HUD, panneaux, popups, mini-jeux, salles, menus, debug
-  audio.rs            sons procéduraux WebAudio (aucun fichier son)
+  ui/                 HUD, panneaux, popups, mini-jeux, salles, menus, mentors,
+                      tutoriel, debug
+  audio.rs            effets sonores WebAudio procéduraux + musique (<audio>, Ogg/MP3)
 data/*.json           TOUT le contenu : events, vendors, technologies, projects,
-                      careers, dialogues, crises
+                      careers, dialogues, crises, mentors
 assets/               sprites et portraits générés par tools/art/*.py, polices OFL
 web/                  index.html + loader.js (détection WASM / WebGPU / WebGL2)
 ```
@@ -272,5 +292,7 @@ sont synthétisés en direct par WebAudio (`crates/dsi-client/src/audio.rs`).
 
 ## Licences
 
-Code : MIT ou Apache-2.0, au choix. Polices : Pixelify Sans et IBM Plex Sans, SIL Open
+Code : MIT ou Apache-2.0, au choix. La musique et les portraits des trois mentors viennent
+d'« A la French — le jeu » (mêmes licences ; les animateurs ont donné leur accord pour
+apparaître comme mentors). Polices : Pixelify Sans et IBM Plex Sans, SIL Open
 Font License 1.1 (`assets/fonts/`). Les marques citées appartiennent à leurs propriétaires.

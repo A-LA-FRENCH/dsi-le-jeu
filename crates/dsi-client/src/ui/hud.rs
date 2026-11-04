@@ -41,10 +41,11 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
             ui.add_space(10.0);
             let width = ui.available_width();
             let gauge_w = ((width - 230.0) / 6.0 - 14.0).clamp(54.0, 110.0);
+            let mut gauges_rect: Option<egui::Rect> = None;
             for m in Metric::PRIMARY {
                 let v = c.g().m(m);
                 let col = metric_color(m, v);
-                ui.vertical(|ui| {
+                let gr = ui.vertical(|ui| {
                     ui.spacing_mut().item_spacing.y = 1.0;
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = 4.0;
@@ -60,8 +61,14 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
                         _ => "Disponibilité du SI.",
                     };
                     gauge(ui, v / 100.0, col, gauge_w, 9.0).on_hover_text(format!("{} : {:.1}\n{help}", m.label(), v));
-                });
+                })
+                .response
+                .rect;
+                gauges_rect = Some(gauges_rect.map_or(gr, |r| r.union(gr)));
                 ui.add_space(6.0);
+            }
+            if let Some(r) = gauges_rect {
+                mark(&mut c.ui.marks, "gauges", r);
             }
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 if ui.button(RichText::new("⚙").size(16.0)).on_hover_text("Réglages (Échap)").clicked() {
@@ -76,12 +83,16 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
                 for i in 0..g.agenda_max {
                     slots.push(if i < g.agenda { '●' } else { '○' });
                 }
-                ui.vertical(|ui| {
-                    ui.spacing_mut().item_spacing.y = 0.0;
-                    ui.label(RichText::new("AGENDA").font(pixel(11.0)).color(MUTED));
-                    ui.label(RichText::new(slots).size(16.0).color(if g.agenda > 0 { YELLOW } else { MUTED }))
-                        .on_hover_text("Créneaux d'agenda de ce mois : votre temps. Chaque action dans une salle en consomme un.");
-                });
+                let ar = ui
+                    .vertical(|ui| {
+                        ui.spacing_mut().item_spacing.y = 0.0;
+                        ui.label(RichText::new("AGENDA").font(pixel(11.0)).color(MUTED));
+                        ui.label(RichText::new(slots).size(16.0).color(if g.agenda > 0 { YELLOW } else { MUTED }))
+                            .on_hover_text("Créneaux d'agenda de ce mois : votre temps. Chaque action dans une salle en consomme un.");
+                    })
+                    .response
+                    .rect;
+                mark(&mut c.ui.marks, "agenda", ar);
             });
         });
     });
@@ -90,9 +101,10 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
 pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
     egui::Panel::bottom("projects").exact_size(112.0).frame(egui::Frame::new().fill(NEAR_BLACK).inner_margin(egui::Margin::symmetric(12, 8))).show(root, |ui| {
         ui.horizontal(|ui| {
-            let pending = c.g().inbox.len();
             let right_w = 230.0;
             let avail = ui.available_width() - right_w - 12.0;
+            let pr = egui::Rect::from_min_size(ui.cursor().min, egui::vec2(avail, 96.0));
+            mark(&mut c.ui.marks, "projects_bar", pr);
             ui.allocate_ui_with_layout(egui::vec2(avail, 96.0), egui::Layout::left_to_right(egui::Align::Min), |ui| {
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
@@ -137,18 +149,12 @@ pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
                 let bal = dsi_core::economy::monthly_balance(c.content, g);
                 ui.label(RichText::new(format!("Solde mensuel prévu : {:+.1}", bal)).font(bold(13.0)).color(if bal >= 0.0 { GREEN } else { RED }))
                     .on_hover_text("Allocation mensuelle − (contrats + équipe + cloud + IA + projets). Les décisions et événements s'y ajoutent.");
-                let enabled = pending == 0 && g.active.is_none() && !g.finished();
+                let run = dsi_core::score::run_cost(g);
+                let diff = if g.baseline_run > 0.0 { (run / g.baseline_run - 1.0) * 100.0 } else { 0.0 };
+                ui.label(RichText::new(format!("Coût de fonctionnement : {diff:+.0} % vs janvier")).size(12.5).color(if diff <= -15.0 { GREEN } else { MUTED }))
+                    .on_hover_text("Objectif de l'année 1 : −15 %.");
                 let agenda = g.agenda;
-                let label = if pending > 0 { format!("{pending} sujet(s) à traiter") } else if g.cal.month == 12 { "COMEX ANNUEL ▶".into() } else { "MOIS SUIVANT ▶".into() };
-                let b = big_button(ui, &label, enabled, right_w);
-                if b.on_hover_text("Barre d'espace").clicked() {
-                    c.run(Command::AdvanceMonth);
-                }
-                if pending > 0 {
-                    muted(ui, "Cliquez sur les bulles du siège ou la liste « À traiter ».");
-                } else if agenda > 0 {
-                    muted(ui, format!("Il vous reste {agenda} créneau(x) : visitez une salle."));
-                }
+                muted(ui, format!("Agenda : {agenda}/{} créneau(x) ce mois-ci", g.agenda_max));
             });
         });
     });
@@ -313,9 +319,12 @@ pub fn shortcuts(ctx: &egui::Context, c: &mut Ctx) {
         .as_ref()
         .is_some_and(|g| g.active.is_none() && !g.finished())
         && c.ui.room_panel.is_none()
+        && !c.ui.show_mentors
         && !c.ui.show_settings;
     if esc {
-        if c.ui.room_panel.is_some() {
+        if c.ui.show_mentors {
+            c.ui.show_mentors = false;
+        } else if c.ui.room_panel.is_some() {
             c.ui.room_panel = None;
         } else if c.ui.show_help || c.ui.show_credits {
             c.ui.show_help = false;
@@ -327,8 +336,15 @@ pub fn shortcuts(ctx: &egui::Context, c: &mut Ctx) {
     if !free {
         return;
     }
-    if space && c.g().inbox.is_empty() {
-        c.run(Command::AdvanceMonth);
+    if !ctx.egui_wants_keyboard_input() && ctx.input(|i| i.key_pressed(egui::Key::M)) {
+        c.ui.show_mentors = true;
+    }
+    if space {
+        if c.g().inbox.is_empty() {
+            c.run(Command::AdvanceMonth);
+        } else {
+            c.run(Command::Open(0));
+        }
     }
     let tabs = [
         Tab::Inbox,
@@ -351,7 +367,7 @@ fn view_switch(
     central: egui::Rect,
     stats: &crate::plateau::PlateauStats,
 ) {
-    egui::Area::new(egui::Id::new("view_switch"))
+    let vs = egui::Area::new(egui::Id::new("view_switch"))
         .fixed_pos(central.min + egui::vec2(10.0, 10.0))
         .order(egui::Order::Foreground)
         .show(ctx, |ui| {
@@ -389,9 +405,11 @@ fn view_switch(
                     });
                 });
         });
+    mark(&mut c.ui.marks, "view_switch", vs.response.rect);
     if c.view.plateau {
         egui::Area::new(egui::Id::new("plateau_legend"))
-            .fixed_pos(egui::pos2(central.min.x + 10.0, central.max.y - 58.0))
+            .pivot(egui::Align2::RIGHT_TOP)
+            .fixed_pos(egui::pos2(central.max.x - 10.0, central.min.y + 10.0))
             .order(egui::Order::Foreground)
             .interactable(false)
             .show(ctx, |ui| {
@@ -421,7 +439,7 @@ fn plateau_overlay(
     person: Option<&(String, bevy::math::Vec2)>,
 ) {
     if c.g().team.is_empty() {
-        egui::Area::new(egui::Id::new("plateau_empty")).fixed_pos(egui::pos2(central.center().x - 170.0, central.min.y + 52.0)).order(egui::Order::Foreground).interactable(false).show(ctx, |ui| {
+        egui::Area::new(egui::Id::new("plateau_empty")).fixed_pos(egui::pos2(central.min.x + 10.0, central.min.y + 56.0)).order(egui::Order::Foreground).interactable(false).show(ctx, |ui| {
             egui::Frame::new().fill(Color32::from_black_alpha(190)).corner_radius(3).inner_margin(egui::Margin::symmetric(10, 6)).show(ui, |ui| {
                 ui.set_width(340.0);
                 ui.label(RichText::new("Les bureaux sont vides : le SI est tenu par l'ESN. Recrutez depuis la salle RH du siège pour remplir le plateau.").size(13.0).color(LIGHT));
@@ -444,5 +462,69 @@ fn plateau_overlay(
                         ui.label(RichText::new(label).size(13.0).color(TEXT));
                     });
             });
+    }
+}
+
+/// Le gros bouton d'action du mois, en bas à droite de la vue du monde : il ouvre le
+/// sujet suivant tant qu'il en reste, puis passe au mois suivant.
+pub fn next_button(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
+    let g = c.g();
+    if g.active.is_some() || g.finished() {
+        return;
+    }
+    let pending = g.inbox.len();
+    let december = g.cal.month == 12;
+    let agenda = g.agenda;
+    let next_month = dsi_core::state::Calendar::from_abs(g.turn() + 1).month_name();
+    let t = ctx.input(|i| i.time) as f32;
+    let pulse = if c.settings.reduce_motion { 1.0 } else { 0.5 + 0.5 * (t * 2.5).sin() };
+    let (label, sub, fill, glow) = if pending > 0 {
+        let first = dsi_core::game::inbox_title(c.content, g, &g.inbox[0]);
+        (format!("▶ SUJET SUIVANT ({pending})"), first, ORANGE, false)
+    } else if december {
+        ("COMEX ANNUEL ▶".to_string(), "Le bilan de l'année vous attend.".to_string(), YELLOW, true)
+    } else {
+        let sub = if agenda > 0 { format!("Il vous reste {agenda} créneau(x) — ou passez en {next_month}") } else { format!("Passer en {next_month} · barre d'espace") };
+        ("MOIS SUIVANT ▶".to_string(), sub, YELLOW, true)
+    };
+    let mut clicked = false;
+    let area = egui::Area::new(egui::Id::new("next_button"))
+        .pivot(egui::Align2::RIGHT_BOTTOM)
+        .fixed_pos(egui::pos2(central.max.x - 12.0, central.max.y - 12.0))
+        .order(egui::Order::Foreground)
+        .show(ctx, |ui| {
+            let stroke = if glow {
+                egui::Stroke::new(3.0, Color32::from_rgba_unmultiplied(255, 240, 170, (90.0 + 165.0 * pulse) as u8))
+            } else {
+                egui::Stroke::new(2.0, Color32::from_rgb(255, 200, 120))
+            };
+            egui::Frame::new()
+                .fill(Color32::from_black_alpha(200))
+                .corner_radius(6)
+                .inner_margin(egui::Margin::same(6))
+                .show(ui, |ui| {
+                    ui.vertical(|ui| {
+                        let b = ui.add(
+                            egui::Button::new(RichText::new(&label).font(pixel(20.0)).color(NEAR_BLACK))
+                                .fill(fill)
+                                .stroke(stroke)
+                                .corner_radius(5)
+                                .min_size(egui::vec2(300.0, 52.0)),
+                        );
+                        if b.on_hover_cursor(egui::CursorIcon::PointingHand).on_hover_text("Barre d'espace").clicked() {
+                            clicked = true;
+                        }
+                        ui.add(egui::Label::new(RichText::new(&sub).size(12.5).color(LIGHT)).truncate());
+                    });
+                })
+                .response
+        });
+    mark(&mut c.ui.marks, "month_btn", area.inner.rect);
+    if clicked {
+        if pending > 0 {
+            c.run(Command::Open(0));
+        } else {
+            c.run(Command::AdvanceMonth);
+        }
     }
 }

@@ -288,6 +288,12 @@ pub struct Profile {
     pub female: bool,
     pub company: String,
     pub background: String,
+    /// Avatar choisi (0–7 directrices, 8–15 directeurs). `None` = anciennes sauvegardes.
+    #[serde(default)]
+    pub avatar: Option<u32>,
+    /// Mentor principal (mentors.json).
+    #[serde(default)]
+    pub mentor: String,
 }
 
 impl Default for Profile {
@@ -297,9 +303,15 @@ impl Default for Profile {
             female: true,
             company: "Groupe Duval-Montaigne".into(),
             background: "ex_dev".into(),
+            avatar: Some(0),
+            mentor: "mehdi".into(),
         }
     }
 }
+
+/// Étape du tutoriel : `TUTORIAL_OFF` = désactivé, `TUTORIAL_DONE` = terminé.
+pub const TUTORIAL_OFF: u32 = 999;
+pub const TUTORIAL_DONE: u32 = 100;
 
 /// Ton d'une ligne du fil d'actualité.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -363,6 +375,9 @@ pub struct Resolution {
     pub notes: Vec<String>,
     #[serde(default)]
     pub delayed_hint: bool,
+    /// Personnage qui parle (portrait affiché), ex. un mentor.
+    #[serde(default)]
+    pub speaker: String,
 }
 
 /// La scène modale en cours.
@@ -486,6 +501,15 @@ pub struct GameState {
     pub ending: Option<Ending>,
     pub year_scores: Vec<u32>,
     pub debug: bool,
+    #[serde(default)]
+    pub mentors: crate::mentors::MentorState,
+    /// Étape du tutoriel (voir `TUTORIAL_OFF` / `TUTORIAL_DONE`).
+    #[serde(default = "tutorial_off")]
+    pub tutorial: u32,
+}
+
+fn tutorial_off() -> u32 {
+    TUTORIAL_OFF
 }
 
 impl GameState {
@@ -542,6 +566,8 @@ impl GameState {
             ending: None,
             year_scores: Vec::new(),
             debug: false,
+            mentors: Default::default(),
+            tutorial: TUTORIAL_OFF,
         }
     }
 
@@ -582,6 +608,7 @@ impl GameState {
             .replace("{le_la}", if p.female { "la" } else { "le" })
             .replace("{Le_La}", if p.female { "La" } else { "Le" })
             .replace("{e}", if p.female { "e" } else { "" })
+            .replace("{mentor}", &mentor_name(&p.mentor))
     }
 
     /// Est-ce que la partie attend une décision (rien d'autre ne peut avancer) ?
@@ -620,5 +647,15 @@ impl GameState {
             self.over = Some(o);
             self.push_log(format!("GAME OVER — {}", o.title()), Tone::Bad);
         }
+    }
+}
+
+/// Prénom d'un mentor à partir de son identifiant.
+pub fn mentor_name(id: &str) -> String {
+    match id {
+        "mehdi" => "Mehdi".into(),
+        "steeve" => "Steeve".into(),
+        "jb" => "Jean-Baptiste".into(),
+        _ => "votre mentor".into(),
     }
 }

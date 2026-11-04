@@ -506,3 +506,53 @@ fn des_parties_completes_se_terminent() {
     }
     assert!(endings + overs >= 10, "fins {endings}, défaites {overs}");
 }
+
+#[test]
+fn le_mentor_donne_un_bonus_permanent_et_des_conseils() {
+    let c = content();
+    let base = game::new_game(&c, 20, Profile { mentor: String::new(), ..Profile::default() });
+    let s = game::new_game(&c, 20, Profile { mentor: "jb".into(), ..Profile::default() });
+    assert!(s.m(Metric::Sovereignty) > base.m(Metric::Sovereignty));
+    let mut s = s;
+    s.inbox.clear();
+    game::apply(&c, &mut s, Command::ConsultMentor("jb".into())).unwrap();
+    let Some(Active::Result(r)) = s.active.clone() else { panic!() };
+    assert_eq!(r.speaker, "mentor:jb");
+    // Le conseil VMware de Jean-Baptiste donne du levier pour la prochaine négociation.
+    assert!(s.has_flag("mentor_leverage"));
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    // Délai : impossible de le reconsulter tout de suite.
+    assert!(game::apply(&c, &mut s, Command::ConsultMentor("jb".into())).is_err());
+    // Le mentor principal revient plus vite que les autres.
+    let jb = c.mentor("jb").unwrap();
+    let mehdi = c.mentor("mehdi").unwrap();
+    assert!(dsi_core::mentors::cooldown(&s, jb) < dsi_core::mentors::cooldown(&s, mehdi));
+    let lev_before = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true).unwrap().leverage;
+    s.flags.remove("mentor_leverage");
+    let lev_after = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true).unwrap().leverage;
+    assert!(lev_before > lev_after);
+}
+
+#[test]
+fn chaque_mentor_a_toujours_un_conseil() {
+    let c = content();
+    for m in &c.mentors {
+        let s = game::new_game(&c, 21, Profile { mentor: m.id.clone(), ..Profile::default() });
+        assert!(dsi_core::mentors::advice(&s, m).is_some(), "{}", m.id);
+    }
+}
+
+#[test]
+fn les_anciennes_sauvegardes_se_chargent() {
+    let (_, s) = new(22);
+    let mut v: serde_json::Value = serde_json::from_str(&save::to_json(&s).unwrap()).unwrap();
+    let g = v["game"].as_object_mut().unwrap();
+    g.remove("mentors");
+    g.remove("tutorial");
+    let p = g["profile"].as_object_mut().unwrap();
+    p.remove("avatar");
+    p.remove("mentor");
+    let back = save::from_json(&v.to_string()).unwrap();
+    assert_eq!(back.profile.avatar, None);
+    assert_eq!(back.tutorial, dsi_core::state::TUTORIAL_OFF);
+}

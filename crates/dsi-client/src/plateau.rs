@@ -289,7 +289,11 @@ fn wanted(
         key: "dsi".into(),
         label: format!("{} — DSI (vous)", g.profile.name),
         seat: seat_of(DSI_DESK.0, DSI_DESK.1) - Vec2::new(0.1, 0.0),
-        row: 10 * 3 + if g.profile.female { 1 } else { 0 },
+        // Lignes 33+ : un sprite par avatar de DSI (voir tools/art/gen_iso.py).
+        row: match g.profile.avatar {
+            Some(a) => 33 + a.min(15),
+            None => 10 * 3 + if g.profile.female { 1 } else { 0 },
+        },
         dsi: true,
     });
     for (k, h) in g.team.iter().enumerate().take(TEAM_DESKS.len()) {

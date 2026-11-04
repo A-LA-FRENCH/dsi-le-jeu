@@ -17,6 +17,7 @@ pub mod economy;
 pub mod effects;
 pub mod events;
 pub mod game;
+pub mod mentors;
 pub mod negotiation;
 pub mod people;
 pub mod projects;

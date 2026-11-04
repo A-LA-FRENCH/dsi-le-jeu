@@ -130,7 +130,7 @@ pub fn portrait(ui: &mut egui::Ui, tex: Option<egui::TextureId>, idx: u32, size:
         ui.allocate_exact_size(Vec2::splat(size), egui::Sense::hover());
         return;
     };
-    let n = 16.0;
+    let n = 32.0;
     let uv = egui::Rect::from_min_max(
         egui::pos2(idx as f32 / n, 0.0),
         egui::pos2((idx as f32 + 1.0) / n, 1.0),
@@ -212,4 +212,24 @@ pub fn kind_banner(ui: &mut egui::Ui, text: &str, color: Color32) {
 pub fn wrap(ui: &mut egui::Ui, text: impl Into<RichText>) {
     let t: RichText = text.into();
     ui.add(egui::Label::new(t).wrap());
+}
+
+/// Portrait d'un mentor (`ui/mentors.png`, 3 × 40 px).
+pub fn mentor_portrait(ui: &mut egui::Ui, tex: Option<egui::TextureId>, idx: u32, size: f32) -> egui::Response {
+    let Some(id) = tex else {
+        return ui.allocate_exact_size(Vec2::splat(size), egui::Sense::click()).1;
+    };
+    let n = 3.0;
+    let uv = egui::Rect::from_min_max(egui::pos2(idx as f32 / n, 0.0), egui::pos2((idx as f32 + 1.0) / n, 1.0));
+    ui.add(
+        egui::Image::from_texture(egui::load::SizedTexture::new(id, Vec2::splat(size)))
+            .uv(uv)
+            .texture_options(egui::TextureOptions::NEAREST)
+            .sense(egui::Sense::click()),
+    )
+}
+
+/// Mémorise le rectangle d'un élément pour que le tutoriel puisse le désigner.
+pub fn mark(marks: &mut std::collections::HashMap<&'static str, egui::Rect>, key: &'static str, r: egui::Rect) {
+    marks.insert(key, r);
 }

@@ -19,7 +19,8 @@ from playwright.sync_api import sync_playwright
 
 # Mise en page de référence 1280×720 (egui dessine dans le canvas : pas de DOM à cibler).
 NEW_GAME = (640, 397)
-START = (470, 618)
+TO_MENTOR = (450, 655)
+START = (340, 641)
 CONTINUE = (640, 372)
 
 
@@ -98,6 +99,8 @@ def main():
         for _ in range(3):
             click(page, NEW_GAME)
             time.sleep(1.5)
+            click(page, TO_MENTOR)
+            time.sleep(1.5)
             click(page, START)
             time.sleep(2.5)
             if save(page):
@@ -108,6 +111,9 @@ def main():
             cal = s["game"]["cal"]
             check(cal == {"year": 1, "month": 1}, f"la partie commence en janvier année 1 ({cal})")
         page.screenshot(path=str(args.shots / "2-siege.png"))
+        if s:
+            check(s["game"]["tutorial"] == 0, "le tutoriel démarre")
+            check(s["game"]["profile"]["mentor"] == "mehdi", "le mentor par défaut est choisi")
         page.keyboard.press("KeyV")
         time.sleep(3)
         page.screenshot(path=str(args.shots / "3-plateau.png"))
