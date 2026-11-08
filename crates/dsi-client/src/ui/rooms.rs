@@ -124,10 +124,10 @@ pub fn show(ctx: &egui::Context, c: &mut Ctx) {
     if close {
         c.ui.room_panel = None;
     }
-    if let Some(cmd) = cmd {
-        if c.run(cmd) {
-            c.ui.room_panel = None;
-        }
+    if let Some(cmd) = cmd
+        && c.run(cmd)
+    {
+        c.ui.room_panel = None;
     }
 }
 

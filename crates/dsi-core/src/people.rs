@@ -211,7 +211,8 @@ pub fn offer(
             ),
             deltas,
             notes: vec![],
-            speaker: String::new(), delayed_hint: false,
+            speaker: String::new(),
+            delayed_hint: false,
         };
     }
     let Some(o) = idx.and_then(|i| content.careers.offers.get(i)) else {
@@ -253,7 +254,8 @@ pub fn offer(
             ),
             deltas,
             notes,
-            speaker: String::new(), delayed_hint: iv.lied,
+            speaker: String::new(),
+            delayed_hint: iv.lied,
         }
     } else {
         s.push_log(format!("{} a décliné votre offre.", iv.name), Tone::Bad);
@@ -266,7 +268,8 @@ pub fn offer(
             ),
             deltas,
             notes: vec![],
-            speaker: String::new(), delayed_hint: false,
+            speaker: String::new(),
+            delayed_hint: false,
         }
     }
 }

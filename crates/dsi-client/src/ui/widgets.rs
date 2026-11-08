@@ -215,12 +215,22 @@ pub fn wrap(ui: &mut egui::Ui, text: impl Into<RichText>) {
 }
 
 /// Portrait d'un mentor (`ui/mentors.png`, 3 × 40 px).
-pub fn mentor_portrait(ui: &mut egui::Ui, tex: Option<egui::TextureId>, idx: u32, size: f32) -> egui::Response {
+pub fn mentor_portrait(
+    ui: &mut egui::Ui,
+    tex: Option<egui::TextureId>,
+    idx: u32,
+    size: f32,
+) -> egui::Response {
     let Some(id) = tex else {
-        return ui.allocate_exact_size(Vec2::splat(size), egui::Sense::click()).1;
+        return ui
+            .allocate_exact_size(Vec2::splat(size), egui::Sense::click())
+            .1;
     };
     let n = 3.0;
-    let uv = egui::Rect::from_min_max(egui::pos2(idx as f32 / n, 0.0), egui::pos2((idx as f32 + 1.0) / n, 1.0));
+    let uv = egui::Rect::from_min_max(
+        egui::pos2(idx as f32 / n, 0.0),
+        egui::pos2((idx as f32 + 1.0) / n, 1.0),
+    );
     ui.add(
         egui::Image::from_texture(egui::load::SizedTexture::new(id, Vec2::splat(size)))
             .uv(uv)
@@ -230,6 +240,109 @@ pub fn mentor_portrait(ui: &mut egui::Ui, tex: Option<egui::TextureId>, idx: u32
 }
 
 /// Mémorise le rectangle d'un élément pour que le tutoriel puisse le désigner.
-pub fn mark(marks: &mut std::collections::HashMap<&'static str, egui::Rect>, key: &'static str, r: egui::Rect) {
+pub fn mark(
+    marks: &mut std::collections::HashMap<&'static str, egui::Rect>,
+    key: &'static str,
+    r: egui::Rect,
+) {
     marks.insert(key, r);
+}
+
+/// Postes du budget mensuel : (libellé, couleur, montant).
+pub fn budget_items(b: &dsi_core::economy::Breakdown) -> [(&'static str, Color32, f32); 5] {
+    [
+        ("Salaires", BLUE, b.salaries),
+        ("Logiciels", PURPLE, b.software),
+        ("ESN", ORANGE, b.esn),
+        ("Cloud / IA", CYAN, b.cloud_ai),
+        ("Projets", YELLOW, b.projects),
+    ]
+}
+
+/// Détail texte du budget mensuel (infobulle).
+pub fn budget_tooltip(b: &dsi_core::economy::Breakdown) -> String {
+    let mut t = format!(
+        "Budget mensuel alloué par le DAF : {:.2} pt\n",
+        b.allocation
+    );
+    let pct = |v: f32| {
+        if b.allocation > 0.0 {
+            v / b.allocation * 100.0
+        } else {
+            0.0
+        }
+    };
+    for (k, _, v) in budget_items(b) {
+        let detail = match k {
+            "Salaires" => " (équipe historique + recrues)",
+            "Logiciels" => " (licences, abonnements, contrats fournisseurs)",
+            "ESN" => " (régie + renforts ESN sur les projets)",
+            "Cloud / IA" => " (facture cloud + tokens / GPU)",
+            _ => " (projets en cours)",
+        };
+        t.push_str(&format!("\n{k} : {v:.2} pt — {:.0} %{detail}", pct(v)));
+    }
+    t.push_str(&format!(
+        "\n\nSolde du mois : {:+.2} pt, ajouté à la jauge BUDGET au passage du mois.",
+        b.balance
+    ));
+    t
+}
+
+/// Barre empilée : chaque poste en proportion du budget mensuel ; le reste est le solde.
+pub fn budget_bar(
+    ui: &mut egui::Ui,
+    b: &dsi_core::economy::Breakdown,
+    width: f32,
+    height: f32,
+) -> egui::Response {
+    let (rect, resp) = ui.allocate_exact_size(Vec2::new(width, height), egui::Sense::hover());
+    let p = ui.painter();
+    p.rect_filled(rect, 0.0, Color32::from_rgb(34, 40, 54));
+    let total = b.allocation.max(b.spent()).max(0.01);
+    let mut x = rect.min.x;
+    for (_, col, v) in budget_items(b) {
+        let w = v.max(0.0) / total * width;
+        if w > 0.5 {
+            p.rect_filled(
+                egui::Rect::from_min_max(
+                    egui::pos2(x, rect.min.y),
+                    egui::pos2((x + w - 1.0).max(x + 0.5), rect.max.y),
+                ),
+                0.0,
+                col,
+            );
+        }
+        x += w;
+    }
+    // Trait de l'allocation : au-delà, on dépense plus que ce qu'on reçoit.
+    let ax = rect.min.x + b.allocation / total * width;
+    if b.balance < 0.0 {
+        p.rect_filled(
+            egui::Rect::from_min_max(egui::pos2(ax, rect.min.y), rect.max),
+            0.0,
+            RED.gamma_multiply(0.35),
+        );
+    }
+    p.line_segment(
+        [
+            egui::pos2(ax, rect.min.y - 2.0),
+            egui::pos2(ax, rect.max.y + 2.0),
+        ],
+        egui::Stroke::new(2.0, TEXT),
+    );
+    resp
+}
+
+/// Légende compacte d'un poste du budget.
+pub fn budget_chip(ui: &mut egui::Ui, label: &str, col: Color32, v: f32) {
+    ui.spacing_mut().item_spacing.x = 3.0;
+    let (r, _) = ui.allocate_exact_size(Vec2::new(8.0, 8.0), egui::Sense::hover());
+    ui.painter().rect_filled(r, 0.0, col);
+    ui.label(
+        RichText::new(format!("{label} {v:.1}"))
+            .size(12.0)
+            .color(LIGHT),
+    );
+    ui.add_space(4.0);
 }

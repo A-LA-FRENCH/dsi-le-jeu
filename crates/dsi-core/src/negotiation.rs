@@ -334,6 +334,7 @@ pub fn conclude(content: &Content, s: &mut GameState, n: &Negotiation, accept: b
         text,
         deltas,
         notes,
-        speaker: String::new(), delayed_hint: false,
+        speaker: String::new(),
+        delayed_hint: false,
     }
 }

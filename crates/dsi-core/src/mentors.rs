@@ -59,7 +59,11 @@ pub struct MentorState {
 }
 
 pub fn cooldown(s: &GameState, def: &MentorDef) -> u32 {
-    if s.profile.mentor == def.id { def.cooldown_main } else { def.cooldown }
+    if s.profile.mentor == def.id {
+        def.cooldown_main
+    } else {
+        def.cooldown
+    }
 }
 
 /// Mois restants avant de pouvoir consulter ce mentor (0 = disponible).
@@ -80,28 +84,51 @@ pub fn apply_passive(content: &Content, s: &mut GameState) {
     if let Some(def) = content.mentor(&s.profile.mentor).cloned() {
         crate::effects::apply(s, &def.passive);
         s.flags.insert(format!("mentor_{}", def.id));
-        s.push_log(format!("{} devient votre mentor : {}.", def.name, def.passive_label), Tone::Good);
+        s.push_log(
+            format!("{} devient votre mentor : {}.", def.name, def.passive_label),
+            Tone::Good,
+        );
     }
 }
 
 pub fn consult(content: &Content, s: &mut GameState, id: &str) -> Result<Resolution, String> {
-    let def = content.mentor(id).cloned().ok_or_else(|| format!("mentor inconnu : {id}"))?;
+    let def = content
+        .mentor(id)
+        .cloned()
+        .ok_or_else(|| format!("mentor inconnu : {id}"))?;
     let w = wait(s, &def);
     if w > 0 {
-        return Err(format!("{} est en tournage du podcast. Disponible dans {w} mois.", def.name));
+        return Err(format!(
+            "{} est en tournage du podcast. Disponible dans {w} mois.",
+            def.name
+        ));
     }
-    let a = advice(s, &def).cloned().ok_or_else(|| format!("{} n'a rien à ajouter pour l'instant.", def.name))?;
+    let a = advice(s, &def)
+        .cloned()
+        .ok_or_else(|| format!("{} n'a rien à ajouter pour l'instant.", def.name))?;
     let now = s.turn();
     s.mentors.last_consult.insert(def.id.clone(), now);
     s.mentors.last_advice.insert(def.id.clone(), a.text.clone());
     s.mentors.consults += 1;
-    let (deltas, notes, _, _) = crate::game::apply_outcome(content, s, &a.outcome, &format!("mentor:{}", def.id));
+    let (deltas, notes, _, _) =
+        crate::game::apply_outcome(content, s, &a.outcome, &format!("mentor:{}", def.id));
     s.push_log(format!("{} : « {} »", def.name, a.text), Tone::Story);
     s.decisions.push(format!("mentor:{}", def.id));
     let mut notes = notes;
     if a.outcome.set_flag.iter().any(|f| f == "mentor_leverage") {
         notes.push("Bonus : +10 de rapport de force à votre prochaine négociation.".into());
     }
-    notes.push(format!("Prochain conseil de {} dans {} mois.", def.name, cooldown(s, &def)));
-    Ok(Resolution { title: format!("Conseil de {}", def.name), text: a.text, deltas, notes, delayed_hint: false, speaker: format!("mentor:{}", def.id) })
+    notes.push(format!(
+        "Prochain conseil de {} dans {} mois.",
+        def.name,
+        cooldown(s, &def)
+    ));
+    Ok(Resolution {
+        title: format!("Conseil de {}", def.name),
+        text: a.text,
+        deltas,
+        notes,
+        delayed_hint: false,
+        speaker: format!("mentor:{}", def.id),
+    })
 }

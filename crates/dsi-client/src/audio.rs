@@ -176,7 +176,11 @@ fn play(mut sfx: ResMut<Sfx>, settings: Res<Settings>) {
 }
 
 /// Musique : 0 = coupée, 1 = menu (thème en boucle), 2 = bureau (playlist).
-fn music(settings: Res<Settings>, ui: Option<Res<crate::ui::UiState>>, mut last: Local<Option<(u32, u32)>>) {
+fn music(
+    settings: Res<Settings>,
+    ui: Option<Res<crate::ui::UiState>>,
+    mut last: Local<Option<(u32, u32)>>,
+) {
     let Some(ui) = ui else { return };
     let mode = if !settings.music || !ui.fonts_ready {
         0

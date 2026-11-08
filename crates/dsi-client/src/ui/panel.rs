@@ -27,7 +27,10 @@ pub fn show(ui: &mut egui::Ui, c: &mut Ctx) {
         ];
         for (tab, label, key) in tabs {
             let sel = c.ui.tab == tab;
-            let b = ui.add(egui::Button::selectable(sel, RichText::new(label).size(13.5)));
+            let b = ui.add(egui::Button::selectable(
+                sel,
+                RichText::new(label).size(13.5),
+            ));
             if tab == Tab::Contracts {
                 mark(&mut c.ui.marks, "tab_contracts", b.rect);
             }
@@ -137,26 +140,57 @@ fn metrics(ui: &mut egui::Ui, c: &mut Ctx) {
             }
         });
     section(ui, "BUDGET MENSUEL");
-    let run_contracts = dsi_core::contracts::run_cost(g);
-    let payroll = dsi_core::people::payroll(g);
-    let burn = dsi_core::projects::burn(c.content, g);
-    egui::Grid::new("budget").num_columns(2).show(ui, |ui| {
-        for (k, v, col) in [
-            ("Allocation", g.allocation, GREEN),
-            ("Contrats fournisseurs", -run_contracts, RED),
-            ("Équipe interne", -payroll, RED),
-            ("Facture cloud", -g.cloud.bill, RED),
-            ("Tokens / GPU", -g.ai.token_bill, RED),
-            ("Projets en cours", -burn, RED),
-        ] {
-            ui.label(k);
-            ui.label(RichText::new(format!("{v:+.2}")).color(if v.abs() < 0.005 {
-                MUTED
-            } else {
-                col
-            }));
+    let bd = dsi_core::economy::breakdown(c.content, g);
+    budget_bar(ui, &bd, 260.0, 14.0).on_hover_text(budget_tooltip(&bd));
+    egui::Grid::new("budget")
+        .num_columns(3)
+        .spacing([10.0, 3.0])
+        .show(ui, |ui| {
+            ui.label(RichText::new("Budget alloué").strong());
+            ui.label(RichText::new(format!("{:.2}", bd.allocation)).color(GREEN));
+            ui.label("");
             ui.end_row();
-        }
+            for (k, col, v) in budget_items(&bd) {
+                ui.horizontal(|ui| {
+                    let (r, _) = ui.allocate_exact_size(egui::vec2(9.0, 9.0), egui::Sense::hover());
+                    ui.painter().rect_filled(r, 0.0, col);
+                    ui.label(k);
+                });
+                ui.label(
+                    RichText::new(format!("{:+.2}", -v)).color(if v.abs() < 0.005 {
+                        MUTED
+                    } else {
+                        RED
+                    }),
+                );
+                let pct = if bd.allocation > 0.0 {
+                    v / bd.allocation * 100.0
+                } else {
+                    0.0
+                };
+                ui.label(RichText::new(format!("{pct:.0} %")).color(MUTED));
+                ui.end_row();
+            }
+            ui.label(RichText::new("Solde du mois").strong());
+            ui.label(
+                RichText::new(format!("{:+.2}", bd.balance))
+                    .strong()
+                    .color(if bd.balance >= 0.0 { GREEN } else { RED }),
+            );
+            ui.label("");
+            ui.end_row();
+        });
+    muted(
+        ui,
+        format!(
+            "Salaires : équipe historique {:.1} + recrues {:.1} · ESN : régie + renforts projets · Cloud {:.2} + tokens/GPU {:.2}",
+            g.staff_payroll,
+            dsi_core::people::payroll(g),
+            g.cloud.bill,
+            g.ai.token_bill
+        ),
+    );
+    egui::Grid::new("budget_run").num_columns(2).show(ui, |ui| {
         let run = dsi_core::score::run_cost(g);
         ui.label(RichText::new("Coût de fonctionnement").strong());
         let diff = if g.baseline_run > 0.0 {
@@ -238,7 +272,11 @@ fn metrics(ui: &mut egui::Ui, c: &mut Ctx) {
 
 fn contracts(ui: &mut egui::Ui, c: &mut Ctx) {
     let top = ui.cursor().min;
-    mark(&mut c.ui.marks, "contracts_list", egui::Rect::from_min_size(top, egui::vec2(ui.available_width(), 220.0)));
+    mark(
+        &mut c.ui.marks,
+        "contracts_list",
+        egui::Rect::from_min_size(top, egui::vec2(ui.available_width(), 220.0)),
+    );
     section(ui, "CONTRATS FOURNISSEURS");
     muted(
         ui,

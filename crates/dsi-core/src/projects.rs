@@ -9,7 +9,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 /// Nombre maximal de projets en parallèle.
-pub const MAX_PARALLEL: usize = 3;
+pub const MAX_PARALLEL: usize = 5;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ProjectDef {

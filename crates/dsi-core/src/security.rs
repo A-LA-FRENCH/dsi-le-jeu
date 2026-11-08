@@ -275,6 +275,7 @@ pub fn close(content: &Content, s: &mut GameState, w: &WarRoom) -> Resolution {
         text,
         deltas,
         notes,
-        speaker: String::new(), delayed_hint: !clean && !total,
+        speaker: String::new(),
+        delayed_hint: !clean && !total,
     }
 }

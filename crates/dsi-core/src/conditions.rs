@@ -102,9 +102,12 @@ impl Conditions {
                 .all(|c| s.contracts.iter().any(|x| &x.id == c && x.active))
             && (!self.cloud || s.cloud.active)
             && self.contract_due.iter().all(|(c, n)| {
-                s.contracts
-                    .iter()
-                    .any(|x| &x.id == c && x.active && x.pre_deal.is_none() && (1..=*n).contains(&x.months_left(s.turn())))
+                s.contracts.iter().any(|x| {
+                    &x.id == c
+                        && x.active
+                        && x.pre_deal.is_none()
+                        && (1..=*n).contains(&x.months_left(s.turn()))
+                })
             })
     }
 

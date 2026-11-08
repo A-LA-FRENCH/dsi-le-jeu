@@ -89,12 +89,14 @@ pub fn year_review(content: &Content, s: &GameState) -> YearReview {
     let run = run_cost(s);
     let mut objectives = Vec::new();
     let mut delta = 0.0;
-    if let Some(y) = content
+    // Au-delà des années écrites, les objectifs de la dernière année s'appliquent.
+    let def = content
         .dialogues
         .years
         .iter()
         .find(|y| y.year == s.cal.year)
-    {
+        .or_else(|| content.dialogues.years.iter().max_by_key(|y| y.year));
+    if let Some(y) = def {
         for o in &y.objectives {
             let ok = o.conditions.met(s)
                 && o.run_cut
@@ -122,8 +124,13 @@ pub fn year_review(content: &Content, s: &GameState) -> YearReview {
         run_cost: run,
         baseline: s.baseline_run,
         verdict: verdict.into(),
-        last: s.cal.year >= content.campaign_years(),
+        last: s.cal.year >= final_year(content, s),
     }
+}
+
+/// Dernière année de la partie en cours (campagne + prolongations).
+pub fn final_year(content: &Content, s: &GameState) -> u32 {
+    content.dialogues.campaign_length + s.extension
 }
 
 /// Fin de campagne : choisit la fin la plus remarquable atteinte.
@@ -178,7 +185,11 @@ pub fn ending(s: &GameState) -> Ending {
         (
             "survivor",
             "Toujours en poste",
-            "Trois ans de DSI. Le SI tient debout, plus ou moins. Vous comprenez maintenant pourquoi les DSI ont l'air fatigués. On garde SAP encore un an.",
+            if s.cal.year > 3 {
+                "Six ans de DSI. Le SI tient debout, plus ou moins. Vous avez survécu à deux DG, trois réorganisations et une migration ERP. On garde SAP encore un an."
+            } else {
+                "Trois ans de DSI. Le SI tient debout, plus ou moins. Vous comprenez maintenant pourquoi les DSI ont l'air fatigués. On garde SAP encore un an."
+            },
         )
     };
     Ending {

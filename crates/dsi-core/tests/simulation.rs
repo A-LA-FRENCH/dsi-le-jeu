@@ -83,16 +83,23 @@ fn resolve_active(c: &Content, s: &mut GameState, pick: usize) {
 /// Joue une partie complète ; renvoie l'état final.
 fn play(seed: u64, pick: usize) -> GameState {
     let (c, mut s) = new(seed);
+    play_on(&c, &mut s, pick);
+    s
+}
+
+/// Fait avancer une partie existante jusqu'à sa fin (ou 1 500 commandes).
+fn play_on(c: &Content, s: &mut GameState, pick: usize) {
+    let (c, s) = (c, s);
     for _ in 0..1500 {
         if s.finished() {
             break;
         }
         if s.active.is_some() {
-            resolve_active(&c, &mut s, pick);
+            resolve_active(c, s, pick);
             continue;
         }
         if !s.inbox.is_empty() {
-            game::apply(&c, &mut s, Command::Open(0)).unwrap();
+            game::apply(c, s, Command::Open(0)).unwrap();
             continue;
         }
         // Utilise l'agenda : un projet si possible, sinon une action.
@@ -100,33 +107,32 @@ fn play(seed: u64, pick: usize) -> GameState {
             let p = c
                 .projects
                 .iter()
-                .find(|p| p.catalog && dsi_core::projects::can_start(&c, &s, &p.id).is_ok())
+                .find(|p| p.catalog && dsi_core::projects::can_start(c, s, &p.id).is_ok())
                 .map(|p| p.id.clone());
             if let Some(p) = p
                 && s.m(Metric::Budget) > 25.0
             {
-                game::apply(&c, &mut s, Command::StartProject(p)).unwrap();
+                game::apply(c, s, Command::StartProject(p)).unwrap();
                 continue;
             }
             let a = c
                 .actions
                 .iter()
                 .find(|a| {
-                    a.requires.met(&s)
+                    a.requires.met(s)
                         && s.actions_done
                             .get(&a.id)
                             .is_none_or(|t| s.turn() >= t + a.cooldown.max(1))
                 })
                 .map(|a| a.id.clone());
             if let Some(a) = a
-                && game::apply(&c, &mut s, Command::DoAction(a)).is_ok()
+                && game::apply(c, s, Command::DoAction(a)).is_ok()
             {
                 continue;
             }
         }
-        game::apply(&c, &mut s, Command::AdvanceMonth).unwrap();
+        game::apply(c, s, Command::AdvanceMonth).unwrap();
     }
-    s
 }
 
 #[test]
@@ -250,16 +256,16 @@ fn les_projets_avancent_et_se_livrent() {
 }
 
 #[test]
-fn trois_projets_maximum() {
+fn cinq_projets_maximum() {
     let (c, mut s) = new(7);
     s.inbox.clear();
-    s.metrics.set(Metric::Budget, 90.0);
-    s.agenda = 6;
-    for p in ["forge", "pra", "cartographie"] {
+    s.metrics.set(Metric::Budget, 100.0);
+    s.agenda = 9;
+    for p in ["forge", "pra", "cartographie", "sso_mfa", "data_governance"] {
         game::apply(&c, &mut s, Command::StartProject(p.into())).unwrap();
         game::apply(&c, &mut s, Command::Continue).unwrap();
     }
-    assert!(game::apply(&c, &mut s, Command::StartProject("sso_mfa".into())).is_err());
+    assert!(game::apply(&c, &mut s, Command::StartProject("api_platform".into())).is_err());
 }
 
 #[test]
@@ -510,13 +516,29 @@ fn des_parties_completes_se_terminent() {
 #[test]
 fn le_mentor_donne_un_bonus_permanent_et_des_conseils() {
     let c = content();
-    let base = game::new_game(&c, 20, Profile { mentor: String::new(), ..Profile::default() });
-    let s = game::new_game(&c, 20, Profile { mentor: "jb".into(), ..Profile::default() });
+    let base = game::new_game(
+        &c,
+        20,
+        Profile {
+            mentor: String::new(),
+            ..Profile::default()
+        },
+    );
+    let s = game::new_game(
+        &c,
+        20,
+        Profile {
+            mentor: "jb".into(),
+            ..Profile::default()
+        },
+    );
     assert!(s.m(Metric::Sovereignty) > base.m(Metric::Sovereignty));
     let mut s = s;
     s.inbox.clear();
     game::apply(&c, &mut s, Command::ConsultMentor("jb".into())).unwrap();
-    let Some(Active::Result(r)) = s.active.clone() else { panic!() };
+    let Some(Active::Result(r)) = s.active.clone() else {
+        panic!()
+    };
     assert_eq!(r.speaker, "mentor:jb");
     // Le conseil VMware de Jean-Baptiste donne du levier pour la prochaine négociation.
     assert!(s.has_flag("mentor_leverage"));
@@ -527,9 +549,13 @@ fn le_mentor_donne_un_bonus_permanent_et_des_conseils() {
     let jb = c.mentor("jb").unwrap();
     let mehdi = c.mentor("mehdi").unwrap();
     assert!(dsi_core::mentors::cooldown(&s, jb) < dsi_core::mentors::cooldown(&s, mehdi));
-    let lev_before = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true).unwrap().leverage;
+    let lev_before = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true)
+        .unwrap()
+        .leverage;
     s.flags.remove("mentor_leverage");
-    let lev_after = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true).unwrap().leverage;
+    let lev_after = dsi_core::negotiation::start(&c, &mut s.clone(), "vmware_vsphere", true)
+        .unwrap()
+        .leverage;
     assert!(lev_before > lev_after);
 }
 
@@ -537,7 +563,14 @@ fn le_mentor_donne_un_bonus_permanent_et_des_conseils() {
 fn chaque_mentor_a_toujours_un_conseil() {
     let c = content();
     for m in &c.mentors {
-        let s = game::new_game(&c, 21, Profile { mentor: m.id.clone(), ..Profile::default() });
+        let s = game::new_game(
+            &c,
+            21,
+            Profile {
+                mentor: m.id.clone(),
+                ..Profile::default()
+            },
+        );
         assert!(dsi_core::mentors::advice(&s, m).is_some(), "{}", m.id);
     }
 }
@@ -555,4 +588,63 @@ fn les_anciennes_sauvegardes_se_chargent() {
     let back = save::from_json(&v.to_string()).unwrap();
     assert_eq!(back.profile.avatar, None);
     assert_eq!(back.tutorial, dsi_core::state::TUTORIAL_OFF);
+}
+
+#[test]
+fn on_peut_prolonger_la_partie_de_trois_ans() {
+    let c = content();
+    let mut extended = 0;
+    for seed in 0..12 {
+        let mut s = game::new_game(&c, seed, Profile::default());
+        // Prolonger une partie en cours est refusé.
+        assert!(game::apply(&c, &mut s, Command::ExtendCampaign).is_err());
+        play_on(&c, &mut s, (seed % 3) as usize);
+        let Some(first) = s.ending.clone() else {
+            continue;
+        };
+        assert_eq!(s.cal.year, 3);
+        game::apply(&c, &mut s, Command::ExtendCampaign).unwrap();
+        assert!(s.ending.is_none() && !s.finished());
+        assert_eq!(
+            (s.cal.year, s.cal.month),
+            (4, 1),
+            "la saison 2 commence en janvier de l'année 4"
+        );
+        assert_eq!(s.past_endings, vec![first]);
+        assert_eq!(score::final_year(&c, &s), 6);
+        play_on(&c, &mut s, (seed % 3) as usize);
+        assert!(
+            s.finished(),
+            "la partie prolongée {seed} doit se terminer : {:?}",
+            s.cal
+        );
+        if s.ending.is_some() {
+            assert_eq!(s.cal.year, 6);
+        }
+        // Les événements scénarisés de la saison 2 ont été joués.
+        assert!(s.seen.contains_key("nis2_compliance") || s.over.is_some());
+        extended += 1;
+        // Une sauvegarde de partie prolongée se recharge.
+        let back = save::from_json(&save::to_json(&s).unwrap()).unwrap();
+        assert_eq!(back.extension, 3);
+    }
+    assert!(extended >= 3, "trop peu de parties prolongées : {extended}");
+}
+
+#[test]
+fn le_budget_mensuel_se_repartit_entre_salaires_logiciels_et_esn() {
+    let (c, mut s) = new(3);
+    let b = dsi_core::economy::breakdown(&c, &s);
+    assert!(b.salaries > 3.0 && b.software > 4.0 && b.esn > 1.0, "{b:?}");
+    assert!((b.balance - dsi_core::economy::monthly_balance(&c, &s)).abs() < 1e-4);
+    // Un renfort ESN sur un projet bascule le surcoût dans la colonne ESN.
+    s.inbox.clear();
+    s.metrics.set(Metric::Budget, 90.0);
+    game::apply(&c, &mut s, Command::StartProject("forge".into())).unwrap();
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    let before = dsi_core::economy::breakdown(&c, &s);
+    let _ = game::apply(&c, &mut s, Command::EsnBoost("forge".into()));
+    let after = dsi_core::economy::breakdown(&c, &s);
+    assert!(after.esn > before.esn && (after.projects - before.projects).abs() < 1e-4);
+    assert!((after.balance - dsi_core::economy::monthly_balance(&c, &s)).abs() < 1e-4);
 }

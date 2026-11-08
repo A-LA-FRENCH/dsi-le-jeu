@@ -320,8 +320,7 @@ fn wanted(
         .map(|c| (c.monthly_cost / 0.3).round() as usize)
         .unwrap_or(0)
         .min(ESN_DESKS.len());
-    for k in 0..esn {
-        let (i, j) = ESN_DESKS[k];
+    for (k, &(i, j)) in ESN_DESKS.iter().enumerate().take(esn) {
         v.push(Wanted {
             key: format!("esn:{k}"),
             label: "Prestataire ESN (régie) — « exactement le profil »".into(),

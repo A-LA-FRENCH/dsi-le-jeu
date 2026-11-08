@@ -16,7 +16,7 @@ fn chapter_title(c: &Ctx) -> String {
         .dialogues
         .chapters
         .iter()
-        .filter(|ch| {
+        .rfind(|ch| {
             dsi_core::state::Calendar {
                 year: ch.at.year,
                 month: ch.at.month,
@@ -24,60 +24,176 @@ fn chapter_title(c: &Ctx) -> String {
             .abs()
                 <= now
         })
-        .last()
         .map(|ch| ch.title.clone())
         .unwrap_or_default()
 }
 
+/// Ordre d'affichage : d'abord les jauges qui peuvent mettre fin à la partie.
+const HUD_ORDER: [Metric; 18] = [
+    Metric::Comex,
+    Metric::Budget,
+    Metric::Security,
+    Metric::Debt,
+    Metric::VendorDep,
+    Metric::Make,
+    Metric::Complexity,
+    Metric::Uptime,
+    Metric::DevSat,
+    Metric::UserSat,
+    Metric::Velocity,
+    Metric::Sovereignty,
+    Metric::Resilience,
+    Metric::Attractiveness,
+    Metric::DataQuality,
+    Metric::CloudMaturity,
+    Metric::DevopsMaturity,
+    Metric::AiMaturity,
+];
+
+/// Libellé compact pour la barre du haut.
+fn hud_label(m: Metric) -> &'static str {
+    match m {
+        Metric::Security => "SÉCU",
+        Metric::DevSat => "ÉQUIPES",
+        Metric::Sovereignty => "SOUVER.",
+        Metric::Complexity => "COMPLEX.",
+        Metric::Attractiveness => "ATTRACT.",
+        Metric::Resilience => "RÉSIL.",
+        _ => m.short(),
+    }
+}
+
+/// Seuil de défaite éventuel : (valeur fatale, texte).
+fn lethal(m: Metric) -> Option<&'static str> {
+    Some(match m {
+        Metric::Comex => "À 0 : vous êtes viré.",
+        Metric::Budget => "À 0 : Bankruptcy as a Service.",
+        Metric::Security => "À 0 : Cyber Apocalypse.",
+        Metric::Debt => "À 100 : Legacy Forever.",
+        Metric::VendorDep => "À 100 : Vendor Lock-In.",
+        Metric::Make => "À 0 : Nobody Knows Anything.",
+        Metric::Complexity => "À 100 : Kubernetes Singularity.",
+        _ => return None,
+    })
+}
+
+fn metric_help(m: Metric) -> &'static str {
+    match m {
+        Metric::Budget => {
+            "Budget IT disponible. Allocation mensuelle moins les coûts de fonctionnement et de projets."
+        }
+        Metric::Security => "Niveau de sécurité : MFA, correctifs, sauvegardes, détection.",
+        Metric::Debt => {
+            "Dette technique : chaque modification coûte plus cher et casse plus souvent."
+        }
+        Metric::Comex => "Confiance du COMEX et de la DG dans la DSI.",
+        Metric::DevSat => "Satisfaction et énergie des équipes d'ingénierie.",
+        Metric::Uptime => {
+            "Disponibilité du SI. Les pannes font baisser les utilisateurs et le COMEX."
+        }
+        Metric::Velocity => "Vélocité : capacité à livrer vite ce que demandent les métiers.",
+        Metric::UserSat => "Satisfaction des utilisateurs métiers.",
+        Metric::VendorDep => {
+            "Dépendance aux fournisseurs : plus elle est haute, moins vous négociez."
+        }
+        Metric::Sovereignty => {
+            "Maîtrise de vos données, de vos clés et de vos dépendances extraterritoriales."
+        }
+        Metric::Make => {
+            "Capacité interne : ce que vos équipes savent construire et maintenir elles-mêmes."
+        }
+        Metric::Complexity => {
+            "Complexité du SI : nombre de briques, d'abstractions et d'intégrations."
+        }
+        Metric::Attractiveness => {
+            "Attractivité pour les candidats : facilite et accélère les recrutements."
+        }
+        Metric::DataQuality => "Qualité et gouvernance des données. Indispensable à l'IA.",
+        Metric::CloudMaturity => "Maturité cloud : FinOps, automatisation, architecture.",
+        Metric::DevopsMaturity => "Maturité DevOps : CI/CD, infrastructure as code, SRE.",
+        Metric::AiMaturity => "Maturité IA : cas d'usage en production, évaluation, garde-fous.",
+        Metric::Resilience => {
+            "Résilience : PRA, sauvegardes testées, multi-site, gestion de crise."
+        }
+    }
+}
+
+/// Nombre de colonnes de jauges selon la largeur disponible.
+fn metric_cols(width: f32) -> usize {
+    if width >= 9.0 * 66.0 { 9 } else { 6 }
+}
+
+/// Hauteur de la barre du haut pour une largeur d'écran donnée.
+pub fn top_bar_height(screen_w: f32) -> f32 {
+    if metric_cols(screen_w - 380.0) == 9 {
+        64.0
+    } else {
+        88.0
+    }
+}
+
 pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
-    egui::Panel::top("hud").exact_size(58.0).frame(egui::Frame::new().fill(NEAR_BLACK).inner_margin(egui::Margin::symmetric(12, 6))).show(root, |ui| {
+    let h = top_bar_height(root.ctx().content_rect().width());
+    egui::Panel::top("hud").exact_size(h).frame(egui::Frame::new().fill(NEAR_BLACK).inner_margin(egui::Margin::symmetric(12, 5))).show(root, |ui| {
         ui.horizontal_centered(|ui| {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 0.0;
-                ui.label(RichText::new("DSI — LE JEU").font(pixel(17.0)).color(YELLOW));
+                ui.label(RichText::new("DSI — LE JEU").font(pixel(16.0)).color(YELLOW));
                 let g = c.g();
                 ui.label(RichText::new(g.cal.label()).font(bold(13.0)).color(TEXT)).on_hover_text(chapter_title(c));
+                if g.extension > 0 {
+                    ui.label(RichText::new("SAISON 2").font(pixel(10.0)).color(ORANGE))
+                        .on_hover_text(format!("Partie prolongée jusqu'à la fin de l'année {}.", dsi_core::score::final_year(c.content, g)));
+                }
             });
-            ui.add_space(10.0);
-            let width = ui.available_width();
-            let gauge_w = ((width - 230.0) / 6.0 - 14.0).clamp(54.0, 110.0);
-            let mut gauges_rect: Option<egui::Rect> = None;
-            for m in Metric::PRIMARY {
-                let v = c.g().m(m);
-                let col = metric_color(m, v);
-                let gr = ui.vertical(|ui| {
-                    ui.spacing_mut().item_spacing.y = 1.0;
-                    ui.horizontal(|ui| {
-                        ui.spacing_mut().item_spacing.x = 4.0;
-                        ui.label(RichText::new(m.short()).font(pixel(11.0)).color(MUTED));
-                        ui.label(RichText::new(format!("{:.0}", v)).font(bold(14.0)).color(col));
-                    });
-                    let help = match m {
-                        Metric::Budget => "Budget IT disponible. À zéro : Bankruptcy as a Service.",
-                        Metric::Security => "Sécurité. À zéro : Cyber Apocalypse.",
-                        Metric::Debt => "Dette technique. À 100 : Legacy Forever.",
-                        Metric::Comex => "Confiance du COMEX. À zéro : vous êtes viré.",
-                        Metric::DevSat => "Satisfaction et énergie des équipes d'ingénierie.",
-                        _ => "Disponibilité du SI.",
-                    };
-                    gauge(ui, v / 100.0, col, gauge_w, 9.0).on_hover_text(format!("{} : {:.1}\n{help}", m.label(), v));
+            ui.add_space(8.0);
+            let width = ui.available_width() - 150.0;
+            let cols = metric_cols(width);
+            let cell_w = (width / cols as f32 - 8.0).clamp(54.0, 112.0);
+            let pulse = (ui.input(|i| i.time) * 4.0).sin() > 0.0;
+            let gr = ui
+                .vertical(|ui| {
+                    ui.spacing_mut().item_spacing = egui::vec2(8.0, 3.0);
+                    for row in HUD_ORDER.chunks(cols) {
+                        ui.horizontal(|ui| {
+                            for &m in row {
+                                let v = c.g().m(m);
+                                let col = metric_color(m, v);
+                                let good = if m.inverted() { 100.0 - v } else { v };
+                                let fatal = lethal(m);
+                                let danger = fatal.is_some() && good < 20.0;
+                                let label_col = if danger && pulse { RED } else if fatal.is_some() { LIGHT } else { MUTED };
+                                ui.vertical(|ui| {
+                                    ui.set_width(cell_w);
+                                    ui.spacing_mut().item_spacing.y = 1.0;
+                                    ui.horizontal(|ui| {
+                                        ui.spacing_mut().item_spacing.x = 3.0;
+                                        ui.label(RichText::new(hud_label(m)).font(bold(10.5)).color(label_col));
+                                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                            ui.label(RichText::new(format!("{v:.0}")).font(bold(12.5)).color(col));
+                                        });
+                                    });
+                                    let tip = match fatal {
+                                        Some(f) => format!("{} : {v:.1}\n{}\n{f}", m.label(), metric_help(m)),
+                                        None => format!("{} : {v:.1}\n{}", m.label(), metric_help(m)),
+                                    };
+                                    gauge(ui, v / 100.0, col, cell_w, 6.0).on_hover_text(tip);
+                                });
+                            }
+                        });
+                    }
                 })
                 .response
                 .rect;
-                gauges_rect = Some(gauges_rect.map_or(gr, |r| r.union(gr)));
-                ui.add_space(6.0);
-            }
-            if let Some(r) = gauges_rect {
-                mark(&mut c.ui.marks, "gauges", r);
-            }
+            mark(&mut c.ui.marks, "gauges", gr);
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button(RichText::new("⚙").size(16.0)).on_hover_text("Réglages (Échap)").clicked() {
+                if ui.button(RichText::new("⚙").size(15.0)).on_hover_text("Réglages (Échap)").clicked() {
                     c.ui.show_settings = true;
                 }
-                if ui.button(RichText::new("?").size(16.0)).on_hover_text("Aide").clicked() {
+                if ui.button(RichText::new("?").size(15.0)).on_hover_text("Aide").clicked() {
                     c.ui.show_help = true;
                 }
-                ui.add_space(6.0);
+                ui.add_space(4.0);
                 let g = c.g();
                 let mut slots = String::new();
                 for i in 0..g.agenda_max {
@@ -86,8 +202,8 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
                 let ar = ui
                     .vertical(|ui| {
                         ui.spacing_mut().item_spacing.y = 0.0;
-                        ui.label(RichText::new("AGENDA").font(pixel(11.0)).color(MUTED));
-                        ui.label(RichText::new(slots).size(16.0).color(if g.agenda > 0 { YELLOW } else { MUTED }))
+                        ui.label(RichText::new("AGENDA").font(bold(10.5)).color(MUTED));
+                        ui.label(RichText::new(slots).size(15.0).color(if g.agenda > 0 { YELLOW } else { MUTED }))
                             .on_hover_text("Créneaux d'agenda de ce mois : votre temps. Chaque action dans une salle en consomme un.");
                     })
                     .response
@@ -99,19 +215,20 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
 }
 
 pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
-    egui::Panel::bottom("projects").exact_size(112.0).frame(egui::Frame::new().fill(NEAR_BLACK).inner_margin(egui::Margin::symmetric(12, 8))).show(root, |ui| {
+    egui::Panel::bottom("projects").exact_size(118.0).frame(egui::Frame::new().fill(NEAR_BLACK).inner_margin(egui::Margin::symmetric(12, 8))).show(root, |ui| {
         ui.horizontal(|ui| {
-            let right_w = 230.0;
+            let right_w = 300.0;
             let avail = ui.available_width() - right_w - 12.0;
-            let pr = egui::Rect::from_min_size(ui.cursor().min, egui::vec2(avail, 96.0));
+            let pr = egui::Rect::from_min_size(ui.cursor().min, egui::vec2(avail, 102.0));
             mark(&mut c.ui.marks, "projects_bar", pr);
-            ui.allocate_ui_with_layout(egui::vec2(avail, 96.0), egui::Layout::left_to_right(egui::Align::Min), |ui| {
+            ui.allocate_ui_with_layout(egui::vec2(avail, 102.0), egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                ui.set_min_width(avail);
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("PROJETS EN COURS").font(pixel(12.0)).color(MUTED));
                         muted(ui, format!("{}/{} · lancez-les depuis la salle projet", c.g().projects.len(), projects::MAX_PARALLEL));
                     });
-                    ui.horizontal(|ui| {
+                    egui::ScrollArea::horizontal().id_salt("projects_scroll").max_width(avail).show(ui, |ui| ui.horizontal(|ui| {
                         let list = c.g().projects.clone();
                         if list.is_empty() {
                             card().show(ui, |ui| {
@@ -119,10 +236,11 @@ pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
                                 muted(ui, "Aucun projet. Cliquez sur la SALLE PROJET du siège pour en lancer un (1 créneau d'agenda).");
                             });
                         }
-                        let w = ((avail - 24.0) / 3.0).max(150.0);
+                        let n = projects::MAX_PARALLEL as f32;
+                        let w = ((avail - 8.0 * n) / n).max(170.0);
                         for p in list {
                             let Some(def) = c.content.project(&p.id).cloned() else { continue };
-                            card().show(ui, |ui| {
+                            card().show(ui, |ui| ui.vertical(|ui| {
                                 ui.set_width(w - 18.0);
                                 ui.spacing_mut().item_spacing.y = 3.0;
                                 ui.add(egui::Label::new(RichText::new(&def.name).font(bold(13.0)).color(TEXT)).truncate()).on_hover_text(&def.desc);
@@ -131,30 +249,61 @@ pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
                                     .on_hover_text(format!("{:.0} % — {} glissement(s)", frac * 100.0, p.slips));
                                 ui.horizontal(|ui| {
                                     let left = ((def.duration as f32 - p.progress) / projects::speed(&def, &p, c.g()).max(0.1)).ceil().max(1.0);
-                                    muted(ui, format!("≈ {left:.0} mois · {:.1} pt/mois", def.burn * if p.esn { 1.6 } else { 1.0 }));
-                                    if !p.esn && ui.small_button("⚡ ESN").on_hover_text("Renfort ESN : plus rapide (+35 %), coût ×1,6, −3 budget, dépendance en hausse.").clicked() {
-                                        c.run(Command::EsnBoost(p.id.clone()));
-                                    }
-                                    if ui.small_button("×").on_hover_text("Abandonner le projet (le COMEX et les équipes n'aimeront pas).").clicked() {
-                                        c.run(Command::CancelProject(p.id.clone()));
-                                    }
+                                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                        ui.spacing_mut().item_spacing.x = 4.0;
+                                        if ui.add(egui::Button::new(RichText::new("×").size(12.0)).small()).on_hover_text("Abandonner le projet (le COMEX et les équipes n'aimeront pas).").clicked() {
+                                            c.run(Command::CancelProject(p.id.clone()));
+                                        }
+                                        if !p.esn && ui.add(egui::Button::new(RichText::new("ESN").size(11.5)).small()).on_hover_text("Renfort ESN : plus rapide (+35 %), coût ×1,6, −3 budget, dépendance en hausse.").clicked() {
+                                            c.run(Command::EsnBoost(p.id.clone()));
+                                        }
+                                        let txt = format!("≈ {left:.0} mois · {:.1}/m{}", def.burn * if p.esn { 1.6 } else { 1.0 }, if p.esn { " · ESN" } else { "" });
+                                        ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                                            ui.add(egui::Label::new(RichText::new(txt).size(12.0).color(MUTED)).truncate())
+                                                .on_hover_text("Durée restante estimée · coût mensuel du projet (points de budget)");
+                                        });
+                                    });
                                 });
-                            });
+                            }));
                         }
-                    });
+                    }));
                 });
             });
-            ui.with_layout(egui::Layout::top_down(egui::Align::Max), |ui| {
+            ui.vertical(|ui| {
+                ui.spacing_mut().item_spacing.y = 3.0;
                 let g = c.g();
-                let bal = dsi_core::economy::monthly_balance(c.content, g);
-                ui.label(RichText::new(format!("Solde mensuel prévu : {:+.1}", bal)).font(bold(13.0)).color(if bal >= 0.0 { GREEN } else { RED }))
-                    .on_hover_text("Allocation mensuelle − (contrats + équipe + cloud + IA + projets). Les décisions et événements s'y ajoutent.");
-                let run = dsi_core::score::run_cost(g);
-                let diff = if g.baseline_run > 0.0 { (run / g.baseline_run - 1.0) * 100.0 } else { 0.0 };
-                ui.label(RichText::new(format!("Coût de fonctionnement : {diff:+.0} % vs janvier")).size(12.5).color(if diff <= -15.0 { GREEN } else { MUTED }))
-                    .on_hover_text("Objectif de l'année 1 : −15 %.");
-                let agenda = g.agenda;
-                muted(ui, format!("Agenda : {agenda}/{} créneau(x) ce mois-ci", g.agenda_max));
+                let b = dsi_core::economy::breakdown(c.content, g);
+                let tip = budget_tooltip(&b);
+                let r = ui
+                    .vertical(|ui| {
+                        ui.horizontal(|ui| {
+                            ui.label(RichText::new("BUDGET MENSUEL").font(pixel(12.0)).color(MUTED));
+                            ui.label(RichText::new(format!("{:.1}", b.allocation)).font(bold(14.0)).color(YELLOW));
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                ui.label(RichText::new(format!("solde {:+.1}", b.balance)).font(bold(13.0)).color(if b.balance >= 0.0 { GREEN } else { RED }));
+                            });
+                        });
+                        budget_bar(ui, &b, right_w, 12.0);
+                        let items = budget_items(&b);
+                        ui.horizontal(|ui| {
+                            for (k, col, v) in &items[..3] {
+                                budget_chip(ui, k, *col, *v);
+                            }
+                        });
+                        ui.horizontal(|ui| {
+                            for (k, col, v) in &items[3..] {
+                                budget_chip(ui, k, *col, *v);
+                            }
+                            let run = dsi_core::score::run_cost(g);
+                            let diff = if g.baseline_run > 0.0 { (run / g.baseline_run - 1.0) * 100.0 } else { 0.0 };
+                            ui.label(RichText::new(format!("· fonct. {diff:+.0} %")).size(12.0).color(if diff <= -15.0 { GREEN } else { MUTED }))
+                                .on_hover_text("Coût de fonctionnement (contrats + recrues + cloud + IA) par rapport à janvier. Objectif de l'année 1 : −15 %.");
+                        });
+                    })
+                    .response
+                    .rect;
+                ui.interact(r, egui::Id::new("budget_tip"), egui::Sense::hover()).on_hover_text(tip);
+                mark(&mut c.ui.marks, "budget", r);
             });
         });
     });
@@ -477,14 +626,27 @@ pub fn next_button(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
     let agenda = g.agenda;
     let next_month = dsi_core::state::Calendar::from_abs(g.turn() + 1).month_name();
     let t = ctx.input(|i| i.time) as f32;
-    let pulse = if c.settings.reduce_motion { 1.0 } else { 0.5 + 0.5 * (t * 2.5).sin() };
+    let pulse = if c.settings.reduce_motion {
+        1.0
+    } else {
+        0.5 + 0.5 * (t * 2.5).sin()
+    };
     let (label, sub, fill, glow) = if pending > 0 {
         let first = dsi_core::game::inbox_title(c.content, g, &g.inbox[0]);
         (format!("▶ SUJET SUIVANT ({pending})"), first, ORANGE, false)
     } else if december {
-        ("COMEX ANNUEL ▶".to_string(), "Le bilan de l'année vous attend.".to_string(), YELLOW, true)
+        (
+            "COMEX ANNUEL ▶".to_string(),
+            "Le bilan de l'année vous attend.".to_string(),
+            YELLOW,
+            true,
+        )
     } else {
-        let sub = if agenda > 0 { format!("Il vous reste {agenda} créneau(x) — ou passez en {next_month}") } else { format!("Passer en {next_month} · barre d'espace") };
+        let sub = if agenda > 0 {
+            format!("Il vous reste {agenda} créneau(x) — ou passez en {next_month}")
+        } else {
+            format!("Passer en {next_month} · barre d'espace")
+        };
         ("MOIS SUIVANT ▶".to_string(), sub, YELLOW, true)
     };
     let mut clicked = false;
@@ -494,7 +656,10 @@ pub fn next_button(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
         .order(egui::Order::Foreground)
         .show(ctx, |ui| {
             let stroke = if glow {
-                egui::Stroke::new(3.0, Color32::from_rgba_unmultiplied(255, 240, 170, (90.0 + 165.0 * pulse) as u8))
+                egui::Stroke::new(
+                    3.0,
+                    Color32::from_rgba_unmultiplied(255, 240, 170, (90.0 + 165.0 * pulse) as u8),
+                )
             } else {
                 egui::Stroke::new(2.0, Color32::from_rgb(255, 200, 120))
             };
@@ -505,16 +670,24 @@ pub fn next_button(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
                 .show(ui, |ui| {
                     ui.vertical(|ui| {
                         let b = ui.add(
-                            egui::Button::new(RichText::new(&label).font(pixel(20.0)).color(NEAR_BLACK))
-                                .fill(fill)
-                                .stroke(stroke)
-                                .corner_radius(5)
-                                .min_size(egui::vec2(300.0, 52.0)),
+                            egui::Button::new(
+                                RichText::new(&label).font(pixel(20.0)).color(NEAR_BLACK),
+                            )
+                            .fill(fill)
+                            .stroke(stroke)
+                            .corner_radius(5)
+                            .min_size(egui::vec2(300.0, 52.0)),
                         );
-                        if b.on_hover_cursor(egui::CursorIcon::PointingHand).on_hover_text("Barre d'espace").clicked() {
+                        if b.on_hover_cursor(egui::CursorIcon::PointingHand)
+                            .on_hover_text("Barre d'espace")
+                            .clicked()
+                        {
                             clicked = true;
                         }
-                        ui.add(egui::Label::new(RichText::new(&sub).size(12.5).color(LIGHT)).truncate());
+                        ui.add(
+                            egui::Label::new(RichText::new(&sub).size(12.5).color(LIGHT))
+                                .truncate(),
+                        );
                     });
                 })
                 .response

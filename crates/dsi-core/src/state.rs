@@ -466,6 +466,9 @@ pub struct Ending {
     pub rank: String,
 }
 
+/// Masse salariale de départ de l'équipe interne (DSI, exploitation, études).
+pub const STAFF_PAYROLL: f32 = 3.6;
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GameState {
     pub seed: u64,
@@ -503,6 +506,16 @@ pub struct GameState {
     pub debug: bool,
     #[serde(default)]
     pub mentors: crate::mentors::MentorState,
+    /// Années ajoutées après la fin de la campagne (« continuer 3 années de plus »).
+    #[serde(default)]
+    pub extension: u32,
+    /// Fins déjà atteintes avant une prolongation.
+    #[serde(default)]
+    pub past_endings: Vec<Ending>,
+    /// Masse salariale de l'équipe interne historique (points de budget par mois),
+    /// incluse dans l'allocation. Les recrues s'y ajoutent via `people::payroll`.
+    #[serde(default)]
+    pub staff_payroll: f32,
     /// Étape du tutoriel (voir `TUTORIAL_OFF` / `TUTORIAL_DONE`).
     #[serde(default = "tutorial_off")]
     pub tutorial: u32,
@@ -543,7 +556,8 @@ impl GameState {
             profile,
             cal: Calendar::start(),
             metrics,
-            allocation: 8.8,
+            allocation: 8.8 + STAFF_PAYROLL,
+            staff_payroll: STAFF_PAYROLL,
             baseline_run: 0.0,
             agenda: 3,
             agenda_max: 3,
@@ -567,6 +581,8 @@ impl GameState {
             year_scores: Vec::new(),
             debug: false,
             mentors: Default::default(),
+            extension: 0,
+            past_endings: Vec::new(),
             tutorial: TUTORIAL_OFF,
         }
     }

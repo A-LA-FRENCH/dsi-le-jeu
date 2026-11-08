@@ -24,7 +24,8 @@ fn key_choice(ctx: &egui::Context) -> Option<usize> {
 }
 
 fn enter(ctx: &egui::Context) -> bool {
-    !ctx.egui_wants_keyboard_input() && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Enter))
+    !ctx.egui_wants_keyboard_input()
+        && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Enter))
 }
 
 pub fn show(ctx: &egui::Context, c: &mut Ctx) {
@@ -276,7 +277,9 @@ fn renewal(ctx: &egui::Context, c: &mut Ctx, contract: &str) {
 }
 
 fn result(ctx: &egui::Context, c: &mut Ctx, r: &dsi_core::state::Resolution) {
-    let go = enter(ctx) || (!ctx.egui_wants_keyboard_input() && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Space)));
+    let go = enter(ctx)
+        || (!ctx.egui_wants_keyboard_input()
+            && ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Space)));
     let mut cont = false;
     modal(ctx, "result", 560.0, YELLOW, |ui| {
         ui.label(RichText::new(&r.title).font(pixel(22.0)).color(YELLOW));
@@ -291,7 +294,12 @@ fn result(ctx: &egui::Context, c: &mut Ctx, r: &dsi_core::state::Resolution) {
                         if let Some((name, col)) = c.speaker_name(&r.speaker) {
                             ui.label(RichText::new(name).font(pixel(14.0)).color(col));
                         }
-                        wrap(ui, RichText::new(format!("« {} »", r.text)).size(15.5).color(TEXT));
+                        wrap(
+                            ui,
+                            RichText::new(format!("« {} »", r.text))
+                                .size(15.5)
+                                .color(TEXT),
+                        );
                     });
                 });
             }
@@ -545,7 +553,39 @@ fn ending(ctx: &egui::Context, c: &mut Ctx) {
             ui,
             "Fins possibles : DSI souveraine · Software Company · Cloud Native Enterprise · Engineering Culture · Agentic Enterprise · Pragmatic CIO (la plus difficile).",
         );
+        let past = c.g().past_endings.clone();
+        if !past.is_empty() {
+            ui.add_space(4.0);
+            section(ui, "FINS PRÉCÉDENTES");
+            for p in &past {
+                muted(
+                    ui,
+                    format!("Année 3 : « {} » — score {} ({})", p.title, p.score, p.rank),
+                );
+            }
+        }
         ui.add_space(8.0);
+        if c.g().extension == 0 {
+            let years = c.content.dialogues.extension_years;
+            card().show(ui, |ui| {
+                ui.set_width(ui.available_width());
+                ui.label(RichText::new(format!("SAISON 2 — {years} ANS DE PLUS")).font(pixel(16.0)).color(ORANGE));
+                wrap(
+                    ui,
+                    RichText::new(format!(
+                        "Le conseil vous propose de rester. Vous gardez votre SI, votre équipe, vos contrats et vos indicateurs, et vous continuez jusqu'à la fin de l'année {} : NIS2, règlement IA, fusions, cryptographie post-quantique et entreprise agentique. Une nouvelle fin sera calculée à l'issue de la saison.",
+                        c.content.dialogues.campaign_length + years
+                    ))
+                    .size(14.0)
+                    .color(LIGHT),
+                );
+                ui.add_space(4.0);
+                if big_button(ui, &format!("Continuer {years} années de plus ▶"), true, 320.0).clicked() {
+                    c.run(Command::ExtendCampaign);
+                }
+            });
+            ui.add_space(6.0);
+        }
         end_buttons(ui, c);
     });
 }

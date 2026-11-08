@@ -109,6 +109,11 @@ pub struct Dialogues {
     #[serde(default)]
     pub ambient: Vec<String>,
     pub disclaimer: String,
+    /// Durée de la campagne de base (années). Chaque prolongation ajoute `extension_years`.
+    #[serde(default = "three")]
+    pub campaign_length: u32,
+    #[serde(default = "three")]
+    pub extension_years: u32,
 }
 
 #[derive(Deserialize)]
@@ -385,7 +390,10 @@ impl Content {
         }
         for m in &self.mentors {
             if m.advice.last().is_none_or(|a| !a.conditions.is_empty()) {
-                errs.push(format!("mentor {} : le dernier conseil doit être sans condition", m.id));
+                errs.push(format!(
+                    "mentor {} : le dernier conseil doit être sans condition",
+                    m.id
+                ));
             }
             for (i, a) in m.advice.iter().enumerate() {
                 check_outcome(&format!("mentor {}#{i}", m.id), &a.outcome, &mut errs);
@@ -393,4 +401,8 @@ impl Content {
         }
         errs
     }
+}
+
+fn three() -> u32 {
+    3
 }

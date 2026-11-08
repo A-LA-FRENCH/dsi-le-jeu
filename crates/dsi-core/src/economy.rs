@@ -55,7 +55,70 @@ pub fn target(s: &GameState, m: Metric) -> Option<f32> {
 
 /// Recette mensuelle : allocation − (contrats + équipe + cloud + IA + projets).
 pub fn monthly_balance(content: &Content, s: &GameState) -> f32 {
-    s.allocation - crate::score::run_cost(s) - crate::projects::burn(content, s)
+    s.allocation - s.staff_payroll - crate::score::run_cost(s) - crate::projects::burn(content, s)
+}
+
+/// Répartition du budget mensuel, pour l'affichage.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Breakdown {
+    /// Budget mensuel alloué par le DAF.
+    pub allocation: f32,
+    /// Salaires : équipe historique + recrues.
+    pub salaries: f32,
+    /// Licences, abonnements et contrats fournisseurs (hors ESN).
+    pub software: f32,
+    /// Régie ESN et renforts ESN sur les projets.
+    pub esn: f32,
+    /// Facture cloud + tokens / GPU.
+    pub cloud_ai: f32,
+    /// Coût des projets en cours (hors surcoût ESN).
+    pub projects: f32,
+    /// Solde : allocation − dépenses.
+    pub balance: f32,
+}
+
+impl Breakdown {
+    pub fn spent(&self) -> f32 {
+        self.salaries + self.software + self.esn + self.cloud_ai + self.projects
+    }
+}
+
+pub fn breakdown(content: &Content, s: &GameState) -> Breakdown {
+    let is_esn = |id: &str| {
+        content
+            .contract(id)
+            .is_some_and(|d| d.tags.iter().any(|t| t == "esn"))
+    };
+    let (mut software, mut esn) = (0.0, 0.0);
+    for c in s.contracts.iter().filter(|c| c.active) {
+        if is_esn(&c.id) {
+            esn += c.monthly_cost;
+        } else {
+            software += c.monthly_cost;
+        }
+    }
+    let mut projects = 0.0;
+    for p in &s.projects {
+        if let Some(d) = content.project(&p.id) {
+            projects += d.burn;
+            if p.esn {
+                esn += d.burn * 0.6;
+            }
+        }
+    }
+    let b = Breakdown {
+        allocation: s.allocation,
+        salaries: s.staff_payroll + crate::people::payroll(s),
+        software,
+        esn,
+        cloud_ai: s.cloud.bill + s.ai.token_bill,
+        projects,
+        balance: 0.0,
+    };
+    Breakdown {
+        balance: b.allocation - b.spent(),
+        ..b
+    }
 }
 
 pub fn monthly(content: &Content, s: &mut GameState) {

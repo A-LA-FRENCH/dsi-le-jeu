@@ -9,19 +9,34 @@ use dsi_core::{Command, mentors};
 
 pub fn widget(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
     let g = c.g();
-    let Some(def) = c.content.mentor(&g.profile.mentor).cloned() else { return };
+    let Some(def) = c.content.mentor(&g.profile.mentor).cloned() else {
+        return;
+    };
     let wait = mentors::wait(g, &def);
     let ready = c.content.mentors.iter().any(|m| mentors::wait(g, m) == 0);
     let idx = c.mentor_index(&def.id);
     let accent = hex(&def.color);
     let t = ctx.input(|i| i.time) as f32;
-    let pulse = if ready && !c.settings.reduce_motion { 0.5 + 0.5 * (t * 3.0).sin() } else { 1.0 };
+    let pulse = if ready && !c.settings.reduce_motion {
+        0.5 + 0.5 * (t * 3.0).sin()
+    } else {
+        1.0
+    };
     let mut open = false;
     let resp = egui::Area::new(egui::Id::new("mentor_widget"))
         .fixed_pos(egui::pos2(central.min.x + 10.0, central.max.y - 86.0))
         .order(egui::Order::Foreground)
         .show(ctx, |ui| {
-            let stroke = if ready { Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), (120.0 + 135.0 * pulse) as u8) } else { LINE };
+            let stroke = if ready {
+                Color32::from_rgba_unmultiplied(
+                    accent.r(),
+                    accent.g(),
+                    accent.b(),
+                    (120.0 + 135.0 * pulse) as u8,
+                )
+            } else {
+                LINE
+            };
             egui::Frame::new()
                 .fill(Color32::from_black_alpha(210))
                 .stroke(egui::Stroke::new(if ready { 2.0 } else { 1.0 }, stroke))
@@ -29,7 +44,10 @@ pub fn widget(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
                 .inner_margin(egui::Margin::same(6))
                 .show(ui, |ui| {
                     ui.horizontal(|ui| {
-                        if mentor_portrait(ui, c.mentors_tex, idx, 60.0).on_hover_text("Parler à tes mentors (M)").clicked() {
+                        if mentor_portrait(ui, c.mentors_tex, idx, 60.0)
+                            .on_hover_text("Parler à tes mentors (M)")
+                            .clicked()
+                        {
                             open = true;
                         }
                         ui.vertical(|ui| {
@@ -43,7 +61,10 @@ pub fn widget(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect) {
                             } else {
                                 format!("Prochain conseil dans {wait} mois")
                             };
-                            if ui.add(egui::Button::new(RichText::new(label).size(13.0))).clicked() {
+                            if ui
+                                .add(egui::Button::new(RichText::new(label).size(13.0)))
+                                .clicked()
+                            {
                                 open = true;
                             }
                         });
@@ -72,7 +93,10 @@ pub fn panel(ctx: &egui::Context, c: &mut Ctx) {
                 }
             });
         });
-        muted(ui, "Un conseil ne coûte aucun créneau d'agenda. Il donne un petit bonus adapté à ta situation. Ton mentor principal revient tous les 2 mois, les autres tous les 4.");
+        muted(
+            ui,
+            "Un conseil ne coûte aucun créneau d'agenda. Il donne un petit bonus adapté à ta situation. Ton mentor principal revient tous les 2 mois, les autres tous les 4.",
+        );
         ui.add_space(4.0);
         for (i, m) in list.iter().enumerate() {
             let g = c.g();
@@ -90,12 +114,27 @@ pub fn panel(ctx: &egui::Context, c: &mut Ctx) {
                                 kind_banner(ui, "MENTOR PRINCIPAL", accent);
                             }
                         });
-                        ui.add(egui::Label::new(RichText::new(&m.title).size(12.5).color(LIGHT)).wrap());
+                        ui.add(
+                            egui::Label::new(RichText::new(&m.title).size(12.5).color(LIGHT))
+                                .wrap(),
+                        );
                         if main {
-                            ui.label(RichText::new(format!("Bonus permanent : {}", m.passive_label)).size(12.5).color(GREEN));
+                            ui.label(
+                                RichText::new(format!("Bonus permanent : {}", m.passive_label))
+                                    .size(12.5)
+                                    .color(GREEN),
+                            );
                         }
                         if let Some(last) = g.mentors.last_advice.get(&m.id) {
-                            ui.add(egui::Label::new(RichText::new(format!("Dernier conseil : « {last} »")).size(12.5).italics().color(MUTED)).wrap());
+                            ui.add(
+                                egui::Label::new(
+                                    RichText::new(format!("Dernier conseil : « {last} »"))
+                                        .size(12.5)
+                                        .italics()
+                                        .color(MUTED),
+                                )
+                                .wrap(),
+                            );
                         }
                         ui.add_space(2.0);
                         if wait == 0 {
@@ -103,7 +142,13 @@ pub fn panel(ctx: &egui::Context, c: &mut Ctx) {
                                 consult = Some(m.id.clone());
                             }
                         } else {
-                            ui.label(RichText::new(format!("En tournage du podcast · disponible dans {wait} mois")).size(13.0).color(ORANGE));
+                            ui.label(
+                                RichText::new(format!(
+                                    "En tournage du podcast · disponible dans {wait} mois"
+                                ))
+                                .size(13.0)
+                                .color(ORANGE),
+                            );
                         }
                     });
                 });

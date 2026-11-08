@@ -312,6 +312,72 @@
           "text": "Un agent sans contexte, c'est un stagiaire très rapide et très sûr de lui."
         }
       ]
+    },
+    {
+      "at": {
+        "year": 4,
+        "month": 1
+      },
+      "title": "Chapitre 10 — Saison 2 : la régulation",
+      "subtitle": "Le conseil vous a prolongé. Les régulateurs aussi s'intéressent à vous.",
+      "lines": [
+        {
+          "speaker": "dg",
+          "text": "Bravo {dsi}. Le conseil vous garde trois ans de plus. Il a juste une question : sommes-nous conformes ?"
+        },
+        {
+          "speaker": "rssi",
+          "text": "NIS2, le règlement IA, l'assureur cyber… J'ai fait un tableau. Il a 14 onglets."
+        },
+        {
+          "speaker": "mentor",
+          "text": "Saison 2, {dsi}. Les problèmes sont plus gros, mais toi aussi, tu as grandi. On continue."
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 5,
+        "month": 1
+      },
+      "title": "Chapitre 11 — Fusions, scissions et plateforme",
+      "subtitle": "Acheter une entreprise, en vendre une autre, et ne rien casser au milieu.",
+      "lines": [
+        {
+          "speaker": "dircom",
+          "text": "On rachète un groupe allemand et on vend une division. Le même trimestre, évidemment."
+        },
+        {
+          "speaker": "consultant",
+          "text": "J'ai préparé un « Day One Playbook ». Il fait 412 pages. Day One, c'est lundi."
+        },
+        {
+          "speaker": "dev",
+          "text": "Notre plateforme interne commence à intéresser des gens dehors. C'est bon signe, non ?"
+        }
+      ]
+    },
+    {
+      "at": {
+        "year": 6,
+        "month": 1
+      },
+      "title": "Chapitre 12 — L'entreprise agentique à l'échelle",
+      "subtitle": "Des milliers d'agents. Des humains qui décident. Et une facture de tokens.",
+      "lines": [
+        {
+          "speaker": "dg",
+          "text": "Je veux un agent IA par salarié. Avant l'été. Combien ça coûte ? Non, attendez, ne me le dites pas."
+        },
+        {
+          "speaker": "data",
+          "text": "Sans contexte gouverné, 12 000 agents, ce sont 12 000 stagiaires très rapides et très sûrs d'eux."
+        },
+        {
+          "speaker": "mentor",
+          "text": "Dernière ligne droite, {dsi}. Construis une organisation qui saura faire sans toi."
+        }
+      ]
     }
   ],
   "years": [
@@ -424,6 +490,120 @@
           }
         }
       ]
+    },
+    {
+      "year": 4,
+      "title": "Régulation & résilience",
+      "objectives": [
+        {
+          "label": "Sécurité ≥ 60",
+          "conditions": {
+            "min": {
+              "security": 60
+            }
+          }
+        },
+        {
+          "label": "Résilience ≥ 55",
+          "conditions": {
+            "min": {
+              "resilience": 55
+            }
+          }
+        },
+        {
+          "label": "Dépendance fournisseurs ≤ 55",
+          "conditions": {
+            "max": {
+              "vendor_dep": 55
+            }
+          }
+        },
+        {
+          "label": "Confiance du COMEX ≥ 50",
+          "conditions": {
+            "min": {
+              "comex": 50
+            }
+          }
+        }
+      ]
+    },
+    {
+      "year": 5,
+      "title": "Fusions & plateforme",
+      "objectives": [
+        {
+          "label": "Capacité interne (MAKE) ≥ 50",
+          "conditions": {
+            "min": {
+              "make": 50
+            }
+          }
+        },
+        {
+          "label": "Complexité ≤ 50",
+          "conditions": {
+            "max": {
+              "complexity": 50
+            }
+          }
+        },
+        {
+          "label": "Vélocité ≥ 50",
+          "conditions": {
+            "min": {
+              "velocity": 50
+            }
+          }
+        },
+        {
+          "label": "Budget ≥ 20 en fin d'année",
+          "conditions": {
+            "min": {
+              "budget": 20
+            }
+          }
+        }
+      ]
+    },
+    {
+      "year": 6,
+      "title": "Entreprise agentique",
+      "objectives": [
+        {
+          "label": "Maturité IA ≥ 55",
+          "conditions": {
+            "min": {
+              "ai_maturity": 55
+            }
+          }
+        },
+        {
+          "label": "Sécurité ≥ 60",
+          "conditions": {
+            "min": {
+              "security": 60
+            }
+          }
+        },
+        {
+          "label": "Satisfaction utilisateurs ≥ 60",
+          "conditions": {
+            "min": {
+              "user_sat": 60
+            }
+          }
+        },
+        {
+          "label": "Dette technique ≤ 45",
+          "conditions": {
+            "max": {
+              "debt": 45
+            }
+          }
+        }
+      ]
     }
   ],
   "daf_lines": [
@@ -452,5 +632,7 @@
     "Un ticket demande l'installation d'Excel 2007 « pour compatibilité ».",
     "Un stagiaire a découvert un serveur non référencé sous un bureau. Il tourne. Personne ne sait quoi.",
     "Le tableau de bord du COMEX est un Excel envoyé par mail, en version « FINAL_v7_vraiment_final.xlsx »."
-  ]
+  ],
+  "campaign_length": 3,
+  "extension_years": 3
 }

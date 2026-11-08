@@ -4,14 +4,14 @@
 
 mod debug;
 mod hud;
-mod menu;
 mod mentor;
+mod menu;
 mod minigames;
 mod panel;
 mod rooms;
 mod scenes;
-mod tutorial;
 pub mod style;
+mod tutorial;
 pub mod widgets;
 
 use crate::audio::Sfx;
@@ -181,7 +181,9 @@ impl Ctx<'_> {
     /// Index de portrait d'un personnage (dialogues.json), ou du ou de la DSI.
     pub fn portrait_of(&self, speaker: &str) -> u32 {
         if speaker == "player" {
-            let Some(g) = self.session.game.as_ref() else { return 14 };
+            let Some(g) = self.session.game.as_ref() else {
+                return 14;
+            };
             return match g.profile.avatar {
                 Some(a) => AVATAR_SLOT + a,
                 None if g.profile.female => 14,
@@ -199,13 +201,22 @@ impl Ctx<'_> {
     /// Identifiant du mentor désigné par `speaker` (« mentor » = mentor principal, « mentor:jb »).
     pub fn mentor_id(&self, speaker: &str) -> Option<String> {
         if speaker == "mentor" {
-            return self.session.game.as_ref().map(|g| g.profile.mentor.clone()).filter(|m| !m.is_empty());
+            return self
+                .session
+                .game
+                .as_ref()
+                .map(|g| g.profile.mentor.clone())
+                .filter(|m| !m.is_empty());
         }
         speaker.strip_prefix("mentor:").map(|s| s.to_string())
     }
 
     pub fn mentor_index(&self, id: &str) -> u32 {
-        self.content.mentors.iter().position(|m| m.id == id).unwrap_or(0) as u32
+        self.content
+            .mentors
+            .iter()
+            .position(|m| m.id == id)
+            .unwrap_or(0) as u32
     }
 
     /// Dessine le portrait d'un personnage, d'un mentor ou du ou de la DSI.
@@ -220,9 +231,14 @@ impl Ctx<'_> {
     /// Nom et couleur d'un interlocuteur.
     pub fn speaker_name(&self, speaker: &str) -> Option<(String, egui::Color32)> {
         if let Some(id) = self.mentor_id(speaker) {
-            return self.content.mentor(&id).map(|m| (format!("{} — ton mentor", m.name), hex(&m.color)));
+            return self
+                .content
+                .mentor(&id)
+                .map(|m| (format!("{} — ton mentor", m.name), hex(&m.color)));
         }
-        self.content.character(speaker).map(|ch| (ch.name.clone(), hex(&ch.color)))
+        self.content
+            .character(speaker)
+            .map(|ch| (ch.name.clone(), hex(&ch.color)))
     }
 }
 

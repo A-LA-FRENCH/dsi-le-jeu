@@ -390,7 +390,7 @@ fn walkers(
                 let col = (h % 5) as f32;
                 w.target = MARGIN_X + WALL + col * (RW + WALL) + 8.0 + ((h / 5) % 36) as f32;
                 w.pause = 1.0 + ((h / 7) % 40) as f32 / 10.0;
-                if (h / 3) % 4 == 0 {
+                if (h / 3).is_multiple_of(4) {
                     w.floor = ((h / 11) % 3) as u32;
                     w.x = w.target;
                 }

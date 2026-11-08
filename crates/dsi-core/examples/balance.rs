@@ -148,35 +148,40 @@ fn resolve(c: &Content, s: &mut GameState, strat: Strat, rng: &mut ChaCha8Rng) {
 fn play(c: &Content, seed: u64, strat: Strat) -> GameState {
     let mut rng = ChaCha8Rng::seed_from_u64(seed ^ 0xABCD);
     let mut s = game::new_game(c, seed, Profile::default());
+    play_on(c, &mut s, seed, strat, &mut rng);
+    s
+}
+
+fn play_on(c: &Content, s: &mut GameState, seed: u64, strat: Strat, rng: &mut ChaCha8Rng) {
     for _ in 0..600 {
         if s.finished() {
             break;
         }
         if s.active.is_some() {
-            resolve(c, &mut s, strat, &mut rng);
+            resolve(c, s, strat, rng);
             continue;
         }
         if !s.inbox.is_empty() {
-            game::apply(c, &mut s, Command::Open(0)).unwrap();
+            game::apply(c, s, Command::Open(0)).unwrap();
             continue;
         }
         if s.agenda > 0 && !matches!(strat, Strat::Passive) {
             let projects: Vec<String> = c
                 .projects
                 .iter()
-                .filter(|p| p.catalog && dsi_core::projects::can_start(c, &s, &p.id).is_ok())
+                .filter(|p| p.catalog && dsi_core::projects::can_start(c, s, &p.id).is_ok())
                 .map(|p| p.id.clone())
                 .collect();
             if !projects.is_empty() && s.m(Metric::Budget) > 30.0 && rng.random::<f32>() < 0.6 {
                 let p = projects[rng.random_range(0..projects.len())].clone();
-                game::apply(c, &mut s, Command::StartProject(p)).unwrap();
+                game::apply(c, s, Command::StartProject(p)).unwrap();
                 continue;
             }
             let acts: Vec<String> = c
                 .actions
                 .iter()
                 .filter(|a| {
-                    a.requires.met(&s)
+                    a.requires.met(s)
                         && s.actions_done
                             .get(&a.id)
                             .is_none_or(|t| s.turn() >= t + a.cooldown)
@@ -185,21 +190,32 @@ fn play(c: &Content, seed: u64, strat: Strat) -> GameState {
                 .collect();
             if !acts.is_empty() {
                 let a = acts[rng.random_range(0..acts.len())].clone();
-                if game::apply(c, &mut s, Command::DoAction(a)).is_ok() {
+                if game::apply(c, s, Command::DoAction(a)).is_ok() {
                     continue;
                 }
             }
         }
         if std::env::var("TRACE").is_ok() && seed == 1 {
-            trace(c, &s);
+            trace(c, s);
         }
-        game::apply(c, &mut s, Command::AdvanceMonth).unwrap();
+        game::apply(c, s, Command::AdvanceMonth).unwrap();
     }
-    s
 }
 
 fn main() {
     let c = Content::load().unwrap();
+    // SAVE_END=fichier : écrit la sauvegarde d'une partie arrivée à sa fin (tests du client).
+    if let Ok(path) = std::env::var("SAVE_END") {
+        for seed in 0..100 {
+            let s = play(&c, seed, Strat::Greedy);
+            if let Some(e) = &s.ending {
+                std::fs::write(&path, dsi_core::save::to_json(&s).unwrap()).unwrap();
+                println!("graine {seed} : {}", e.title);
+                return;
+            }
+        }
+    }
+    season_two(&c);
     let n = 300;
     for strat in [Strat::Random, Strat::Greedy, Strat::Passive] {
         let mut outcomes: BTreeMap<String, u32> = BTreeMap::new();
@@ -271,4 +287,49 @@ pub fn trace(c: &Content, s: &GameState) {
         s.projects.len(),
         s.team.len()
     );
+}
+
+/// Saison 2 : prolonge les parties terminées et compare la fin de l'année 3 à celle de l'année 6.
+fn season_two(c: &Content) {
+    for strat in [Strat::Random, Strat::Greedy] {
+        let mut outcomes: BTreeMap<String, u32> = BTreeMap::new();
+        let mut before = Vec::new();
+        let mut after = Vec::new();
+        for seed in 0..300 {
+            let mut rng = ChaCha8Rng::seed_from_u64(seed ^ 0xABCD);
+            let mut s = game::new_game(c, seed, Profile::default());
+            play_on(c, &mut s, seed, strat, &mut rng);
+            let Some(e) = s.ending.clone() else { continue };
+            before.push(e.score);
+            game::apply(c, &mut s, Command::ExtendCampaign).unwrap();
+            play_on(c, &mut s, seed, strat, &mut rng);
+            let key = if let Some(o) = s.over {
+                format!("DÉFAITE {} (année {})", o.title(), s.cal.year)
+            } else if let Some(e) = &s.ending {
+                after.push(e.score);
+                format!("FIN {}", e.title)
+            } else {
+                format!("EN COURS {:?}", s.cal)
+            };
+            *outcomes.entry(key).or_default() += 1;
+        }
+        let med = |v: &mut Vec<u32>| {
+            v.sort();
+            v.get(v.len() / 2).copied().unwrap_or(0)
+        };
+        println!(
+            "\n=== Saison 2 — {strat:?} ({} parties prolongées) ===",
+            before.len()
+        );
+        let mut v: Vec<_> = outcomes.into_iter().collect();
+        v.sort_by_key(|x| std::cmp::Reverse(x.1));
+        for (k, n) in v {
+            println!("  {n:>4}  {k}");
+        }
+        println!(
+            "  score année 3 : médiane {} · score année 6 : médiane {}",
+            med(&mut before),
+            med(&mut after)
+        );
+    }
 }

@@ -32,6 +32,12 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
 ## Le jeu
 
 - **1 tour = 1 mois**, trois années de campagne (Janvier année 1 → COMEX final année 3).
+- **Saison 2** : une fois la fin atteinte, le bouton « Continuer 3 années de plus » prolonge
+  la même partie jusqu'à l'année 6 (SI, équipe, contrats et indicateurs conservés), avec de
+  nouveaux chapitres, objectifs annuels et sujets scénarisés : NIS2, règlement européen sur
+  l'IA, panne d'une région cloud, assureur cyber, fusion et scission du SI, cryptographie
+  post-quantique, empreinte du numérique, un agent IA par salarié, succession du DSI. Une
+  nouvelle fin est calculée à la fin de l'année 6.
 - Chaque mois apporte des **sujets** (bulles au-dessus des salles du siège) : événements
   scriptés, événements aléatoires pondérés par l'état du SI, conséquences de vos
   décisions passées, renouvellements de contrats, chapitres.
@@ -39,8 +45,12 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
   salles (lancer un projet, recruter, négocier en avance, auditer, écouter le dev senior…).
 - **Chaque décision fait mal quelque part.** Les choix montrent le *sens* des effets (▲▼),
   jamais leur ampleur ; ⏳ signale des suites différées.
-- **18 indicateurs** dont 6 en barre du haut (budget, sécurité, dette, COMEX, engineering,
-  uptime), antagonistes entre eux ; les métriques « de flux » tendent vers une cible
+- **Budget mensuel détaillé** (bas droite et onglet Indicateurs) : allocation du DAF et sa
+  répartition entre salaires (équipe historique + recrues), logiciels et contrats,
+  ESN (régie + renforts projets), cloud / IA et projets, avec le solde du mois.
+- **18 indicateurs**, tous visibles en barre du haut (la première ligne regroupe ceux qui
+  peuvent mettre fin à la partie ; leur nom clignote en rouge à l'approche du seuil),
+  antagonistes entre eux ; les métriques « de flux » tendent vers une cible
   calculée à partir du reste du SI.
 - **Votre DSI** : directrice ou directeur, 16 avatars aux origines, teints et coiffures
   variés (afro, tresses, locks, hijab…), avec le sprite assorti sur le plateau.
@@ -77,7 +87,7 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
   - *War room* : isoler, investiguer, patcher, restaurer, communiquer, appeler l'ANSSI,
     prévenir le COMEX — dans le bon ordre, avant que la propagation n'atteigne 100 %.
     Aucune technique offensive : le jeu porte sur la prévention et la réponse.
-- **Projets multi-mois** (≈ 40) avec coût, durée, complexité, risque de glissement,
+- **Projets multi-mois** (≈ 40, jusqu'à 5 en parallèle) avec coût, durée, complexité, risque de glissement,
   renfort ESN possible, effets à la livraison et technologies débloquées.
 - **Technology Map** (infra, dev, culture, data, IA, identité, applications) : chaque
   techno a des effets mensuels parfois conditionnels — Kubernetes accélère si vous avez
@@ -98,7 +108,7 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
 
 | | |
 |---|---|
-| Événements | 80+ (campagne année 1 complète selon le cahier des charges, ossature années 2–3, chaînes narratives, pool aléatoire) |
+| Événements | 100+ (campagne année 1 complète selon le cahier des charges, ossature années 2–3, saison 2 années 4–6, chaînes narratives, pool aléatoire) |
 | Fournisseurs | 30 (éditeurs, hyperscalers, acteurs européens, ESN, télécoms) |
 | Contrats | 18 (9 actifs au départ) |
 | Technologies | 50+ réparties en 7 branches |

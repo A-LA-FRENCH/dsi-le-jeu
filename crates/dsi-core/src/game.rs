@@ -43,6 +43,8 @@ pub enum Command {
     DebugHire(String),
     /// Demande un conseil à un mentor (gratuit en agenda, délai entre deux conseils).
     ConsultMentor(String),
+    /// Après une fin de partie : continuer 3 années de plus.
+    ExtendCampaign,
     /// Règle l'étape du tutoriel (voir `state::TUTORIAL_*`).
     SetTutorial(u32),
 }
@@ -503,7 +505,8 @@ fn result(
         text: text.into(),
         deltas,
         notes,
-        speaker: String::new(), delayed_hint: hidden,
+        speaker: String::new(),
+        delayed_hint: hidden,
     }))
 }
 
@@ -580,7 +583,8 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
                         text,
                         deltas,
                         notes: vec![],
-                        speaker: String::new(), delayed_hint: false,
+                        speaker: String::new(),
+                        delayed_hint: false,
                     }))
                 }
                 Inbox::YearReview => Active::Review(Box::new(score::year_review(content, s))),
@@ -981,6 +985,13 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
             s.active = Some(Active::Result(Box::new(r)));
             Ok(())
         }
+        Command::ExtendCampaign => {
+            let Some(ending) = s.ending.take() else {
+                return Err(GameError::NotNow("La partie n'est pas terminée.".into()));
+            };
+            extend(content, s, ending);
+            Ok(())
+        }
         Command::SetTutorial(step) => {
             s.tutorial = step;
             Ok(())
@@ -1019,6 +1030,34 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
             Ok(())
         }
     }
+}
+
+/// Prolonge la partie de quelques années après une fin de campagne.
+fn extend(content: &Content, s: &mut GameState, ending: crate::state::Ending) {
+    let years = content.dialogues.extension_years;
+    s.push_log(
+        format!(
+            "Fin « {} » atteinte en année {} (score {}). Le conseil vous prolonge de {years} ans.",
+            ending.title, s.cal.year, ending.score
+        ),
+        Tone::Story,
+    );
+    s.past_endings.push(ending);
+    s.extension += years;
+    s.decisions.push(format!("extend:{}", s.extension));
+    // Les vieux problèmes reviennent : les événements aléatoires vus il y a plus de 2 ans
+    // peuvent se reproduire.
+    let now = s.turn();
+    let random: std::collections::BTreeSet<&str> = content
+        .events
+        .iter()
+        .filter(|e| e.at.is_none() && e.weight > 0.0)
+        .map(|e| e.id.as_str())
+        .collect();
+    s.seen
+        .retain(|id, t| !(random.contains(id.as_str()) && now >= *t + 24));
+    s.baseline_run = score::run_cost(s);
+    advance(content, s);
 }
 
 /// Termine le mois courant et commence le suivant.
