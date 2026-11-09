@@ -45,6 +45,9 @@ pub enum Command {
     ConsultMentor(String),
     /// Après une fin de partie : continuer 3 années de plus.
     ExtendCampaign,
+    /// Saison 2 : choisit la fin visée (le « cap »), ou aucune.
+    /// Le premier choix est libre ; en changer ensuite coûte un créneau et un peu de COMEX.
+    SetAmbition(Option<String>),
     /// Règle l'étape du tutoriel (voir `state::TUTORIAL_*`).
     SetTutorial(u32),
 }
@@ -990,6 +993,54 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
                 return Err(GameError::NotNow("La partie n'est pas terminée.".into()));
             };
             extend(content, s, ending);
+            Ok(())
+        }
+        Command::SetAmbition(id) => {
+            if s.extension == 0 {
+                return Err(GameError::NotNow(
+                    "Le cap se choisit au début de la saison 2.".into(),
+                ));
+            }
+            if let Some(id) = &id
+                && !score::ending_goals(s).iter().any(|g| g.id == id)
+            {
+                return Err(GameError::Unknown(id.clone()));
+            }
+            if s.ambition == id {
+                return Ok(());
+            }
+            let title = |id: &Option<String>, s: &GameState| {
+                id.as_deref()
+                    .and_then(|a| score::ending_goals(s).into_iter().find(|g| g.id == a))
+                    .map_or("aucun cap".to_string(), |g| format!("« {} »", g.title))
+            };
+            if s.ambition.is_some() {
+                if s.agenda == 0 {
+                    return Err(GameError::NoAgenda);
+                }
+                s.agenda -= 1;
+                s.metrics.add(Metric::Comex, -2.0);
+                s.push_log(
+                    format!(
+                        "Changement de cap : {} → {}. Le COMEX note le revirement (COMEX −2).",
+                        title(&s.ambition, s),
+                        title(&id, s)
+                    ),
+                    Tone::Story,
+                );
+            } else {
+                s.push_log(
+                    format!(
+                        "Cap de la saison 2 : {}. Atteint en fin d'année 6 : +{} points de score.",
+                        title(&id, s),
+                        score::AMBITION_BONUS
+                    ),
+                    Tone::Story,
+                );
+            }
+            s.decisions
+                .push(format!("ambition:{}", id.as_deref().unwrap_or("none")));
+            s.ambition = id;
             Ok(())
         }
         Command::SetTutorial(step) => {

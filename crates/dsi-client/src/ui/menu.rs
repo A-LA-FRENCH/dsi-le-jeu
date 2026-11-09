@@ -471,7 +471,7 @@ pub fn help(ctx: &egui::Context, c: &mut Ctx) {
             ),
             (
                 "Objectif",
-                "Survivre trois ans et transformer le SI : BUY → MAKE, Waterfall → Agentic. La fin « Pragmatic CIO » est la plus difficile. Une fois la fin atteinte, vous pouvez prolonger de trois ans (saison 2, années 4 à 6) pour viser une meilleure fin.",
+                "Survivre trois ans et transformer le SI : BUY → MAKE, Waterfall → Agentic. La fin « Pragmatic CIO » est la plus difficile. Une fois la fin atteinte, vous pouvez prolonger de trois ans (saison 2, années 4 à 6) en choisissant votre cap : la fin visée, avec ses conditions chiffrées (onglet Indicateurs). Cap tenu : +5 points.",
             ),
         ] {
             ui.label(RichText::new(t).font(bold(15.0)).color(TEXT));

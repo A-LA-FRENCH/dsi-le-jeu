@@ -464,6 +464,9 @@ pub struct Ending {
     pub text: String,
     pub score: u32,
     pub rank: String,
+    /// Fin visée en saison 2 et si elle a été atteinte.
+    #[serde(default)]
+    pub ambition: Option<(String, bool)>,
 }
 
 /// Masse salariale de départ de l'équipe interne (DSI, exploitation, études).
@@ -516,6 +519,9 @@ pub struct GameState {
     /// incluse dans l'allocation. Les recrues s'y ajoutent via `people::payroll`.
     #[serde(default)]
     pub staff_payroll: f32,
+    /// Fin visée pour la saison 2 (identifiant de `score::ending_goals`).
+    #[serde(default)]
+    pub ambition: Option<String>,
     /// Étape du tutoriel (voir `TUTORIAL_OFF` / `TUTORIAL_DONE`).
     #[serde(default = "tutorial_off")]
     pub tutorial: u32,
@@ -558,6 +564,7 @@ impl GameState {
             metrics,
             allocation: 8.8 + STAFF_PAYROLL,
             staff_payroll: STAFF_PAYROLL,
+            ambition: None,
             baseline_run: 0.0,
             agenda: 3,
             agenda_max: 3,

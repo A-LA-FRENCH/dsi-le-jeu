@@ -2,6 +2,7 @@
 //! mini-jeux, réglages et mode debug. Le monde (le siège) est dessiné par Bevy dans
 //! la zone centrale laissée libre.
 
+mod ambition;
 mod debug;
 mod hud;
 mod mentor;
@@ -70,6 +71,9 @@ pub struct UiState {
     pub mentor: String,
     pub tutorial: bool,
     pub show_mentors: bool,
+    /// Fenêtre de choix du cap de la saison 2.
+    pub show_ambition: bool,
+    pub ambition_choice: Option<String>,
     /// Rectangles d'éléments d'interface que le tutoriel peut désigner.
     pub marks: std::collections::HashMap<&'static str, egui::Rect>,
     /// Mois où le joueur a masqué la bulle de conseil.
@@ -104,6 +108,8 @@ impl Default for UiState {
             mentor: "mehdi".into(),
             tutorial: true,
             show_mentors: false,
+            show_ambition: false,
+            ambition_choice: None,
             marks: Default::default(),
             tip_hidden: None,
             debug_filter: String::new(),
@@ -411,6 +417,9 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
             mentor::widget(&ctx, &mut c, central);
             hud::next_button(&ctx, &mut c, central);
             scenes::show(&ctx, &mut c);
+            if c.ui.show_ambition {
+                ambition::picker(&ctx, &mut c);
+            }
             if c.session
                 .game
                 .as_ref()

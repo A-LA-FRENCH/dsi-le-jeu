@@ -121,6 +121,18 @@ fn inbox(ui: &mut egui::Ui, c: &mut Ctx) {
 }
 
 fn metrics(ui: &mut egui::Ui, c: &mut Ctx) {
+    // En saison 2, les objectifs de fin passent en tête de l'onglet.
+    let season2 = c.g().extension > 0;
+    if season2 {
+        super::ambition::section_goals(ui, c);
+    }
+    metrics_body(ui, c);
+    if !season2 {
+        super::ambition::section_goals(ui, c);
+    }
+}
+
+fn metrics_body(ui: &mut egui::Ui, c: &mut Ctx) {
     let g = c.g();
     section(ui, "TABLEAU DE BORD COMPLET");
     egui::Grid::new("metrics")

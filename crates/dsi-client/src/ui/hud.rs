@@ -227,6 +227,9 @@ pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("PROJETS EN COURS").font(pixel(12.0)).color(MUTED));
                         muted(ui, format!("{}/{} · lancez-les depuis la salle projet", c.g().projects.len(), projects::MAX_PARALLEL));
+                        if c.g().extension > 0 {
+                            cap_chip(ui, c);
+                        }
                     });
                     egui::ScrollArea::horizontal().id_salt("projects_scroll").max_width(avail).show(ui, |ui| ui.horizontal(|ui| {
                         let list = c.g().projects.clone();
@@ -307,6 +310,57 @@ pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
             });
         });
     });
+}
+
+/// Saison 2 : rappel du cap (fin visée) et de sa progression ; clic → détail.
+fn cap_chip(ui: &mut egui::Ui, c: &mut Ctx) {
+    let g = c.g();
+    let goals = dsi_core::score::ending_goals(g);
+    let goal = g
+        .ambition
+        .as_deref()
+        .and_then(|a| goals.into_iter().find(|x| x.id == a));
+    ui.add_space(10.0);
+    let (text, col, tip) = match &goal {
+        Some(x) => {
+            let (k, n) = x.progress();
+            let missing: Vec<String> = x
+                .checks
+                .iter()
+                .filter(|k| !k.ok)
+                .map(|k| format!("× {} ({})", k.label, k.current))
+                .collect();
+            let tip = if missing.is_empty() {
+                "Toutes les conditions sont remplies : tenez-les jusqu'au COMEX de fin d'année 6."
+                    .to_string()
+            } else {
+                format!(
+                    "Reste à faire :\n{}\n\nCliquez pour le détail des fins.",
+                    missing.join("\n")
+                )
+            };
+            (
+                format!("CAP : {} {k}/{n}", x.title),
+                if x.met() { GREEN } else { YELLOW },
+                tip,
+            )
+        }
+        None => (
+            "CAP : aucun — choisir".to_string(),
+            ORANGE,
+            "Choisissez la fin que vous visez pour la saison 2.".to_string(),
+        ),
+    };
+    let r = ui
+        .add(egui::Button::new(RichText::new(text).font(bold(12.5)).color(col)).small())
+        .on_hover_text(tip);
+    if r.clicked() {
+        if goal.is_some() {
+            c.ui.tab = Tab::Metrics;
+        } else {
+            super::ambition::open(c);
+        }
+    }
 }
 
 /// Enseigne, étiquette de survol et animation de changement de mois, par-dessus le monde.

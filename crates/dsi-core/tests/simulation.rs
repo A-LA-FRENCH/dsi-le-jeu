@@ -648,3 +648,51 @@ fn le_budget_mensuel_se_repartit_entre_salaires_logiciels_et_esn() {
     assert!(after.esn > before.esn && (after.projects - before.projects).abs() < 1e-4);
     assert!((after.balance - dsi_core::economy::monthly_balance(&c, &s)).abs() < 1e-4);
 }
+
+#[test]
+fn les_fins_ont_des_objectifs_explicites_et_un_cap() {
+    let c = content();
+    let (_, mut s) = new(11);
+    // Pas de cap avant la saison 2.
+    assert!(game::apply(&c, &mut s, Command::SetAmbition(Some("software".into()))).is_err());
+    // Sans cap, la fin retenue est la première atteinte dans l'ordre des objectifs.
+    for (k, v) in [
+        (Metric::Make, 80.0),
+        (Metric::Velocity, 60.0),
+        (Metric::Sovereignty, 75.0),
+        (Metric::VendorDep, 30.0),
+    ] {
+        s.metrics.set(k, v);
+    }
+    let goals = score::ending_goals(&s);
+    assert!(
+        goals
+            .iter()
+            .all(|g| !g.checks.is_empty() && !g.levers.is_empty())
+    );
+    let first = goals.iter().find(|g| g.met()).unwrap().id;
+    assert_eq!(first, "software");
+    assert_eq!(score::ending(&s).id, "software");
+    // Le cap l'emporte quand il est atteint, avec un bonus de score.
+    s.extension = 3;
+    let base = score::ending(&s).score;
+    game::apply(&c, &mut s, Command::SetAmbition(Some("sovereign".into()))).unwrap();
+    let e = score::ending(&s);
+    assert_eq!(e.id, "sovereign");
+    assert_eq!(e.ambition, Some(("DSI souveraine".into(), true)));
+    assert_eq!(e.score, (base + score::AMBITION_BONUS).min(100));
+    // Changer de cap coûte un créneau et du COMEX ; un cap manqué est signalé.
+    let (agenda, comex) = (s.agenda, s.m(Metric::Comex));
+    game::apply(
+        &c,
+        &mut s,
+        Command::SetAmbition(Some("cloud_native".into())),
+    )
+    .unwrap();
+    assert_eq!(s.agenda, agenda - 1);
+    assert!(s.m(Metric::Comex) < comex);
+    let e = score::ending(&s);
+    assert_eq!(e.id, "software");
+    assert_eq!(e.ambition, Some(("Cloud Native Enterprise".into(), false)));
+    assert!(game::apply(&c, &mut s, Command::SetAmbition(Some("inconnu".into()))).is_err());
+}

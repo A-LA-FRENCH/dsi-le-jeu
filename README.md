@@ -38,6 +38,11 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
   l'IA, panne d'une région cloud, assureur cyber, fusion et scission du SI, cryptographie
   post-quantique, empreinte du numérique, un agent IA par salarié, succession du DSI. Une
   nouvelle fin est calculée à la fin de l'année 6.
+- **Objectifs de fin explicites** : chaque fin affiche ses conditions chiffrées, la valeur
+  actuelle de chaque indicateur et les leviers pour l'atteindre (onglet Indicateurs). Au
+  lancement de la saison 2, on choisit son **cap** (la fin visée) : suivi en barre du bas
+  et à chaque COMEX annuel ; s'il est atteint en fin d'année 6, c'est lui qui est retenu,
+  avec +5 points de score. En changer coûte 1 créneau et 2 points de COMEX.
 - Chaque mois apporte des **sujets** (bulles au-dessus des salles du siège) : événements
   scriptés, événements aléatoires pondérés par l'état du SI, conséquences de vos
   décisions passées, renouvellements de contrats, chapitres.

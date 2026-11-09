@@ -28,8 +28,12 @@ const BODY_BOLD: &[u8] = include_bytes!("../../../../assets/fonts/IBMPlexSans-Se
 
 /// Police pixel, calée sur les tailles où sa grille reste nette (sinon le « C » se referme).
 pub fn pixel(size: f32) -> FontId {
-    const CLEAN: [f32; 12] = [
-        10.0, 14.0, 16.0, 20.0, 24.0, 28.0, 30.0, 36.0, 42.0, 48.0, 56.0, 64.0,
+    // En dessous de 14 px, la police pixel confond C et O : on passe à la police grasse.
+    if size < 12.5 {
+        return bold(size.max(10.5));
+    }
+    const CLEAN: [f32; 11] = [
+        14.0, 16.0, 20.0, 24.0, 28.0, 30.0, 36.0, 42.0, 48.0, 56.0, 64.0,
     ];
     let snapped = CLEAN
         .iter()

@@ -426,6 +426,13 @@ fn review(ctx: &egui::Context, c: &mut Ctx, r: &dsi_core::score::YearReview) {
             ui,
             RichText::new(&r.verdict).size(15.0).italics().color(LIGHT),
         );
+        if let Some((t, k, n)) = &r.ambition {
+            ui.label(
+                RichText::new(format!("Cap « {t} » : {k}/{n} conditions remplies"))
+                    .font(bold(14.0))
+                    .color(if k == n { GREEN } else { YELLOW }),
+            );
+        }
         let (t, col) = delta_text(Metric::Comex, r.comex_delta);
         ui.label(
             RichText::new(format!("Confiance du COMEX : {t}"))
@@ -524,6 +531,9 @@ fn game_over(ctx: &egui::Context, c: &mut Ctx) {
 }
 
 fn ending(ctx: &egui::Context, c: &mut Ctx) {
+    if c.ui.show_ambition {
+        return;
+    }
     let Some(e) = c.g().ending.clone() else {
         return;
     };
@@ -565,6 +575,20 @@ fn ending(ctx: &egui::Context, c: &mut Ctx) {
             }
         }
         ui.add_space(8.0);
+        if let Some((t, ok)) = &e.ambition {
+            ui.label(
+                RichText::new(if *ok {
+                    format!(
+                        "Cap « {t} » tenu : +{} points de score.",
+                        dsi_core::score::AMBITION_BONUS
+                    )
+                } else {
+                    format!("Cap « {t} » manqué : une autre fin a été retenue.")
+                })
+                .font(bold(14.5))
+                .color(if *ok { GREEN } else { ORANGE }),
+            );
+        }
         if c.g().extension == 0 {
             let years = c.content.dialogues.extension_years;
             card().show(ui, |ui| {
@@ -573,7 +597,7 @@ fn ending(ctx: &egui::Context, c: &mut Ctx) {
                 wrap(
                     ui,
                     RichText::new(format!(
-                        "Le conseil vous propose de rester. Vous gardez votre SI, votre équipe, vos contrats et vos indicateurs, et vous continuez jusqu'à la fin de l'année {} : NIS2, règlement IA, fusions, cryptographie post-quantique et entreprise agentique. Une nouvelle fin sera calculée à l'issue de la saison.",
+                        "Le conseil vous propose de rester. Vous gardez votre SI, votre équipe, vos contrats et vos indicateurs, et vous continuez jusqu'à la fin de l'année {} : NIS2, règlement IA, fusions, cryptographie post-quantique et entreprise agentique. Vous choisirez d'abord la fin que vous visez, avec ses conditions précises.",
                         c.content.dialogues.campaign_length + years
                     ))
                     .size(14.0)
@@ -581,7 +605,7 @@ fn ending(ctx: &egui::Context, c: &mut Ctx) {
                 );
                 ui.add_space(4.0);
                 if big_button(ui, &format!("Continuer {years} années de plus ▶"), true, 320.0).clicked() {
-                    c.run(Command::ExtendCampaign);
+                    super::ambition::open(c);
                 }
             });
             ui.add_space(6.0);
