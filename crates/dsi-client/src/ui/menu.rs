@@ -31,7 +31,10 @@ pub fn title(ctx: &egui::Context, c: &mut Ctx) {
                 }
                 ui.add_space(4.0);
                 ui.horizontal(|ui| {
-                    ui.add_space(110.0);
+                    ui.add_space(42.0);
+                    if ghost_button(ui, "Charger une partie", 180.0).on_hover_text("3 emplacements de sauvegarde").clicked() {
+                        super::saves::open(c);
+                    }
                     if ghost_button(ui, "Réglages", 140.0).clicked() {
                         c.ui.show_settings = true;
                     }
@@ -374,7 +377,7 @@ pub fn settings(ctx: &egui::Context, c: &mut Ctx) {
         ui.add_space(6.0);
         muted(
             ui,
-            "Clavier : 1–5 choisir · Entrée continuer · Espace mois suivant · A/I/C/T/E onglets · Échap réglages · Tab pour naviguer.",
+            "Clavier : 1–5 choisir · Entrée continuer · Espace mois suivant · A/I/C/T/E onglets · S sauvegardes · Échap réglages · Tab pour naviguer.",
         );
         ui.add_space(8.0);
         if c.session.game.is_some() {
@@ -392,13 +395,17 @@ pub fn settings(ctx: &egui::Context, c: &mut Ctx) {
                     close = true;
                 }
             });
+            if ghost_button(ui, "Sauvegarder / charger (S)", 300.0).clicked() {
+                super::saves::open(c);
+                close = true;
+            }
         }
         ui.add_space(6.0);
         if c.session.has_save {
             if !c.ui.confirm_reset {
                 if ui
                     .add(egui::Button::new(RichText::new("RESET GAME").color(RED)))
-                    .on_hover_text("Efface la sauvegarde automatique")
+                    .on_hover_text("Efface la sauvegarde automatique (les 3 emplacements manuels sont conservés)")
                     .clicked()
                 {
                     c.ui.confirm_reset = true;

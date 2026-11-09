@@ -10,6 +10,7 @@ mod menu;
 mod minigames;
 mod panel;
 mod rooms;
+mod saves;
 mod scenes;
 pub mod style;
 mod tutorial;
@@ -73,6 +74,10 @@ pub struct UiState {
     pub show_mentors: bool,
     /// Fenêtre de choix du cap de la saison 2.
     pub show_ambition: bool,
+    /// Fenêtre des sauvegardes manuelles.
+    pub show_saves: bool,
+    pub slots: Vec<Option<Result<dsi_core::save::SlotInfo, String>>>,
+    pub slot_pending: Option<saves::Pending>,
     pub ambition_choice: Option<String>,
     /// Rectangles d'éléments d'interface que le tutoriel peut désigner.
     pub marks: std::collections::HashMap<&'static str, egui::Rect>,
@@ -109,6 +114,9 @@ impl Default for UiState {
             tutorial: true,
             show_mentors: false,
             show_ambition: false,
+            show_saves: false,
+            slots: Vec::new(),
+            slot_pending: None,
             ambition_choice: None,
             marks: Default::default(),
             tip_hidden: None,
@@ -120,6 +128,15 @@ impl Default for UiState {
 }
 
 impl UiState {
+    /// Ferme les fenêtres liées à la partie précédente après un chargement.
+    pub fn reset_for_load(&mut self) {
+        self.room_panel = None;
+        self.show_settings = false;
+        self.show_mentors = false;
+        self.show_ambition = false;
+        self.show_help = false;
+    }
+
     pub fn toast(&mut self, msg: impl Into<String>, good: bool) {
         let m = msg.into();
         let ttl = (3.5 + m.chars().count() as f32 / 30.0).min(9.0);
@@ -370,7 +387,11 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
     let central = match c.ui.screen {
         Screen::Title | Screen::Create | Screen::Mentor => {
             match c.ui.screen {
-                Screen::Title => menu::title(&ctx, &mut c),
+                Screen::Title => {
+                    if !c.ui.show_saves {
+                        menu::title(&ctx, &mut c)
+                    }
+                }
                 Screen::Create => menu::create(&ctx, &mut c),
                 _ => menu::mentor_choice(&ctx, &mut c),
             }
@@ -439,6 +460,7 @@ fn ui_root(mut contexts: EguiContexts, mut r: UiRes) -> Result {
     if c.ui.show_settings {
         menu::settings(&ctx, &mut c);
     }
+    saves::show(&ctx, &mut c);
     if c.ui.show_credits {
         menu::credits(&ctx, &mut c);
     }

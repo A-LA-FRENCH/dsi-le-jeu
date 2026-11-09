@@ -123,6 +123,48 @@ impl Session {
         Ok(())
     }
 
+    /// Sauvegarde la partie en cours dans l'emplacement `i`.
+    pub fn save_slot(&mut self, store: &mut Store, i: usize) -> Result<(), String> {
+        let g = self.game.as_ref().ok_or("pas de partie en cours")?;
+        let json = dsi_core::save::to_json_at(g, platform::clock::now_millis())?;
+        store
+            .0
+            .set(&dsi_core::save::slot_key(i), &json)
+            .map_err(|e| e.to_string())
+    }
+
+    /// Charge l'emplacement `i` ; il devient la partie en cours (et la sauvegarde automatique).
+    pub fn load_slot(&mut self, store: &Store, i: usize) -> Result<(), String> {
+        let json = store
+            .0
+            .get(&dsi_core::save::slot_key(i))
+            .map_err(|e| e.to_string())?
+            .ok_or("emplacement vide")?;
+        let (mut g, _) = dsi_core::save::read(&json)?;
+        g.debug = self.params.debug;
+        self.game = Some(g);
+        self.rev += 1;
+        self.month_flash = 1.6;
+        Ok(())
+    }
+
+    pub fn delete_slot(store: &mut Store, i: usize) -> Result<(), String> {
+        store
+            .0
+            .remove(&dsi_core::save::slot_key(i))
+            .map_err(|e| e.to_string())
+    }
+
+    /// Résumé des emplacements : `None` si vide, `Err` si illisible.
+    pub fn slot_infos(store: &Store) -> Vec<Option<Result<dsi_core::save::SlotInfo, String>>> {
+        (0..dsi_core::save::SLOT_COUNT)
+            .map(|i| {
+                let json = store.0.get(&dsi_core::save::slot_key(i)).ok().flatten()?;
+                Some(dsi_core::save::read(&json).map(|(g, at)| dsi_core::save::slot_info(&g, at)))
+            })
+            .collect()
+    }
+
     /// Exécute une commande, émet les sons correspondants. Renvoie l'erreur lisible.
     pub fn run(&mut self, content: &Content, sfx: &mut Sfx, cmd: Command) -> Result<(), String> {
         let Some(g) = self.game.as_mut() else {

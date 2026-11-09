@@ -50,6 +50,8 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
   salles (lancer un projet, recruter, négocier en avance, auditer, écouter le dev senior…).
 - **Chaque décision fait mal quelque part.** Les choix montrent le *sens* des effets (▲▼),
   jamais leur ampleur ; ⏳ signale des suites différées.
+- **Sauvegardes** : sauvegarde automatique + 3 emplacements manuels (nom, date de jeu, score,
+  état de la partie, ancienneté), chargement depuis l'écran titre ou en cours de partie.
 - **Budget mensuel détaillé** (bas droite et onglet Indicateurs) : allocation du DAF et sa
   répartition entre salaires (équipe historique + recrues), logiciels et contrats,
   ESN (régie + renforts projets), cloud / IA et projets, avec le solde du mois.
@@ -225,7 +227,9 @@ web/                  index.html + loader.js (détection WASM / WebGPU / WebGL2)
 
 Le client n'écrit jamais l'état directement : il envoie des `Command` à `dsi-core`, qui
 renvoie une erreur lisible si l'action est impossible. La sauvegarde automatique a lieu
-après chaque commande réussie (`localStorage`, clé `dsi-le-jeu:autosave`). Pour ajouter un
+après chaque commande réussie (`localStorage`, clé `dsi-le-jeu:autosave`). Trois emplacements
+de sauvegarde manuelle (`dsi-le-jeu:slot1` à `slot3`) s'ouvrent avec le bouton « Sauver »,
+la touche S, le menu Échap ou « Charger une partie » sur l'écran titre. Pour ajouter un
 backend plus tard, il suffit d'une autre implémentation du trait `platform::Storage`.
 
 ---

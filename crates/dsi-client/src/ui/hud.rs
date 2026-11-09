@@ -125,7 +125,7 @@ fn metric_cols(width: f32) -> usize {
 
 /// Hauteur de la barre du haut pour une largeur d'écran donnée.
 pub fn top_bar_height(screen_w: f32) -> f32 {
-    if metric_cols(screen_w - 380.0) == 9 {
+    if metric_cols(screen_w - 440.0) == 9 {
         64.0
     } else {
         88.0
@@ -147,7 +147,7 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
                 }
             });
             ui.add_space(8.0);
-            let width = ui.available_width() - 150.0;
+            let width = ui.available_width() - 210.0;
             let cols = metric_cols(width);
             let cell_w = (width / cols as f32 - 8.0).clamp(54.0, 112.0);
             let pulse = (ui.input(|i| i.time) * 4.0).sin() > 0.0;
@@ -192,6 +192,9 @@ pub fn top_bar(root: &mut egui::Ui, c: &mut Ctx) {
                 }
                 if ui.button(RichText::new("?").size(15.0)).on_hover_text("Aide").clicked() {
                     c.ui.show_help = true;
+                }
+                if ui.button(RichText::new("Sauver").size(13.5)).on_hover_text("Sauvegarder / charger une partie (S) — 3 emplacements").clicked() {
+                    super::saves::open(c);
                 }
                 ui.add_space(4.0);
                 let g = c.g();
@@ -509,6 +512,7 @@ pub fn shortcuts(ctx: &egui::Context, c: &mut Ctx) {
                 egui::Key::C,
                 egui::Key::T,
                 egui::Key::E,
+                egui::Key::S,
             ]
             .map(|k| i.key_pressed(k)),
         )
@@ -523,9 +527,12 @@ pub fn shortcuts(ctx: &egui::Context, c: &mut Ctx) {
         .is_some_and(|g| g.active.is_none() && !g.finished())
         && c.ui.room_panel.is_none()
         && !c.ui.show_mentors
-        && !c.ui.show_settings;
+        && !c.ui.show_settings
+        && !c.ui.show_saves;
     if esc {
-        if c.ui.show_mentors {
+        if c.ui.show_saves {
+            // La fenêtre des sauvegardes se ferme elle-même.
+        } else if c.ui.show_mentors {
             c.ui.show_mentors = false;
         } else if c.ui.room_panel.is_some() {
             c.ui.room_panel = None;
@@ -535,6 +542,10 @@ pub fn shortcuts(ctx: &egui::Context, c: &mut Ctx) {
         } else {
             c.ui.show_settings = !c.ui.show_settings;
         }
+    }
+    if keys[5] && c.session.game.is_some() && !c.ui.show_saves && !c.ui.show_settings {
+        super::saves::open(c);
+        return;
     }
     if !free {
         return;

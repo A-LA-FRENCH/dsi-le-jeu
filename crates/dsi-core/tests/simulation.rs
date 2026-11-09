@@ -696,3 +696,22 @@ fn les_fins_ont_des_objectifs_explicites_et_un_cap() {
     assert_eq!(e.ambition, Some(("Cloud Native Enterprise".into(), false)));
     assert!(game::apply(&c, &mut s, Command::SetAmbition(Some("inconnu".into()))).is_err());
 }
+
+#[test]
+fn trois_emplacements_de_sauvegarde() {
+    assert_eq!(save::SLOT_COUNT, 3);
+    let keys: Vec<String> = (0..save::SLOT_COUNT).map(save::slot_key).collect();
+    assert_eq!(keys, ["slot1", "slot2", "slot3"]);
+    assert!(!keys.iter().any(|k| k == save::AUTOSAVE_KEY));
+    let s = play(5, 0);
+    let json = save::to_json_at(&s, 1_700_000_000_000).unwrap();
+    let (back, at) = save::read(&json).unwrap();
+    assert_eq!(at, 1_700_000_000_000);
+    assert_eq!(back.cal, s.cal);
+    let info = save::slot_info(&back, at);
+    assert_eq!(info.date, s.cal.label());
+    assert_eq!(info.score, score::score(&s));
+    assert!(!info.status.is_empty());
+    // Les anciennes sauvegardes (sans horodatage) restent lisibles.
+    assert_eq!(save::read(&save::to_json(&s).unwrap()).unwrap().1, 0);
+}
