@@ -167,37 +167,84 @@ fn project_catalog(ui: &mut egui::Ui, c: &mut Ctx, cmd: &mut Option<Command>) {
         }
     });
     let filter = c.ui.project_filter.clone();
-    for p in c.content.projects.iter().filter(|p| p.catalog) {
+    for base in c.content.projects.iter().filter(|p| p.catalog) {
         let g = c.g();
-        if g.done_projects.contains(&p.id) || g.projects.iter().any(|x| x.id == p.id) {
+        if g.done_projects.contains(&base.id) || g.projects.iter().any(|x| x.id == base.id) {
             continue;
         }
-        let check = projects::can_start(c.content, g, &p.id);
+        if !filter.is_empty() && base.category != filter {
+            continue;
+        }
+        // Solution retenue (projets à plusieurs prestataires).
+        let opt: Option<String> = if base.options.is_empty() {
+            None
+        } else {
+            Some(
+                c.ui.project_option
+                    .get(&base.id)
+                    .filter(|o| base.option(o).is_some())
+                    .cloned()
+                    .unwrap_or_else(|| base.options[0].id.clone()),
+            )
+        };
+        let p = base.with_option(opt.as_deref());
+        let check = projects::can_start_with(c.content, g, &base.id, opt.as_deref());
         if filter.is_empty() && check.is_err() {
-            continue;
-        }
-        if !filter.is_empty() && p.category != filter {
             continue;
         }
         let ok = check.is_ok() && g.agenda > 0;
         card().show(ui, |ui| {
             ui.set_width(ui.available_width());
             ui.horizontal(|ui| {
-                ui.label(RichText::new(&p.name).font(bold(14.5)).color(if ok {
+                ui.label(RichText::new(&base.name).font(bold(14.5)).color(if ok {
                     TEXT
                 } else {
                     MUTED
                 }));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if ui.add_enabled(ok, egui::Button::new("Lancer")).clicked() {
-                        *cmd = Some(Command::StartProject(p.id.clone()));
+                        *cmd = Some(match &opt {
+                            Some(o) => Command::StartProjectWith(base.id.clone(), o.clone()),
+                            None => Command::StartProject(base.id.clone()),
+                        });
                     }
                 });
             });
-            muted(ui, &p.desc);
+            muted(ui, &base.desc);
+            if !base.options.is_empty() {
+                ui.label(
+                    RichText::new(format!("Solution ({}) :", base.options.len()))
+                        .font(bold(12.5))
+                        .color(CYAN),
+                );
+                ui.horizontal_wrapped(|ui| {
+                    for o in &base.options {
+                        let sel = opt.as_deref() == Some(o.id.as_str());
+                        if ui
+                            .selectable_label(
+                                sel,
+                                RichText::new(&o.name).size(13.0).color(if sel {
+                                    YELLOW
+                                } else {
+                                    LIGHT
+                                }),
+                            )
+                            .clicked()
+                        {
+                            c.ui.project_option.insert(base.id.clone(), o.id.clone());
+                        }
+                    }
+                });
+                if let Some(o) = opt.as_deref().and_then(|o| base.option(o)) {
+                    ui.add(
+                        egui::Label::new(RichText::new(&o.desc).size(12.5).italics().color(LIGHT))
+                            .wrap(),
+                    );
+                }
+            }
             ui.label(
                 RichText::new(format!(
-                    "Lancement {:.0} · {:.1}/mois · {} mois · complexité {:.0} · risque {:.0} %",
+                    "Lancement {:.0} · {:.2}/mois · {} mois · complexité {:.0} · risque {:.0} %",
                     p.cost,
                     p.burn,
                     p.duration,
@@ -214,6 +261,45 @@ fn project_catalog(ui: &mut egui::Ui, c: &mut Ctx, cmd: &mut Option<Command>) {
                     ui.label(RichText::new("À la livraison :").size(12.0).color(MUTED));
                     preview(ui, &fx, false);
                 });
+            }
+            if !p.add_contract.is_empty() || !p.end_contract.is_empty() {
+                let label = |id: &String| {
+                    c.content
+                        .contract(id)
+                        .map(|k| k.label.clone())
+                        .unwrap_or_default()
+                };
+                let mut parts = Vec::new();
+                if !p.end_contract.is_empty() {
+                    parts.push(format!(
+                        "Résilie : {}",
+                        p.end_contract
+                            .iter()
+                            .map(label)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ));
+                }
+                if !p.add_contract.is_empty() {
+                    let cost: f32 = p
+                        .add_contract
+                        .iter()
+                        .filter_map(|id| c.content.contract(id))
+                        .map(|k| k.monthly_cost)
+                        .sum();
+                    parts.push(format!(
+                        "Souscrit : {} ({cost:.2}/mois)",
+                        p.add_contract
+                            .iter()
+                            .map(label)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ));
+                }
+                ui.add(
+                    egui::Label::new(RichText::new(parts.join(" · ")).size(12.0).color(MUTED))
+                        .wrap(),
+                );
             }
             if !p.add_tech.is_empty() {
                 let names: Vec<String> =

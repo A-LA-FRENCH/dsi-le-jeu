@@ -754,3 +754,83 @@ fn licencier_une_recrue_allege_la_masse_salariale() {
     assert!(second.effects[&Metric::DevSat] < t.effects[&Metric::DevSat]);
     assert!(game::apply(&c, &mut s, Command::Dismiss(5)).is_err());
 }
+
+#[test]
+fn les_projets_proposent_plusieurs_solutions() {
+    use dsi_core::projects;
+    let (c, mut s) = new(21);
+    s.inbox.clear();
+    s.agenda = 9;
+    s.metrics.set(Metric::Budget, 100.0);
+    s.metrics.set(Metric::Make, 60.0);
+    let names = |id: &str| -> Vec<String> {
+        c.project(id)
+            .unwrap()
+            .options
+            .iter()
+            .map(|o| o.name.clone())
+            .collect()
+    };
+    assert_eq!(
+        names("migrate_office_os"),
+        ["La Suite numérique", "ElixirOffice"]
+    );
+    assert_eq!(
+        names("exit_hyperscaler"),
+        ["Scaleway", "OVHcloud", "Clever Cloud"]
+    );
+    assert!(
+        names("mobile_degoogled")
+            .iter()
+            .any(|n| n.contains("Commown"))
+    );
+    assert!(
+        names("exit_atlassian")
+            .iter()
+            .all(|n| n.contains("OpenProject"))
+    );
+    // Solution inconnue refusée ; sans précision, la première solution est retenue.
+    assert!(
+        game::apply(
+            &c,
+            &mut s,
+            Command::StartProjectWith("migrate_office_os".into(), "inconnue".into())
+        )
+        .is_err()
+    );
+    game::apply(&c, &mut s, Command::StartProject("exit_atlassian".into())).unwrap();
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    assert_eq!(s.projects[0].option.as_deref(), Some("openproject_ce"));
+    // La solution change coût, contrat souscrit et fournisseur cloud.
+    s.techs.insert("cloud_public".into());
+    s.cloud.activate("aws");
+    s.cloud.bill = 1.0;
+    let budget = s.m(Metric::Budget);
+    game::apply(
+        &c,
+        &mut s,
+        Command::StartProjectWith("mobile_degoogled".into(), "commown".into()),
+    )
+    .unwrap();
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    assert!(
+        (budget - s.m(Metric::Budget) - 1.0).abs() < 0.01,
+        "Commown : 1 point au lancement au lieu de 3"
+    );
+    game::apply(
+        &c,
+        &mut s,
+        Command::StartProjectWith("exit_hyperscaler".into(), "clevercloud".into()),
+    )
+    .unwrap();
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    for id in ["exit_atlassian", "mobile_degoogled", "exit_hyperscaler"] {
+        projects::complete(&c, &mut s, id);
+    }
+    let active = |id: &str| s.contracts.iter().any(|k| k.id == id && k.active);
+    assert!(active("openproject_ce") && !active("atlassian_jira"));
+    assert!(active("mobile_commown") && !active("mobile_fleet") && !active("mobile_murena"));
+    assert_eq!(s.cloud.provider.as_deref(), Some("clevercloud"));
+    assert!(s.has_tech("cloud_souverain") && !s.has_tech("cloud_public"));
+    assert!((s.cloud.bill - 0.8).abs() < 1e-4);
+}

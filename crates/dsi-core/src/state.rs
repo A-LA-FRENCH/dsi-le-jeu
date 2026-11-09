@@ -565,7 +565,7 @@ impl GameState {
             profile,
             cal: Calendar::start(),
             metrics,
-            allocation: 8.8 + STAFF_PAYROLL,
+            allocation: 9.05 + STAFF_PAYROLL,
             staff_payroll: STAFF_PAYROLL,
             ambition: None,
             baseline_run: 0.0,

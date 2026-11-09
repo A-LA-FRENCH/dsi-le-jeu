@@ -1,71 +1,1183 @@
 {
   "technologies": [
-    { "id": "datacenter", "name": "Datacenter historique", "branch": "infra", "tier": 0, "initial": true, "desc": "Une salle au sous-sol, une clim de 2004, un onduleur qui fait un bruit bizarre.", "passive": [ { "when": { "max": { "resilience": 35 } }, "then": { "uptime": -0.2 } } ] },
-    { "id": "vmware", "name": "VMware vSphere", "branch": "infra", "tier": 1, "initial": true, "desc": "Stable, maîtrisé par l'équipe, et désormais très cher.", "passive": [] },
-    { "id": "xcpng", "name": "XCP-ng / Xen Orchestra", "branch": "infra", "tier": 1, "desc": "Hyperviseur open source, support français. Demande des compétences.", "via": "migrate_xcpng", "passive": [ { "when": { "max": { "sovereignty": 75 } }, "then": { "sovereignty": 0.2 } }, { "when": { "max": { "make": 25 } }, "then": { "complexity": 0.15 } } ] },
-    { "id": "proxmox", "name": "Proxmox VE", "branch": "infra", "tier": 1, "desc": "Hyperviseur open source (KVM). Très populaire, communauté active.", "via": "migrate_proxmox", "passive": [ { "when": { "max": { "sovereignty": 75 } }, "then": { "sovereignty": 0.15 } }, { "when": { "max": { "make": 25 } }, "then": { "complexity": 0.15 } } ] },
-    { "id": "hyperv", "name": "Hyper-V", "branch": "infra", "tier": 1, "desc": "Changement de fournisseur… chez un fournisseur que vous avez déjà.", "via": "migrate_hyperv", "passive": [ { "then": { "vendor_dep": 0.1 } } ] },
-    { "id": "cloud_public", "name": "Cloud public", "branch": "infra", "tier": 2, "desc": "Élasticité, services managés, facture à surveiller chaque matin.", "via": "cloud_migration", "passive": [ { "when": { "max": { "velocity": 80 } }, "then": { "velocity": 0.25 } } ] },
-    { "id": "cloud_souverain", "name": "Cloud de confiance", "branch": "infra", "tier": 2, "desc": "Qualifié, européen, un peu moins de services managés.", "via": "cloud_migration_sov", "passive": [ { "when": { "max": { "sovereignty": 85 } }, "then": { "sovereignty": 0.3 } } ] },
-    { "id": "containers", "name": "Conteneurs (Docker)", "branch": "infra", "tier": 2, "desc": "« Ça marche sur ma machine » devient « ça marche dans mon conteneur ».", "via": "containers", "passive": [ { "when": { "min": { "devops_maturity": 25 } }, "then": { "velocity": 0.3 }, "else": { "complexity": 0.2 } } ] },
-    { "id": "kubernetes", "name": "Kubernetes", "branch": "infra", "tier": 3, "desc": "Booste la vélocité si l'organisation a les compétences. Sinon, explose la complexité.", "via": "kubernetes", "passive": [ { "when": { "min": { "devops_maturity": 50, "make": 40 } }, "then": { "velocity": 0.6, "resilience": 0.2 }, "else": { "complexity": 0.9, "dev_sat": -0.2 } } ] },
-    { "id": "idp", "name": "Internal Developer Platform", "branch": "infra", "tier": 4, "desc": "Un portail, des chemins balisés, des déploiements en self-service.", "via": "idp", "passive": [ { "then": { "complexity": -0.3, "velocity": 0.3 } } ] },
-
-    { "id": "svn", "name": "SVN & mises en prod par FTP", "branch": "dev", "tier": 0, "initial": true, "desc": "Le dossier s'appelle « prod_backup_old_2 ».", "passive": [ { "then": { "debt": 0.1 } } ] },
-    { "id": "git", "name": "Git", "branch": "dev", "tier": 1, "desc": "Des branches, des revues de code, et des conflits de merge.", "via": "forge", "passive": [ { "when": { "max": { "devops_maturity": 40 } }, "then": { "devops_maturity": 0.2 } } ] },
-    { "id": "forge", "name": "Forge logicielle moderne", "branch": "dev", "tier": 2, "desc": "Code, tickets, revues et pipelines au même endroit.", "via": "forge", "passive": [ { "when": { "max": { "attractiveness": 70 } }, "then": { "attractiveness": 0.15 } } ] },
-    { "id": "ci", "name": "Intégration continue", "branch": "dev", "tier": 2, "desc": "Les tests tournent à chaque commit. Les tests existent, donc.", "via": "cicd_pipeline", "passive": [ { "then": { "debt": -0.15, "velocity": 0.15 } } ] },
-    { "id": "cd", "name": "Déploiement continu", "branch": "dev", "tier": 3, "desc": "Livrer souvent, en petits morceaux. Dangereux sans observabilité.", "via": "cicd_pipeline", "passive": [ { "when": { "tech": "observability" }, "then": { "velocity": 0.3 }, "else": { "uptime": -0.3 } } ] },
-    { "id": "iac", "name": "Infrastructure as Code", "branch": "dev", "tier": 3, "desc": "L'infrastructure est versionnée. Plus de « serveur de Michel ».", "via": "iac", "passive": [ { "then": { "resilience": 0.2, "complexity": -0.1 } } ] },
-    { "id": "observability", "name": "Observabilité", "branch": "dev", "tier": 2, "desc": "Logs, métriques, traces. On voit enfin ce qui se passe.", "via": "cartographie", "passive": [ { "when": { "max": { "uptime": 90 } }, "then": { "uptime": 0.2, "resilience": 0.1 } } ] },
-    { "id": "postgresql", "name": "PostgreSQL", "branch": "dev", "tier": 2, "desc": "Base open source robuste. Les procédures stockées PL/SQL ne migrent pas toutes seules.", "via": "migrate_postgres", "passive": [ { "when": { "max": { "sovereignty": 75 } }, "then": { "sovereignty": 0.1 } } ] },
-
-    { "id": "waterfall", "name": "Waterfall", "branch": "culture", "tier": 0, "initial": true, "desc": "Cahier des charges de 400 pages, recette en fin de projet, surprise en production.", "passive": [ { "when": { "no_tech": "agile" }, "then": { "velocity": -0.2 } } ] },
-    { "id": "agile", "name": "Agile", "branch": "culture", "tier": 1, "desc": "Faire de l'Agile n'est pas avoir Jira. Sans autonomie, ce sont juste 17 réunions de plus.", "via": "transfo_agile", "passive": [ { "when": { "min": { "make": 25 } }, "then": { "velocity": 0.2, "dev_sat": 0.1 }, "else": { "dev_sat": -0.2 } } ] },
-    { "id": "cicd", "name": "CI/CD", "branch": "culture", "tier": 2, "desc": "Automatiser le chemin du code jusqu'à la production.", "via": "cicd_pipeline", "passive": [ { "when": { "max": { "devops_maturity": 50 } }, "then": { "devops_maturity": 0.3 } } ] },
-    { "id": "devops", "name": "DevOps", "branch": "culture", "tier": 3, "desc": "Autonomie, ownership, automatisation, observabilité. Pas un poste, une organisation.", "via": "transfo_devops", "passive": [ { "when": { "max": { "devops_maturity": 80 } }, "then": { "devops_maturity": 0.4 } } ] },
-    { "id": "devsecops", "name": "DevSecOps", "branch": "culture", "tier": 4, "desc": "La sécurité dans le pipeline, pas dans un comité mensuel.", "via": "devsecops", "passive": [ { "when": { "max": { "security": 80 } }, "then": { "security": 0.3 } } ] },
-    { "id": "sre", "name": "SRE", "branch": "culture", "tier": 5, "desc": "Budgets d'erreur, SLO, post-mortems sans coupable.", "via": "sre", "passive": [ { "when": { "max": { "resilience": 85 } }, "then": { "resilience": 0.3, "uptime": 0.2 } } ] },
-    { "id": "platform_eng", "name": "Platform Engineering", "branch": "culture", "tier": 6, "desc": "Une équipe plateforme au service des équipes produit.", "via": "idp", "passive": [ { "when": { "min": { "make": 45 } }, "then": { "velocity": 0.3, "complexity": -0.2 }, "else": { "complexity": 0.2 } } ] },
-    { "id": "mlops", "name": "MLOps", "branch": "culture", "tier": 7, "desc": "Des modèles en production, versionnés, surveillés.", "via": "ml_platform", "passive": [ { "when": { "max": { "ai_maturity": 80 } }, "then": { "ai_maturity": 0.3 } } ] },
-    { "id": "ai_eng", "name": "AI Engineering", "branch": "culture", "tier": 8, "desc": "Évaluation, garde-fous, coûts maîtrisés : l'IA comme discipline d'ingénierie.", "via": "ai_platform", "passive": [ { "when": { "max": { "ai_maturity": 85 } }, "then": { "ai_maturity": 0.3 } } ] },
-    { "id": "agentic_eng", "name": "Agentic Engineering", "branch": "culture", "tier": 9, "desc": "Des agents qui codent, testent, déploient — sous supervision.", "via": "agentic", "passive": [ { "when": { "tech": "context_platform" }, "then": { "velocity": 0.4 }, "else": { "security": -0.3, "complexity": 0.3 } } ] },
-
-    { "id": "excel_db", "name": "Excel comme base de données", "branch": "data", "tier": 0, "initial": true, "desc": "« SUIVI_CLIENTS_2014_v12.xlsx », 1 048 576 lignes, partagé par mail.", "passive": [ { "then": { "data_quality": -0.15 } } ] },
-    { "id": "warehouse", "name": "Data warehouse on-prem", "branch": "data", "tier": 1, "initial": true, "desc": "Installé en 2009. Le cube OLAP s'appelle « Cube ».", "passive": [] },
-    { "id": "data_lake", "name": "Data Lake", "branch": "data", "tier": 2, "desc": "Tout centraliser. Sans gouvernance, ça devient un Data Swamp.", "via": "data_lake", "passive": [ { "when": { "tech": "data_catalog" }, "then": { "data_quality": 0.2 }, "else": { "data_quality": -0.3, "complexity": 0.1 } } ] },
-    { "id": "data_catalog", "name": "Catalogue, lineage & ownership", "branch": "data", "tier": 2, "desc": "Qui possède quelle donnée, d'où elle vient, ce qu'elle veut dire.", "via": "data_governance", "passive": [ { "when": { "max": { "data_quality": 85 } }, "then": { "data_quality": 0.4 } } ] },
-    { "id": "lakehouse", "name": "Lakehouse", "branch": "data", "tier": 3, "desc": "Le meilleur du lake et du warehouse. Et leurs deux factures.", "via": "lakehouse", "passive": [ { "then": { "data_quality": 0.2, "ai_maturity": 0.1 } } ] },
-    { "id": "data_mesh", "name": "Data Mesh", "branch": "data", "tier": 4, "desc": "Données comme produits, ownership par domaine. Exige des équipes matures.", "via": "data_mesh", "passive": [ { "when": { "min": { "make": 55 } }, "then": { "data_quality": 0.3 }, "else": { "complexity": 0.4 } } ] },
-    { "id": "ml_platform", "name": "Plateforme ML", "branch": "data", "tier": 4, "desc": "Entraîner, servir, surveiller des modèles.", "via": "ml_platform", "passive": [ { "then": { "ai_maturity": 0.2 } } ] },
-
-    { "id": "copilot", "name": "Assistants de code", "branch": "ai", "tier": 1, "desc": "Les développeurs écrivent plus vite. Et relisent moins ?", "via": "copilots", "passive": [ { "then": { "velocity": 0.2 } } ] },
-    { "id": "vibe_coding", "name": "Vibe coding", "branch": "ai", "tier": 2, "desc": "On décrit, l'IA code. Surveillez le ratio code généré / code compris.", "passive": [ { "then": { "velocity": 0.5 } } ] },
-    { "id": "rag", "name": "RAG sur la documentation", "branch": "ai", "tier": 2, "desc": "Un assistant qui répond à partir de vos documents. Si vos documents sont justes.", "via": "rag_assistant", "passive": [ { "when": { "min": { "data_quality": 45 } }, "then": { "user_sat": 0.25 }, "else": { "user_sat": -0.15 } } ] },
-    { "id": "ai_guardrails", "name": "Évaluation & garde-fous IA", "branch": "ai", "tier": 2, "desc": "Tests d'évaluation, filtres, revue humaine : l'IA sous contrôle.", "via": "ai_platform", "passive": [ { "when": { "max": { "security": 85 } }, "then": { "security": 0.1 } } ] },
-    { "id": "ai_gateway", "name": "AI gateway & FinOps IA", "branch": "ai", "tier": 3, "desc": "Un point d'entrée pour tous les modèles : quotas, logs, coûts.", "via": "ai_platform", "passive": [ { "then": { "complexity": -0.1 } } ] },
-    { "id": "open_weights", "name": "Modèles open weights", "branch": "ai", "tier": 3, "desc": "Des modèles que vous hébergez. Il faut des GPU, et des gens.", "via": "open_weights", "passive": [ { "when": { "max": { "sovereignty": 85 } }, "then": { "sovereignty": 0.2 } } ] },
-    { "id": "agents", "name": "Agents IA", "branch": "ai", "tier": 3, "desc": "Ils agissent : tickets, requêtes, workflows. Avec quels droits ?", "via": "agents", "passive": [ { "when": { "tech": "context_platform" }, "then": { "velocity": 0.5 }, "else": { "velocity": 0.3, "security": -0.3 } } ] },
-    { "id": "mcp", "name": "Serveurs MCP", "branch": "ai", "tier": 4, "desc": "Les agents se branchent aux outils internes. Qui peut appeler quoi ?", "via": "mcp_gateway", "passive": [ { "when": { "tech": "iam" }, "then": { "velocity": 0.3 }, "else": { "security": -0.4, "complexity": 0.3 } } ] },
-    { "id": "context_platform", "name": "Enterprise Context Platform", "branch": "ai", "tier": 5, "desc": "Connaissance, identité, permissions, mémoire, provenance, traces : le contexte gouverné.", "via": "context_platform", "passive": [ { "then": { "security": 0.15, "ai_maturity": 0.3, "data_quality": 0.2 } } ] },
-
-    { "id": "ad", "name": "Active Directory (2003, migré 2012)", "branch": "identity", "tier": 0, "initial": true, "desc": "14 000 comptes pour 8 000 salariés. Personne ne sait pourquoi.", "passive": [ { "when": { "no_tech": "iam" }, "then": { "security": -0.1 } } ] },
-    { "id": "ldap", "name": "LDAP maison", "branch": "identity", "tier": 0, "initial": true, "desc": "Branché sur 37 applications. Le schéma a été écrit par Michel.", "passive": [] },
-    { "id": "sso", "name": "SSO", "branch": "identity", "tier": 1, "desc": "Un seul mot de passe. Donc un seul à protéger.", "via": "sso_mfa", "passive": [ { "when": { "max": { "user_sat": 80 } }, "then": { "user_sat": 0.1 } } ] },
-    { "id": "mfa", "name": "MFA", "branch": "identity", "tier": 1, "desc": "Le second facteur. Le premier facteur de plaintes.", "via": "sso_mfa", "passive": [ { "when": { "max": { "security": 70 } }, "then": { "security": 0.2 } } ] },
-    { "id": "iam", "name": "IAM moderne (OIDC, SCIM)", "branch": "identity", "tier": 2, "desc": "Identity-first : comptes provisionnés et déprovisionnés automatiquement.", "via": "iam", "passive": [ { "when": { "max": { "security": 80 } }, "then": { "security": 0.2, "complexity": -0.1 } } ] },
-    { "id": "pam", "name": "PAM (comptes à privilèges)", "branch": "identity", "tier": 2, "desc": "Les comptes admin sous coffre-fort, sessions tracées.", "via": "zero_trust", "passive": [ { "when": { "max": { "security": 85 } }, "then": { "security": 0.15 } } ] },
-    { "id": "zero_trust", "name": "Zero Trust", "branch": "identity", "tier": 3, "desc": "Ne jamais faire confiance au réseau. Vérifier chaque accès.", "via": "zero_trust", "passive": [ { "when": { "max": { "security": 90 } }, "then": { "security": 0.3, "resilience": 0.1 } } ] },
-
-    { "id": "cobol", "name": "Applications COBOL (1987)", "branch": "apps", "tier": 0, "initial": true, "desc": "Elles fonctionnent. Personne ne sait exactement comment.", "passive": [ { "then": { "debt": 0.1 } } ] },
-    { "id": "java8", "name": "Java 8 (« stable »)", "branch": "apps", "tier": 0, "initial": true, "desc": "212 applications. Les candidats fuient à sa simple évocation.", "passive": [ { "then": { "attractiveness": -0.1 } } ] },
-    { "id": "oracle", "name": "Oracle Database", "branch": "apps", "tier": 0, "initial": true, "desc": "412 procédures stockées, dont une de 11 000 lignes.", "passive": [] },
-    { "id": "sap", "name": "SAP ECC", "branch": "apps", "tier": 0, "initial": true, "desc": "14 000 développements spécifiques. Le « Z » le plus ancien date de 2001.", "passive": [] },
-    { "id": "batch", "name": "4 000 batchs de nuit", "branch": "apps", "tier": 0, "initial": true, "desc": "Ordonnancés par un outil dont l'éditeur a disparu.", "passive": [ { "when": { "no_tech": "observability" }, "then": { "uptime": -0.1 } } ] },
-    { "id": "apis", "name": "APIs REST", "branch": "apps", "tier": 2, "desc": "Exposer les données proprement plutôt que par export CSV quotidien.", "via": "api_platform", "passive": [ { "then": { "velocity": 0.2 } } ] },
-    { "id": "api_mgmt", "name": "API management & catalogue", "branch": "apps", "tier": 3, "desc": "Gateway, portail développeurs, gouvernance. 4 812 APIs, enfin documentées ?", "via": "api_platform", "passive": [ { "then": { "complexity": -0.2 } } ] },
-    { "id": "event_driven", "name": "Architecture événementielle (Kafka)", "branch": "apps", "tier": 3, "desc": "Des flux d'événements plutôt que des batchs. Puissant, exigeant.", "via": "event_driven", "passive": [ { "when": { "min": { "make": 45 } }, "then": { "velocity": 0.3 }, "else": { "complexity": 0.3 } } ] },
-    { "id": "suite_os", "name": "Suite collaborative open source", "branch": "apps", "tier": 3, "desc": "Bureautique et collaboration hébergées, code ouvert. L'adoption se travaille.", "via": "migrate_office_os", "passive": [ { "when": { "max": { "sovereignty": 85 } }, "then": { "sovereignty": 0.2 } } ] },
-    { "id": "erp_composable", "name": "ERP composable", "branch": "apps", "tier": 4, "desc": "Un cœur ERP propre, des services autour, des APIs partout.", "via": "erp_strangler", "passive": [ { "then": { "velocity": 0.2, "debt": -0.1 } } ] }
+    {
+      "id": "datacenter",
+      "name": "Datacenter historique",
+      "branch": "infra",
+      "tier": 0,
+      "initial": true,
+      "desc": "Une salle au sous-sol, une clim de 2004, un onduleur qui fait un bruit bizarre.",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "resilience": 35
+            }
+          },
+          "then": {
+            "uptime": -0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "vmware",
+      "name": "VMware vSphere",
+      "branch": "infra",
+      "tier": 1,
+      "initial": true,
+      "desc": "Stable, maîtrisé par l'équipe, et désormais très cher.",
+      "passive": []
+    },
+    {
+      "id": "xcpng",
+      "name": "XCP-ng / Xen Orchestra",
+      "branch": "infra",
+      "tier": 1,
+      "desc": "Hyperviseur open source, support français. Demande des compétences.",
+      "via": "migrate_xcpng",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 75
+            }
+          },
+          "then": {
+            "sovereignty": 0.2
+          }
+        },
+        {
+          "when": {
+            "max": {
+              "make": 25
+            }
+          },
+          "then": {
+            "complexity": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "proxmox",
+      "name": "Proxmox VE",
+      "branch": "infra",
+      "tier": 1,
+      "desc": "Hyperviseur open source (KVM). Très populaire, communauté active.",
+      "via": "migrate_proxmox",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 75
+            }
+          },
+          "then": {
+            "sovereignty": 0.15
+          }
+        },
+        {
+          "when": {
+            "max": {
+              "make": 25
+            }
+          },
+          "then": {
+            "complexity": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "hyperv",
+      "name": "Hyper-V",
+      "branch": "infra",
+      "tier": 1,
+      "desc": "Changement de fournisseur… chez un fournisseur que vous avez déjà.",
+      "via": "migrate_hyperv",
+      "passive": [
+        {
+          "then": {
+            "vendor_dep": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "cloud_public",
+      "name": "Cloud public",
+      "branch": "infra",
+      "tier": 2,
+      "desc": "Élasticité, services managés, facture à surveiller chaque matin.",
+      "via": "cloud_migration",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "velocity": 80
+            }
+          },
+          "then": {
+            "velocity": 0.25
+          }
+        }
+      ]
+    },
+    {
+      "id": "cloud_souverain",
+      "name": "Cloud de confiance",
+      "branch": "infra",
+      "tier": 2,
+      "desc": "Qualifié, européen, un peu moins de services managés.",
+      "via": "cloud_migration_sov",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 85
+            }
+          },
+          "then": {
+            "sovereignty": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "containers",
+      "name": "Conteneurs (Docker)",
+      "branch": "infra",
+      "tier": 2,
+      "desc": "« Ça marche sur ma machine » devient « ça marche dans mon conteneur ».",
+      "via": "containers",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "devops_maturity": 25
+            }
+          },
+          "then": {
+            "velocity": 0.3
+          },
+          "else": {
+            "complexity": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "branch": "infra",
+      "tier": 3,
+      "desc": "Booste la vélocité si l'organisation a les compétences. Sinon, explose la complexité.",
+      "via": "kubernetes",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "devops_maturity": 50,
+              "make": 40
+            }
+          },
+          "then": {
+            "velocity": 0.6,
+            "resilience": 0.2
+          },
+          "else": {
+            "complexity": 0.9,
+            "dev_sat": -0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "idp",
+      "name": "Internal Developer Platform",
+      "branch": "infra",
+      "tier": 4,
+      "desc": "Un portail, des chemins balisés, des déploiements en self-service.",
+      "via": "idp",
+      "passive": [
+        {
+          "then": {
+            "complexity": -0.3,
+            "velocity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "svn",
+      "name": "SVN & mises en prod par FTP",
+      "branch": "dev",
+      "tier": 0,
+      "initial": true,
+      "desc": "Le dossier s'appelle « prod_backup_old_2 ».",
+      "passive": [
+        {
+          "then": {
+            "debt": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "branch": "dev",
+      "tier": 1,
+      "desc": "Des branches, des revues de code, et des conflits de merge.",
+      "via": "forge",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "devops_maturity": 40
+            }
+          },
+          "then": {
+            "devops_maturity": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "forge",
+      "name": "Forge logicielle moderne",
+      "branch": "dev",
+      "tier": 2,
+      "desc": "Code, tickets, revues et pipelines au même endroit.",
+      "via": "forge",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "attractiveness": 70
+            }
+          },
+          "then": {
+            "attractiveness": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "openproject",
+      "name": "OpenProject",
+      "branch": "dev",
+      "tier": 2,
+      "desc": "Gestion de projet open source : tickets, agile, Gantt, wiki.",
+      "via": "exit_atlassian",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 85
+            }
+          },
+          "then": {
+            "sovereignty": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "ci",
+      "name": "Intégration continue",
+      "branch": "dev",
+      "tier": 2,
+      "desc": "Les tests tournent à chaque commit. Les tests existent, donc.",
+      "via": "cicd_pipeline",
+      "passive": [
+        {
+          "then": {
+            "debt": -0.15,
+            "velocity": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "cd",
+      "name": "Déploiement continu",
+      "branch": "dev",
+      "tier": 3,
+      "desc": "Livrer souvent, en petits morceaux. Dangereux sans observabilité.",
+      "via": "cicd_pipeline",
+      "passive": [
+        {
+          "when": {
+            "tech": "observability"
+          },
+          "then": {
+            "velocity": 0.3
+          },
+          "else": {
+            "uptime": -0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "iac",
+      "name": "Infrastructure as Code",
+      "branch": "dev",
+      "tier": 3,
+      "desc": "L'infrastructure est versionnée. Plus de « serveur de Michel ».",
+      "via": "iac",
+      "passive": [
+        {
+          "then": {
+            "resilience": 0.2,
+            "complexity": -0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "observability",
+      "name": "Observabilité",
+      "branch": "dev",
+      "tier": 2,
+      "desc": "Logs, métriques, traces. On voit enfin ce qui se passe.",
+      "via": "cartographie",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "uptime": 90
+            }
+          },
+          "then": {
+            "uptime": 0.2,
+            "resilience": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "branch": "dev",
+      "tier": 2,
+      "desc": "Base open source robuste. Les procédures stockées PL/SQL ne migrent pas toutes seules.",
+      "via": "migrate_postgres",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 75
+            }
+          },
+          "then": {
+            "sovereignty": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "waterfall",
+      "name": "Waterfall",
+      "branch": "culture",
+      "tier": 0,
+      "initial": true,
+      "desc": "Cahier des charges de 400 pages, recette en fin de projet, surprise en production.",
+      "passive": [
+        {
+          "when": {
+            "no_tech": "agile"
+          },
+          "then": {
+            "velocity": -0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agile",
+      "name": "Agile",
+      "branch": "culture",
+      "tier": 1,
+      "desc": "Faire de l'Agile n'est pas avoir Jira. Sans autonomie, ce sont juste 17 réunions de plus.",
+      "via": "transfo_agile",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "make": 25
+            }
+          },
+          "then": {
+            "velocity": 0.2,
+            "dev_sat": 0.1
+          },
+          "else": {
+            "dev_sat": -0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "cicd",
+      "name": "CI/CD",
+      "branch": "culture",
+      "tier": 2,
+      "desc": "Automatiser le chemin du code jusqu'à la production.",
+      "via": "cicd_pipeline",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "devops_maturity": 50
+            }
+          },
+          "then": {
+            "devops_maturity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps",
+      "branch": "culture",
+      "tier": 3,
+      "desc": "Autonomie, ownership, automatisation, observabilité. Pas un poste, une organisation.",
+      "via": "transfo_devops",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "devops_maturity": 80
+            }
+          },
+          "then": {
+            "devops_maturity": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "devsecops",
+      "name": "DevSecOps",
+      "branch": "culture",
+      "tier": 4,
+      "desc": "La sécurité dans le pipeline, pas dans un comité mensuel.",
+      "via": "devsecops",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "security": 80
+            }
+          },
+          "then": {
+            "security": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "sre",
+      "name": "SRE",
+      "branch": "culture",
+      "tier": 5,
+      "desc": "Budgets d'erreur, SLO, post-mortems sans coupable.",
+      "via": "sre",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "resilience": 85
+            }
+          },
+          "then": {
+            "resilience": 0.3,
+            "uptime": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "platform_eng",
+      "name": "Platform Engineering",
+      "branch": "culture",
+      "tier": 6,
+      "desc": "Une équipe plateforme au service des équipes produit.",
+      "via": "idp",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "make": 45
+            }
+          },
+          "then": {
+            "velocity": 0.3,
+            "complexity": -0.2
+          },
+          "else": {
+            "complexity": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "mlops",
+      "name": "MLOps",
+      "branch": "culture",
+      "tier": 7,
+      "desc": "Des modèles en production, versionnés, surveillés.",
+      "via": "ml_platform",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "ai_maturity": 80
+            }
+          },
+          "then": {
+            "ai_maturity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_eng",
+      "name": "AI Engineering",
+      "branch": "culture",
+      "tier": 8,
+      "desc": "Évaluation, garde-fous, coûts maîtrisés : l'IA comme discipline d'ingénierie.",
+      "via": "ai_platform",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "ai_maturity": 85
+            }
+          },
+          "then": {
+            "ai_maturity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "agentic_eng",
+      "name": "Agentic Engineering",
+      "branch": "culture",
+      "tier": 9,
+      "desc": "Des agents qui codent, testent, déploient — sous supervision.",
+      "via": "agentic",
+      "passive": [
+        {
+          "when": {
+            "tech": "context_platform"
+          },
+          "then": {
+            "velocity": 0.4
+          },
+          "else": {
+            "security": -0.3,
+            "complexity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "excel_db",
+      "name": "Excel comme base de données",
+      "branch": "data",
+      "tier": 0,
+      "initial": true,
+      "desc": "« SUIVI_CLIENTS_2014_v12.xlsx », 1 048 576 lignes, partagé par mail.",
+      "passive": [
+        {
+          "then": {
+            "data_quality": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "warehouse",
+      "name": "Data warehouse on-prem",
+      "branch": "data",
+      "tier": 1,
+      "initial": true,
+      "desc": "Installé en 2009. Le cube OLAP s'appelle « Cube ».",
+      "passive": []
+    },
+    {
+      "id": "data_lake",
+      "name": "Data Lake",
+      "branch": "data",
+      "tier": 2,
+      "desc": "Tout centraliser. Sans gouvernance, ça devient un Data Swamp.",
+      "via": "data_lake",
+      "passive": [
+        {
+          "when": {
+            "tech": "data_catalog"
+          },
+          "then": {
+            "data_quality": 0.2
+          },
+          "else": {
+            "data_quality": -0.3,
+            "complexity": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "data_catalog",
+      "name": "Catalogue, lineage & ownership",
+      "branch": "data",
+      "tier": 2,
+      "desc": "Qui possède quelle donnée, d'où elle vient, ce qu'elle veut dire.",
+      "via": "data_governance",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "data_quality": 85
+            }
+          },
+          "then": {
+            "data_quality": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "lakehouse",
+      "name": "Lakehouse",
+      "branch": "data",
+      "tier": 3,
+      "desc": "Le meilleur du lake et du warehouse. Et leurs deux factures.",
+      "via": "lakehouse",
+      "passive": [
+        {
+          "then": {
+            "data_quality": 0.2,
+            "ai_maturity": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "data_mesh",
+      "name": "Data Mesh",
+      "branch": "data",
+      "tier": 4,
+      "desc": "Données comme produits, ownership par domaine. Exige des équipes matures.",
+      "via": "data_mesh",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "make": 55
+            }
+          },
+          "then": {
+            "data_quality": 0.3
+          },
+          "else": {
+            "complexity": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "ml_platform",
+      "name": "Plateforme ML",
+      "branch": "data",
+      "tier": 4,
+      "desc": "Entraîner, servir, surveiller des modèles.",
+      "via": "ml_platform",
+      "passive": [
+        {
+          "then": {
+            "ai_maturity": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "copilot",
+      "name": "Assistants de code",
+      "branch": "ai",
+      "tier": 1,
+      "desc": "Les développeurs écrivent plus vite. Et relisent moins ?",
+      "via": "copilots",
+      "passive": [
+        {
+          "then": {
+            "velocity": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "vibe_coding",
+      "name": "Vibe coding",
+      "branch": "ai",
+      "tier": 2,
+      "desc": "On décrit, l'IA code. Surveillez le ratio code généré / code compris.",
+      "passive": [
+        {
+          "then": {
+            "velocity": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "id": "rag",
+      "name": "RAG sur la documentation",
+      "branch": "ai",
+      "tier": 2,
+      "desc": "Un assistant qui répond à partir de vos documents. Si vos documents sont justes.",
+      "via": "rag_assistant",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "data_quality": 45
+            }
+          },
+          "then": {
+            "user_sat": 0.25
+          },
+          "else": {
+            "user_sat": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_guardrails",
+      "name": "Évaluation & garde-fous IA",
+      "branch": "ai",
+      "tier": 2,
+      "desc": "Tests d'évaluation, filtres, revue humaine : l'IA sous contrôle.",
+      "via": "ai_platform",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "security": 85
+            }
+          },
+          "then": {
+            "security": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_gateway",
+      "name": "AI gateway & FinOps IA",
+      "branch": "ai",
+      "tier": 3,
+      "desc": "Un point d'entrée pour tous les modèles : quotas, logs, coûts.",
+      "via": "ai_platform",
+      "passive": [
+        {
+          "then": {
+            "complexity": -0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "open_weights",
+      "name": "Modèles open weights",
+      "branch": "ai",
+      "tier": 3,
+      "desc": "Des modèles que vous hébergez. Il faut des GPU, et des gens.",
+      "via": "open_weights",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 85
+            }
+          },
+          "then": {
+            "sovereignty": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "agents",
+      "name": "Agents IA",
+      "branch": "ai",
+      "tier": 3,
+      "desc": "Ils agissent : tickets, requêtes, workflows. Avec quels droits ?",
+      "via": "agents",
+      "passive": [
+        {
+          "when": {
+            "tech": "context_platform"
+          },
+          "then": {
+            "velocity": 0.5
+          },
+          "else": {
+            "velocity": 0.3,
+            "security": -0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "mcp",
+      "name": "Serveurs MCP",
+      "branch": "ai",
+      "tier": 4,
+      "desc": "Les agents se branchent aux outils internes. Qui peut appeler quoi ?",
+      "via": "mcp_gateway",
+      "passive": [
+        {
+          "when": {
+            "tech": "iam"
+          },
+          "then": {
+            "velocity": 0.3
+          },
+          "else": {
+            "security": -0.4,
+            "complexity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "context_platform",
+      "name": "Enterprise Context Platform",
+      "branch": "ai",
+      "tier": 5,
+      "desc": "Connaissance, identité, permissions, mémoire, provenance, traces : le contexte gouverné.",
+      "via": "context_platform",
+      "passive": [
+        {
+          "then": {
+            "security": 0.15,
+            "ai_maturity": 0.3,
+            "data_quality": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ad",
+      "name": "Active Directory (2003, migré 2012)",
+      "branch": "identity",
+      "tier": 0,
+      "initial": true,
+      "desc": "14 000 comptes pour 8 000 salariés. Personne ne sait pourquoi.",
+      "passive": [
+        {
+          "when": {
+            "no_tech": "iam"
+          },
+          "then": {
+            "security": -0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "ldap",
+      "name": "LDAP maison",
+      "branch": "identity",
+      "tier": 0,
+      "initial": true,
+      "desc": "Branché sur 37 applications. Le schéma a été écrit par Michel.",
+      "passive": []
+    },
+    {
+      "id": "sso",
+      "name": "SSO",
+      "branch": "identity",
+      "tier": 1,
+      "desc": "Un seul mot de passe. Donc un seul à protéger.",
+      "via": "sso_mfa",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "user_sat": 80
+            }
+          },
+          "then": {
+            "user_sat": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "mfa",
+      "name": "MFA",
+      "branch": "identity",
+      "tier": 1,
+      "desc": "Le second facteur. Le premier facteur de plaintes.",
+      "via": "sso_mfa",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "security": 70
+            }
+          },
+          "then": {
+            "security": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "iam",
+      "name": "IAM moderne (OIDC, SCIM)",
+      "branch": "identity",
+      "tier": 2,
+      "desc": "Identity-first : comptes provisionnés et déprovisionnés automatiquement.",
+      "via": "iam",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "security": 80
+            }
+          },
+          "then": {
+            "security": 0.2,
+            "complexity": -0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "pam",
+      "name": "PAM (comptes à privilèges)",
+      "branch": "identity",
+      "tier": 2,
+      "desc": "Les comptes admin sous coffre-fort, sessions tracées.",
+      "via": "zero_trust",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "security": 85
+            }
+          },
+          "then": {
+            "security": 0.15
+          }
+        }
+      ]
+    },
+    {
+      "id": "zero_trust",
+      "name": "Zero Trust",
+      "branch": "identity",
+      "tier": 3,
+      "desc": "Ne jamais faire confiance au réseau. Vérifier chaque accès.",
+      "via": "zero_trust",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "security": 90
+            }
+          },
+          "then": {
+            "security": 0.3,
+            "resilience": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "cobol",
+      "name": "Applications COBOL (1987)",
+      "branch": "apps",
+      "tier": 0,
+      "initial": true,
+      "desc": "Elles fonctionnent. Personne ne sait exactement comment.",
+      "passive": [
+        {
+          "then": {
+            "debt": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "java8",
+      "name": "Java 8 (« stable »)",
+      "branch": "apps",
+      "tier": 0,
+      "initial": true,
+      "desc": "212 applications. Les candidats fuient à sa simple évocation.",
+      "passive": [
+        {
+          "then": {
+            "attractiveness": -0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle Database",
+      "branch": "apps",
+      "tier": 0,
+      "initial": true,
+      "desc": "412 procédures stockées, dont une de 11 000 lignes.",
+      "passive": []
+    },
+    {
+      "id": "sap",
+      "name": "SAP ECC",
+      "branch": "apps",
+      "tier": 0,
+      "initial": true,
+      "desc": "14 000 développements spécifiques. Le « Z » le plus ancien date de 2001.",
+      "passive": []
+    },
+    {
+      "id": "batch",
+      "name": "4 000 batchs de nuit",
+      "branch": "apps",
+      "tier": 0,
+      "initial": true,
+      "desc": "Ordonnancés par un outil dont l'éditeur a disparu.",
+      "passive": [
+        {
+          "when": {
+            "no_tech": "observability"
+          },
+          "then": {
+            "uptime": -0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "apis",
+      "name": "APIs REST",
+      "branch": "apps",
+      "tier": 2,
+      "desc": "Exposer les données proprement plutôt que par export CSV quotidien.",
+      "via": "api_platform",
+      "passive": [
+        {
+          "then": {
+            "velocity": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "api_mgmt",
+      "name": "API management & catalogue",
+      "branch": "apps",
+      "tier": 3,
+      "desc": "Gateway, portail développeurs, gouvernance. 4 812 APIs, enfin documentées ?",
+      "via": "api_platform",
+      "passive": [
+        {
+          "then": {
+            "complexity": -0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "event_driven",
+      "name": "Architecture événementielle (Kafka)",
+      "branch": "apps",
+      "tier": 3,
+      "desc": "Des flux d'événements plutôt que des batchs. Puissant, exigeant.",
+      "via": "event_driven",
+      "passive": [
+        {
+          "when": {
+            "min": {
+              "make": 45
+            }
+          },
+          "then": {
+            "velocity": 0.3
+          },
+          "else": {
+            "complexity": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "suite_os",
+      "name": "Suite collaborative open source",
+      "branch": "apps",
+      "tier": 3,
+      "desc": "Bureautique et collaboration hébergées, code ouvert. L'adoption se travaille.",
+      "via": "migrate_office_os",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 85
+            }
+          },
+          "then": {
+            "sovereignty": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "id": "mobile_libre",
+      "name": "Mobiles sans Google ni Apple",
+      "branch": "apps",
+      "tier": 3,
+      "desc": "Fairphone sous /e/OS : réparables, sans services Google. Quelques applications manquent.",
+      "via": "mobile_degoogled",
+      "passive": [
+        {
+          "when": {
+            "max": {
+              "sovereignty": 85
+            }
+          },
+          "then": {
+            "sovereignty": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "id": "erp_composable",
+      "name": "ERP composable",
+      "branch": "apps",
+      "tier": 4,
+      "desc": "Un cœur ERP propre, des services autour, des APIs partout.",
+      "via": "erp_strangler",
+      "passive": [
+        {
+          "then": {
+            "velocity": 0.2,
+            "debt": -0.1
+          }
+        }
+      ]
+    }
   ]
 }

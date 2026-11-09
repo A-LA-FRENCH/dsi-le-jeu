@@ -80,6 +80,8 @@ pub struct UiState {
     pub slot_pending: Option<saves::Pending>,
     /// Recrue dont le licenciement attend confirmation (onglet Équipe).
     pub fire_pending: Option<usize>,
+    /// Solution choisie par projet dans la salle projet.
+    pub project_option: std::collections::HashMap<String, String>,
     pub ambition_choice: Option<String>,
     /// Rectangles d'éléments d'interface que le tutoriel peut désigner.
     pub marks: std::collections::HashMap<&'static str, egui::Rect>,
@@ -120,6 +122,7 @@ impl Default for UiState {
             slots: Vec::new(),
             slot_pending: None,
             fire_pending: None,
+            project_option: std::collections::HashMap::new(),
             ambition_choice: None,
             marks: Default::default(),
             tip_hidden: None,

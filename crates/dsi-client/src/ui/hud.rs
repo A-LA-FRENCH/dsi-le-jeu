@@ -245,11 +245,11 @@ pub fn bottom_bar(root: &mut egui::Ui, c: &mut Ctx) {
                         let n = projects::MAX_PARALLEL as f32;
                         let w = ((avail - 8.0 * n) / n).max(170.0);
                         for p in list {
-                            let Some(def) = c.content.project(&p.id).cloned() else { continue };
+                            let Some(def) = projects::def_of(c.content, &p) else { continue };
                             card().show(ui, |ui| ui.vertical(|ui| {
                                 ui.set_width(w - 18.0);
                                 ui.spacing_mut().item_spacing.y = 3.0;
-                                ui.add(egui::Label::new(RichText::new(&def.name).font(bold(13.0)).color(TEXT)).truncate()).on_hover_text(&def.desc);
+                                ui.add(egui::Label::new(RichText::new(&def.name).font(bold(13.0)).color(TEXT)).truncate()).on_hover_text(format!("{}\n{}", def.name, def.desc));
                                 let frac = p.progress / def.duration as f32;
                                 gauge(ui, frac, if p.slips > 1 { ORANGE } else { CYAN }, w - 24.0, 8.0)
                                     .on_hover_text(format!("{:.0} % — {} glissement(s)", frac * 100.0, p.slips));

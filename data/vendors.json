@@ -1,104 +1,1030 @@
 {
   "vendors": [
-    { "id": "vmware", "name": "VMware by Broadcom", "category": "Virtualisation", "rep": "vendor", "lines": [
-      "Nous avons simplifié notre catalogue. Il ne reste qu'une offre : la plus complète.",
-      "Ce partenariat est stratégique.",
-      "Je dois valider avec mon management. Il est sur un autre fuseau horaire. Et dans une autre stratégie.",
-      "Le prix par cœur, c'est plus juste. Vous avez beaucoup de cœurs, c'est tout."
-    ] },
-    { "id": "microsoft", "name": "Microsoft", "category": "Bureautique, cloud, OS", "rep": "vendor", "lines": [
-      "Avez-vous pensé à Copilot ? Il est inclus. Dans l'offre au-dessus.",
-      "Ce partenariat est stratégique.",
-      "Votre usage de Teams est exemplaire. 4 000 équipes pour 8 000 personnes.",
-      "Nous pouvons regarder un engagement pluriannuel. Tout le monde y gagne. Surtout nous, mais aussi vous."
-    ] },
-    { "id": "oracle", "name": "Oracle", "category": "Bases de données, ERP", "rep": "vendor", "lines": [
-      "Bonne nouvelle : nous avons simplifié votre contrat. Il comporte désormais 742 pages.",
-      "Ce partenariat est stratégique.",
-      "Vos processeurs virtuels sont-ils bien comptés ? Je pose la question, simplement.",
-      "Nous pouvons vous accompagner vers le cloud. Le nôtre, de préférence."
-    ] },
-    { "id": "sap", "name": "SAP", "category": "ERP", "rep": "vendor", "lines": [
-      "La maintenance standard de votre version arrive à son terme. Heureusement, nous avons une offre cloud.",
-      "Ce partenariat est stratégique.",
-      "Un clean core, c'est un core propre. Le vôtre a 14 000 développements spécifiques.",
-      "Nous avons un intégrateur partenaire qui adore les projets de cinq ans."
-    ] },
-    { "id": "salesforce", "name": "Salesforce", "category": "CRM", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Avez-vous vu nos nouveaux agents ? Ils sont dans l'édition supérieure.", "Vos commerciaux adorent l'outil. Enfin, ils l'ouvrent."] },
-    { "id": "servicenow", "name": "ServiceNow", "category": "ITSM", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Un workflow pour chaque processus. Et un processus pour chaque workflow."] },
-    { "id": "atlassian", "name": "Atlassian", "category": "Outils de développement", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Votre version serveur arrive en fin de vie. Le cloud vous attend, avec ses nouveaux paliers.", "Vous avez 1 312 tickets « À qualifier ». C'est une belle dynamique."] },
-    { "id": "orange", "name": "Orange Business", "category": "Télécoms", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Votre lien de secours passe par la même tranchée que le lien principal. On peut en parler."] },
-    { "id": "aws", "name": "AWS", "category": "Cloud public", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Vous pouvez démarrer petit. Vous ne finirez pas petit."] },
-    { "id": "azure", "name": "Microsoft Azure", "category": "Cloud public", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Vos licences Windows ont des avantages chez nous. C'est fou, non ?"] },
-    { "id": "gcp", "name": "Google Cloud", "category": "Cloud public", "rep": "vendor", "lines": ["Ce partenariat est stratégique.", "Nos outils data sont excellents. Vos données, on verra."] },
-    { "id": "ovhcloud", "name": "OVHcloud", "category": "Cloud européen", "sovereign": true, "rep": "vendor", "lines": ["Ce partenariat est stratégique. Et européen.", "Nos datacenters sont refroidis à l'eau. Votre DAF, lui, sera refroidi par le prix."] },
-    { "id": "scaleway", "name": "Scaleway", "category": "Cloud européen", "sovereign": true, "rep": "vendor", "lines": ["Ce partenariat est stratégique. Et européen.", "Des GPU ? On en a. Venez vite."] },
-    { "id": "cloudtemple", "name": "Cloud Temple", "category": "Cloud de confiance", "sovereign": true, "rep": "vendor", "lines": ["Ce partenariat est stratégique. Et qualifié.", "La qualification, c'est notre langue maternelle."] },
-    { "id": "outscale", "name": "3DS Outscale", "category": "Cloud de confiance", "sovereign": true, "rep": "vendor", "lines": ["Ce partenariat est stratégique. Et souverain."] },
-    { "id": "vates", "name": "Vates (XCP-ng)", "category": "Virtualisation open source", "sovereign": true, "rep": "vendor", "lines": ["Ce partenariat est stratégique. Et open source.", "Le code est public. Le support, lui, est payant. C'est honnête."] },
-    { "id": "proxmox", "name": "Proxmox", "category": "Virtualisation open source", "sovereign": true, "rep": "vendor", "lines": ["Le support existe. La communauté aussi. Les deux répondent, à des heures différentes."] },
-    { "id": "redhat", "name": "Red Hat", "category": "Open source d'entreprise", "rep": "vendor", "lines": ["Ce partenariat est stratégique. Et ouvert."] },
-    { "id": "esn_pool", "name": "Panel de 18 ESN", "category": "Services", "rep": "esn", "lines": [
-      "Nous avons exactement le profil.",
-      "Le consultant arrive dans trois semaines. Il a hâte.",
-      "Notre TJM reflète notre engagement qualité.",
-      "Le centre de services, c'est la même équipe, mais ailleurs, et avec des SLA."
-    ] },
-    { "id": "github", "name": "GitHub", "category": "Forge logicielle", "rep": "vendor", "lines": ["Ce partenariat est stratégique."] },
-    { "id": "gitlab", "name": "GitLab", "category": "Forge logicielle", "rep": "vendor", "lines": ["Ce partenariat est stratégique."] },
-    { "id": "snowflake", "name": "Snowflake", "category": "Data warehouse", "rep": "vendor", "lines": ["Vous ne payez que ce que vous consommez. Vous consommez beaucoup."] },
-    { "id": "databricks", "name": "Databricks", "category": "Lakehouse", "rep": "vendor", "lines": ["Le lakehouse réconcilie le lake et le warehouse. Et vos deux factures."] },
-    { "id": "nextcloud", "name": "Nextcloud", "category": "Collaboration open source", "sovereign": true, "rep": "vendor", "lines": ["Hébergé chez vous. Vos données restent chez vous. Vos problèmes aussi."] },
-    { "id": "jamespot", "name": "Jamespot", "category": "Collaboration française", "sovereign": true, "rep": "vendor", "lines": ["Une suite collaborative française. Les réunions restent des réunions."] },
-    { "id": "lasuite", "name": "Outils open source type La Suite", "category": "Collaboration open source", "sovereign": true, "rep": "vendor", "lines": ["Le code est ouvert. L'intégration, c'est vous."] },
-    { "id": "google", "name": "Google Workspace", "category": "Bureautique", "rep": "vendor", "lines": ["La collaboration en temps réel. Même sur le budget."] },
-    { "id": "mongodb", "name": "MongoDB", "category": "Base de données", "rep": "vendor", "lines": ["Pas de schéma, pas de problème. Enfin, pas tout de suite."] },
-    { "id": "elastic", "name": "Elastic", "category": "Observabilité", "rep": "vendor", "lines": ["Vous pouvez tout indexer. Vous allez tout indexer."] },
-    { "id": "llm", "name": "Fournisseur de LLM", "category": "IA générative", "rep": "vendor", "lines": ["Le prix du token baisse chaque mois. Votre consommation monte plus vite."] }
+    {
+      "id": "vmware",
+      "name": "VMware by Broadcom",
+      "category": "Virtualisation",
+      "rep": "vendor",
+      "lines": [
+        "Nous avons simplifié notre catalogue. Il ne reste qu'une offre : la plus complète.",
+        "Ce partenariat est stratégique.",
+        "Je dois valider avec mon management. Il est sur un autre fuseau horaire. Et dans une autre stratégie.",
+        "Le prix par cœur, c'est plus juste. Vous avez beaucoup de cœurs, c'est tout."
+      ]
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft",
+      "category": "Bureautique, cloud, OS",
+      "rep": "vendor",
+      "lines": [
+        "Avez-vous pensé à Copilot ? Il est inclus. Dans l'offre au-dessus.",
+        "Ce partenariat est stratégique.",
+        "Votre usage de Teams est exemplaire. 4 000 équipes pour 8 000 personnes.",
+        "Nous pouvons regarder un engagement pluriannuel. Tout le monde y gagne. Surtout nous, mais aussi vous."
+      ]
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "category": "Bases de données, ERP",
+      "rep": "vendor",
+      "lines": [
+        "Bonne nouvelle : nous avons simplifié votre contrat. Il comporte désormais 742 pages.",
+        "Ce partenariat est stratégique.",
+        "Vos processeurs virtuels sont-ils bien comptés ? Je pose la question, simplement.",
+        "Nous pouvons vous accompagner vers le cloud. Le nôtre, de préférence."
+      ]
+    },
+    {
+      "id": "sap",
+      "name": "SAP",
+      "category": "ERP",
+      "rep": "vendor",
+      "lines": [
+        "La maintenance standard de votre version arrive à son terme. Heureusement, nous avons une offre cloud.",
+        "Ce partenariat est stratégique.",
+        "Un clean core, c'est un core propre. Le vôtre a 14 000 développements spécifiques.",
+        "Nous avons un intégrateur partenaire qui adore les projets de cinq ans."
+      ]
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce",
+      "category": "CRM",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Avez-vous vu nos nouveaux agents ? Ils sont dans l'édition supérieure.",
+        "Vos commerciaux adorent l'outil. Enfin, ils l'ouvrent."
+      ]
+    },
+    {
+      "id": "servicenow",
+      "name": "ServiceNow",
+      "category": "ITSM",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Un workflow pour chaque processus. Et un processus pour chaque workflow."
+      ]
+    },
+    {
+      "id": "atlassian",
+      "name": "Atlassian",
+      "category": "Outils de développement",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Votre version serveur arrive en fin de vie. Le cloud vous attend, avec ses nouveaux paliers.",
+        "Vous avez 1 312 tickets « À qualifier ». C'est une belle dynamique."
+      ]
+    },
+    {
+      "id": "orange",
+      "name": "Orange Business",
+      "category": "Télécoms",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Votre lien de secours passe par la même tranchée que le lien principal. On peut en parler."
+      ]
+    },
+    {
+      "id": "aws",
+      "name": "AWS",
+      "category": "Cloud public",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Vous pouvez démarrer petit. Vous ne finirez pas petit."
+      ]
+    },
+    {
+      "id": "azure",
+      "name": "Microsoft Azure",
+      "category": "Cloud public",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Vos licences Windows ont des avantages chez nous. C'est fou, non ?"
+      ]
+    },
+    {
+      "id": "gcp",
+      "name": "Google Cloud",
+      "category": "Cloud public",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique.",
+        "Nos outils data sont excellents. Vos données, on verra."
+      ]
+    },
+    {
+      "id": "ovhcloud",
+      "name": "OVHcloud",
+      "category": "Cloud européen",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique. Et européen.",
+        "Nos datacenters sont refroidis à l'eau. Votre DAF, lui, sera refroidi par le prix."
+      ]
+    },
+    {
+      "id": "scaleway",
+      "name": "Scaleway",
+      "category": "Cloud européen",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique. Et européen.",
+        "Des GPU ? On en a. Venez vite."
+      ]
+    },
+    {
+      "id": "cloudtemple",
+      "name": "Cloud Temple",
+      "category": "Cloud de confiance",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique. Et qualifié.",
+        "La qualification, c'est notre langue maternelle."
+      ]
+    },
+    {
+      "id": "outscale",
+      "name": "3DS Outscale",
+      "category": "Cloud de confiance",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique. Et souverain."
+      ]
+    },
+    {
+      "id": "vates",
+      "name": "Vates (XCP-ng)",
+      "category": "Virtualisation open source",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique. Et open source.",
+        "Le code est public. Le support, lui, est payant. C'est honnête."
+      ]
+    },
+    {
+      "id": "proxmox",
+      "name": "Proxmox",
+      "category": "Virtualisation open source",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Le support existe. La communauté aussi. Les deux répondent, à des heures différentes."
+      ]
+    },
+    {
+      "id": "redhat",
+      "name": "Red Hat",
+      "category": "Open source d'entreprise",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique. Et ouvert."
+      ]
+    },
+    {
+      "id": "esn_pool",
+      "name": "Panel de 18 ESN",
+      "category": "Services",
+      "rep": "esn",
+      "lines": [
+        "Nous avons exactement le profil.",
+        "Le consultant arrive dans trois semaines. Il a hâte.",
+        "Notre TJM reflète notre engagement qualité.",
+        "Le centre de services, c'est la même équipe, mais ailleurs, et avec des SLA."
+      ]
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "category": "Forge logicielle",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique."
+      ]
+    },
+    {
+      "id": "gitlab",
+      "name": "GitLab",
+      "category": "Forge logicielle",
+      "rep": "vendor",
+      "lines": [
+        "Ce partenariat est stratégique."
+      ]
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "category": "Data warehouse",
+      "rep": "vendor",
+      "lines": [
+        "Vous ne payez que ce que vous consommez. Vous consommez beaucoup."
+      ]
+    },
+    {
+      "id": "databricks",
+      "name": "Databricks",
+      "category": "Lakehouse",
+      "rep": "vendor",
+      "lines": [
+        "Le lakehouse réconcilie le lake et le warehouse. Et vos deux factures."
+      ]
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "category": "Collaboration open source",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Hébergé chez vous. Vos données restent chez vous. Vos problèmes aussi."
+      ]
+    },
+    {
+      "id": "jamespot",
+      "name": "Jamespot",
+      "category": "Collaboration française",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Une suite collaborative française. Les réunions restent des réunions."
+      ]
+    },
+    {
+      "id": "lasuite",
+      "name": "La Suite numérique",
+      "category": "Collaboration open source",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Le code est ouvert, sous licence libre. L'intégration, c'est vous ou votre intégrateur.",
+        "Docs, Visio, Drive, messagerie Matrix : tout est sur le dépôt public."
+      ]
+    },
+    {
+      "id": "google",
+      "name": "Google Workspace",
+      "category": "Bureautique",
+      "rep": "vendor",
+      "lines": [
+        "La collaboration en temps réel. Même sur le budget."
+      ]
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "category": "Base de données",
+      "rep": "vendor",
+      "lines": [
+        "Pas de schéma, pas de problème. Enfin, pas tout de suite."
+      ]
+    },
+    {
+      "id": "elastic",
+      "name": "Elastic",
+      "category": "Observabilité",
+      "rep": "vendor",
+      "lines": [
+        "Vous pouvez tout indexer. Vous allez tout indexer."
+      ]
+    },
+    {
+      "id": "llm",
+      "name": "Fournisseur de LLM",
+      "category": "IA générative",
+      "rep": "vendor",
+      "lines": [
+        "Le prix du token baisse chaque mois. Votre consommation monte plus vite."
+      ]
+    },
+    {
+      "id": "elixiroffice",
+      "name": "ElixirOffice",
+      "category": "Bureautique open source",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Suite bureautique libre (AGPL), interface familière, formats Microsoft et ODF.",
+        "Encore jeune : la feuille de route est publique."
+      ]
+    },
+    {
+      "id": "murena",
+      "name": "Murena (/e/OS)",
+      "category": "Mobile sans Google",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Un Android sans les services Google. Vos applications métiers, elles, devront suivre.",
+        "Murena Workspace pour le mail, l'agenda et les fichiers."
+      ]
+    },
+    {
+      "id": "fairphone",
+      "name": "Fairphone",
+      "category": "Smartphones réparables",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Batterie, écran, caméra : tout se remplace avec un tournevis.",
+        "Un téléphone qui dure, c'est un renouvellement de flotte de moins."
+      ]
+    },
+    {
+      "id": "commown",
+      "name": "Commown",
+      "category": "Location responsable (coopérative)",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Location longue durée, réparation et remplacement compris.",
+        "Nous sommes une coopérative : notre intérêt est que l'appareil dure."
+      ]
+    },
+    {
+      "id": "mobile_oem",
+      "name": "Apple / Samsung (iOS, Android)",
+      "category": "Flotte mobile",
+      "rep": "vendor",
+      "lines": [
+        "Le nouveau modèle sort en septembre. Comme l'an dernier.",
+        "La gestion de flotte est incluse dans l'offre entreprise. Avec le compte cloud associé."
+      ]
+    },
+    {
+      "id": "openproject",
+      "name": "OpenProject",
+      "category": "Gestion de projet open source",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Tickets, agile, Gantt, wiki : open source, auto-hébergeable.",
+        "L'édition Enterprise ajoute le support et quelques fonctions. Le cœur reste libre."
+      ]
+    },
+    {
+      "id": "clevercloud",
+      "name": "Clever Cloud",
+      "category": "PaaS européen",
+      "sovereign": true,
+      "rep": "vendor",
+      "lines": [
+        "Vous poussez du code, on s'occupe des serveurs.",
+        "Moins de services que les hyperscalers. Moins de factures surprises aussi, en général."
+      ]
+    }
   ],
   "contracts": [
-    { "id": "vmware_vsphere", "vendor": "vmware", "label": "Virtualisation VMware", "monthly_cost": 0.9, "term": 12, "first_renewal": { "year": 1, "month": 6 }, "increase": 0.9, "dependency": 0.8, "tags": ["virtualization"], "alternatives": ["xcpng", "proxmox", "hyperv", "migrate_xcpng", "migrate_proxmox"], "migration": ["migrate_xcpng", "migrate_proxmox", "migrate_hyperv"], "initial": true, "pitch": "Bonne nouvelle : nous avons simplifié notre tarification. Votre facture passe de 1 à 1,9. C'est plus simple." },
-    { "id": "m365", "vendor": "microsoft", "label": "Microsoft 365 (8 000 postes)", "monthly_cost": 0.8, "term": 12, "first_renewal": { "year": 1, "month": 8 }, "increase": 0.15, "dependency": 0.7, "tags": ["office"], "alternatives": ["nextcloud", "suite_os"], "migration": ["migrate_office_os"], "initial": true, "pitch": "Votre renouvellement est l'occasion idéale de passer à l'édition supérieure. Avec Copilot." },
-    { "id": "oracle_db", "vendor": "oracle", "label": "Oracle Database (EE + support)", "monthly_cost": 0.8, "term": 12, "first_renewal": { "year": 2, "month": 3 }, "increase": 0.35, "dependency": 0.8, "tags": ["db"], "alternatives": ["postgresql", "migrate_postgres"], "migration": ["migrate_postgres"], "initial": true, "pitch": "Bonne nouvelle : nous avons simplifié votre contrat. Il comporte désormais 742 pages." },
-    { "id": "sap_erp", "vendor": "sap", "label": "ERP SAP", "monthly_cost": 1.0, "term": 24, "first_renewal": { "year": 2, "month": 10 }, "increase": 0.25, "dependency": 0.9, "tags": ["erp"], "alternatives": ["erp_composable", "erp_strangler"], "migration": ["erp_strangler"], "initial": true, "pitch": "Votre version arrive en fin de maintenance standard. La migration est une formidable opportunité. Pour tout le monde." },
-    { "id": "esn_pool", "vendor": "esn_pool", "label": "Régie & TMA (18 ESN)", "monthly_cost": 1.3, "term": 12, "first_renewal": { "year": 1, "month": 12 }, "increase": 0.08, "dependency": 0.8, "tags": ["esn"], "alternatives": ["platform_eng", "internalisation"], "migration": [], "initial": true, "pitch": "Nos TJM évoluent avec l'inflation. Et avec la rareté des profils COBOL. Et avec notre plan stratégique." },
-    { "id": "salesforce_crm", "vendor": "salesforce", "label": "CRM Salesforce", "monthly_cost": 0.5, "term": 12, "first_renewal": { "year": 2, "month": 6 }, "increase": 0.12, "dependency": 0.5, "tags": ["crm"], "alternatives": [], "migration": [], "initial": true, "pitch": "Vos commerciaux méritent les meilleurs agents. Ils sont dans la nouvelle édition." },
-    { "id": "servicenow_itsm", "vendor": "servicenow", "label": "ITSM ServiceNow", "monthly_cost": 0.4, "term": 12, "first_renewal": { "year": 2, "month": 8 }, "increase": 0.1, "dependency": 0.4, "tags": ["itsm"], "alternatives": [], "migration": [], "initial": true, "pitch": "Nous avons cartographié vos processus. Il y en a 412. Nous pouvons tous les automatiser, à l'unité." },
-    { "id": "atlassian_jira", "vendor": "atlassian", "label": "Jira & Confluence", "monthly_cost": 0.25, "term": 12, "first_renewal": { "year": 2, "month": 2 }, "increase": 0.3, "dependency": 0.3, "tags": ["devtools"], "alternatives": ["gitlab_ci", "forge"], "migration": [], "initial": true, "pitch": "Votre version Server est en fin de vie. Le cloud vous offre toutes les fonctionnalités. À un nouveau prix." },
-    { "id": "orange_wan", "vendor": "orange", "label": "Réseau WAN & télécoms", "monthly_cost": 0.4, "term": 24, "first_renewal": { "year": 3, "month": 2 }, "increase": 0.05, "dependency": 0.4, "tags": ["network"], "alternatives": [], "migration": [], "initial": true, "pitch": "Votre réseau est critique. Notre relation aussi." },
-    { "id": "vates_xcpng", "vendor": "vates", "label": "Support XCP-ng / Xen Orchestra", "monthly_cost": 0.25, "term": 12, "increase": 0.05, "dependency": 0.25, "tags": ["virtualization"], "alternatives": ["proxmox"], "pitch": "Le support est renouvelé. Le prix aussi, à peu près." },
-    { "id": "proxmox_support", "vendor": "proxmox", "label": "Support Proxmox VE", "monthly_cost": 0.15, "term": 12, "increase": 0.05, "dependency": 0.2, "tags": ["virtualization"], "alternatives": ["xcpng"], "pitch": "Renouvellement standard. Rien à négocier, et c'est reposant." },
-    { "id": "hyperv_dc", "vendor": "microsoft", "label": "Windows Server Datacenter (Hyper-V)", "monthly_cost": 0.45, "term": 12, "increase": 0.1, "dependency": 0.6, "tags": ["virtualization"], "alternatives": ["xcpng", "proxmox"], "pitch": "Vous êtes déjà chez nous. Autant y rester, non ?" },
-    { "id": "copilot", "vendor": "microsoft", "label": "Licences assistant IA bureautique", "monthly_cost": 0.5, "term": 12, "increase": 0.1, "dependency": 0.35, "tags": ["ai", "office"], "alternatives": [], "pitch": "L'IA pour chaque collaborateur. Chaque mois." },
-    { "id": "forge_ent", "vendor": "gitlab", "label": "Forge logicielle (GitLab / GitHub)", "monthly_cost": 0.2, "term": 12, "increase": 0.1, "dependency": 0.25, "tags": ["devtools"], "alternatives": [], "pitch": "Vos développeurs adorent l'outil. Ils sont plus nombreux, donc la facture aussi." },
-    { "id": "snowflake_dw", "vendor": "snowflake", "label": "Data warehouse cloud", "monthly_cost": 0.6, "term": 12, "increase": 0.3, "dependency": 0.5, "tags": ["data"], "alternatives": ["lakehouse"], "pitch": "Votre consommation a progressé de 300 %. C'est la preuve que la plateforme crée de la valeur." },
-    { "id": "office_os", "vendor": "nextcloud", "label": "Suite collaborative open source", "monthly_cost": 0.3, "term": 12, "increase": 0.05, "dependency": 0.2, "tags": ["office"], "alternatives": [], "pitch": "Renouvellement du support. Les mises à jour, c'est vous." },
-    { "id": "llm_api", "vendor": "llm", "label": "API LLM (tokens)", "monthly_cost": 0.3, "term": 12, "increase": 0.2, "dependency": 0.35, "tags": ["ai"], "alternatives": ["open_weights"], "pitch": "Votre consommation de tokens a quadruplé. Nous proposons un engagement de volume." },
-    { "id": "elastic_obs", "vendor": "elastic", "label": "Observabilité (logs & métriques)", "monthly_cost": 0.3, "term": 12, "increase": 0.15, "dependency": 0.3, "tags": ["observability"], "alternatives": [], "pitch": "Vous indexez 4 To de logs par jour. Dont 3,9 To de « DEBUG: entering function »." }
+    {
+      "id": "vmware_vsphere",
+      "vendor": "vmware",
+      "label": "Virtualisation VMware",
+      "monthly_cost": 0.9,
+      "term": 12,
+      "first_renewal": {
+        "year": 1,
+        "month": 6
+      },
+      "increase": 0.9,
+      "dependency": 0.8,
+      "tags": [
+        "virtualization"
+      ],
+      "alternatives": [
+        "xcpng",
+        "proxmox",
+        "hyperv",
+        "migrate_xcpng",
+        "migrate_proxmox"
+      ],
+      "migration": [
+        "migrate_xcpng",
+        "migrate_proxmox",
+        "migrate_hyperv"
+      ],
+      "initial": true,
+      "pitch": "Bonne nouvelle : nous avons simplifié notre tarification. Votre facture passe de 1 à 1,9. C'est plus simple."
+    },
+    {
+      "id": "m365",
+      "vendor": "microsoft",
+      "label": "Microsoft 365 (8 000 postes)",
+      "monthly_cost": 0.8,
+      "term": 12,
+      "first_renewal": {
+        "year": 1,
+        "month": 8
+      },
+      "increase": 0.15,
+      "dependency": 0.7,
+      "tags": [
+        "office"
+      ],
+      "alternatives": [
+        "nextcloud",
+        "suite_os"
+      ],
+      "migration": [
+        "migrate_office_os"
+      ],
+      "initial": true,
+      "pitch": "Votre renouvellement est l'occasion idéale de passer à l'édition supérieure. Avec Copilot."
+    },
+    {
+      "id": "oracle_db",
+      "vendor": "oracle",
+      "label": "Oracle Database (EE + support)",
+      "monthly_cost": 0.8,
+      "term": 12,
+      "first_renewal": {
+        "year": 2,
+        "month": 3
+      },
+      "increase": 0.35,
+      "dependency": 0.8,
+      "tags": [
+        "db"
+      ],
+      "alternatives": [
+        "postgresql",
+        "migrate_postgres"
+      ],
+      "migration": [
+        "migrate_postgres"
+      ],
+      "initial": true,
+      "pitch": "Bonne nouvelle : nous avons simplifié votre contrat. Il comporte désormais 742 pages."
+    },
+    {
+      "id": "sap_erp",
+      "vendor": "sap",
+      "label": "ERP SAP",
+      "monthly_cost": 1.0,
+      "term": 24,
+      "first_renewal": {
+        "year": 2,
+        "month": 10
+      },
+      "increase": 0.25,
+      "dependency": 0.9,
+      "tags": [
+        "erp"
+      ],
+      "alternatives": [
+        "erp_composable",
+        "erp_strangler"
+      ],
+      "migration": [
+        "erp_strangler"
+      ],
+      "initial": true,
+      "pitch": "Votre version arrive en fin de maintenance standard. La migration est une formidable opportunité. Pour tout le monde."
+    },
+    {
+      "id": "esn_pool",
+      "vendor": "esn_pool",
+      "label": "Régie & TMA (18 ESN)",
+      "monthly_cost": 1.3,
+      "term": 12,
+      "first_renewal": {
+        "year": 1,
+        "month": 12
+      },
+      "increase": 0.08,
+      "dependency": 0.8,
+      "tags": [
+        "esn"
+      ],
+      "alternatives": [
+        "platform_eng",
+        "internalisation"
+      ],
+      "migration": [],
+      "initial": true,
+      "pitch": "Nos TJM évoluent avec l'inflation. Et avec la rareté des profils COBOL. Et avec notre plan stratégique."
+    },
+    {
+      "id": "salesforce_crm",
+      "vendor": "salesforce",
+      "label": "CRM Salesforce",
+      "monthly_cost": 0.5,
+      "term": 12,
+      "first_renewal": {
+        "year": 2,
+        "month": 6
+      },
+      "increase": 0.12,
+      "dependency": 0.5,
+      "tags": [
+        "crm"
+      ],
+      "alternatives": [],
+      "migration": [],
+      "initial": true,
+      "pitch": "Vos commerciaux méritent les meilleurs agents. Ils sont dans la nouvelle édition."
+    },
+    {
+      "id": "servicenow_itsm",
+      "vendor": "servicenow",
+      "label": "ITSM ServiceNow",
+      "monthly_cost": 0.4,
+      "term": 12,
+      "first_renewal": {
+        "year": 2,
+        "month": 8
+      },
+      "increase": 0.1,
+      "dependency": 0.4,
+      "tags": [
+        "itsm"
+      ],
+      "alternatives": [],
+      "migration": [],
+      "initial": true,
+      "pitch": "Nous avons cartographié vos processus. Il y en a 412. Nous pouvons tous les automatiser, à l'unité."
+    },
+    {
+      "id": "atlassian_jira",
+      "vendor": "atlassian",
+      "label": "Jira & Confluence",
+      "monthly_cost": 0.25,
+      "term": 12,
+      "first_renewal": {
+        "year": 2,
+        "month": 2
+      },
+      "increase": 0.3,
+      "dependency": 0.3,
+      "tags": [
+        "devtools"
+      ],
+      "alternatives": [
+        "gitlab_ci",
+        "forge"
+      ],
+      "migration": [
+        "exit_atlassian"
+      ],
+      "initial": true,
+      "pitch": "Votre version Server est en fin de vie. Le cloud vous offre toutes les fonctionnalités. À un nouveau prix."
+    },
+    {
+      "id": "orange_wan",
+      "vendor": "orange",
+      "label": "Réseau WAN & télécoms",
+      "monthly_cost": 0.4,
+      "term": 24,
+      "first_renewal": {
+        "year": 3,
+        "month": 2
+      },
+      "increase": 0.05,
+      "dependency": 0.4,
+      "tags": [
+        "network"
+      ],
+      "alternatives": [],
+      "migration": [],
+      "initial": true,
+      "pitch": "Votre réseau est critique. Notre relation aussi."
+    },
+    {
+      "id": "vates_xcpng",
+      "vendor": "vates",
+      "label": "Support XCP-ng / Xen Orchestra",
+      "monthly_cost": 0.25,
+      "term": 12,
+      "increase": 0.05,
+      "dependency": 0.25,
+      "tags": [
+        "virtualization"
+      ],
+      "alternatives": [
+        "proxmox"
+      ],
+      "pitch": "Le support est renouvelé. Le prix aussi, à peu près."
+    },
+    {
+      "id": "proxmox_support",
+      "vendor": "proxmox",
+      "label": "Support Proxmox VE",
+      "monthly_cost": 0.15,
+      "term": 12,
+      "increase": 0.05,
+      "dependency": 0.2,
+      "tags": [
+        "virtualization"
+      ],
+      "alternatives": [
+        "xcpng"
+      ],
+      "pitch": "Renouvellement standard. Rien à négocier, et c'est reposant."
+    },
+    {
+      "id": "hyperv_dc",
+      "vendor": "microsoft",
+      "label": "Windows Server Datacenter (Hyper-V)",
+      "monthly_cost": 0.45,
+      "term": 12,
+      "increase": 0.1,
+      "dependency": 0.6,
+      "tags": [
+        "virtualization"
+      ],
+      "alternatives": [
+        "xcpng",
+        "proxmox"
+      ],
+      "pitch": "Vous êtes déjà chez nous. Autant y rester, non ?"
+    },
+    {
+      "id": "copilot",
+      "vendor": "microsoft",
+      "label": "Licences assistant IA bureautique",
+      "monthly_cost": 0.5,
+      "term": 12,
+      "increase": 0.1,
+      "dependency": 0.35,
+      "tags": [
+        "ai",
+        "office"
+      ],
+      "alternatives": [],
+      "pitch": "L'IA pour chaque collaborateur. Chaque mois."
+    },
+    {
+      "id": "forge_ent",
+      "vendor": "gitlab",
+      "label": "Forge logicielle (GitLab / GitHub)",
+      "monthly_cost": 0.2,
+      "term": 12,
+      "increase": 0.1,
+      "dependency": 0.25,
+      "tags": [
+        "devtools"
+      ],
+      "alternatives": [],
+      "pitch": "Vos développeurs adorent l'outil. Ils sont plus nombreux, donc la facture aussi."
+    },
+    {
+      "id": "snowflake_dw",
+      "vendor": "snowflake",
+      "label": "Data warehouse cloud",
+      "monthly_cost": 0.6,
+      "term": 12,
+      "increase": 0.3,
+      "dependency": 0.5,
+      "tags": [
+        "data"
+      ],
+      "alternatives": [
+        "lakehouse"
+      ],
+      "pitch": "Votre consommation a progressé de 300 %. C'est la preuve que la plateforme crée de la valeur."
+    },
+    {
+      "id": "office_os",
+      "vendor": "nextcloud",
+      "label": "Suite collaborative open source",
+      "monthly_cost": 0.3,
+      "term": 12,
+      "increase": 0.05,
+      "dependency": 0.2,
+      "tags": [
+        "office"
+      ],
+      "alternatives": [],
+      "pitch": "Renouvellement du support. Les mises à jour, c'est vous."
+    },
+    {
+      "id": "llm_api",
+      "vendor": "llm",
+      "label": "API LLM (tokens)",
+      "monthly_cost": 0.3,
+      "term": 12,
+      "increase": 0.2,
+      "dependency": 0.35,
+      "tags": [
+        "ai"
+      ],
+      "alternatives": [
+        "open_weights"
+      ],
+      "pitch": "Votre consommation de tokens a quadruplé. Nous proposons un engagement de volume."
+    },
+    {
+      "id": "elastic_obs",
+      "vendor": "elastic",
+      "label": "Observabilité (logs & métriques)",
+      "monthly_cost": 0.3,
+      "term": 12,
+      "increase": 0.15,
+      "dependency": 0.3,
+      "tags": [
+        "observability"
+      ],
+      "alternatives": [],
+      "pitch": "Vous indexez 4 To de logs par jour. Dont 3,9 To de « DEBUG: entering function »."
+    },
+    {
+      "id": "office_lasuite",
+      "vendor": "lasuite",
+      "label": "Support intégrateur La Suite (Docs, Visio, Drive)",
+      "monthly_cost": 0.32,
+      "term": 12,
+      "increase": 0.04,
+      "dependency": 0.15,
+      "tags": [
+        "office"
+      ],
+      "alternatives": [],
+      "pitch": "Hébergement, mises à jour et support de niveau 2 par l'intégrateur. Le code, lui, reste libre."
+    },
+    {
+      "id": "office_elixir",
+      "vendor": "elixiroffice",
+      "label": "ElixirOffice auto-hébergé (support communautaire + intégrateur)",
+      "monthly_cost": 0.22,
+      "term": 12,
+      "increase": 0.04,
+      "dependency": 0.15,
+      "tags": [
+        "office"
+      ],
+      "alternatives": [],
+      "pitch": "Le serveur tourne chez vous. Les mises à jour arrivent vite : c'est un projet jeune."
+    },
+    {
+      "id": "mobile_fleet",
+      "vendor": "mobile_oem",
+      "label": "Flotte mobile iOS & Android (2 000 terminaux)",
+      "monthly_cost": 0.25,
+      "term": 12,
+      "first_renewal": {
+        "year": 2,
+        "month": 9
+      },
+      "increase": 0.1,
+      "dependency": 0.5,
+      "tags": [
+        "mobile"
+      ],
+      "alternatives": [
+        "mobile_libre"
+      ],
+      "migration": [
+        "mobile_degoogled"
+      ],
+      "initial": true,
+      "pitch": "Renouvellement de la flotte : les nouveaux modèles sont plus chers, mais ils ont une meilleure caméra."
+    },
+    {
+      "id": "mobile_murena",
+      "vendor": "murena",
+      "label": "Fairphone /e/OS + Murena Workspace (support interne)",
+      "monthly_cost": 0.12,
+      "term": 12,
+      "increase": 0.03,
+      "dependency": 0.15,
+      "tags": [
+        "mobile"
+      ],
+      "alternatives": [],
+      "pitch": "Licences Murena Workspace et pièces détachées. Le support, c'est votre équipe."
+    },
+    {
+      "id": "mobile_commown",
+      "vendor": "commown",
+      "label": "Location Fairphone /e/OS chez Commown (support et réparation inclus)",
+      "monthly_cost": 0.2,
+      "term": 12,
+      "increase": 0.02,
+      "dependency": 0.2,
+      "tags": [
+        "mobile"
+      ],
+      "alternatives": [],
+      "pitch": "Location, assurance casse, réparation et remplacement compris. Le prix bouge peu : l'appareil doit durer."
+    },
+    {
+      "id": "openproject_ce",
+      "vendor": "openproject",
+      "label": "OpenProject Community auto-hébergé (infogérance)",
+      "monthly_cost": 0.06,
+      "term": 12,
+      "increase": 0.03,
+      "dependency": 0.1,
+      "tags": [
+        "devtools"
+      ],
+      "alternatives": [],
+      "pitch": "Pas de licence : vous payez l'hébergement et les mises à jour."
+    },
+    {
+      "id": "openproject_ee",
+      "vendor": "openproject",
+      "label": "OpenProject Enterprise (support éditeur)",
+      "monthly_cost": 0.14,
+      "term": 12,
+      "increase": 0.05,
+      "dependency": 0.15,
+      "tags": [
+        "devtools"
+      ],
+      "alternatives": [],
+      "pitch": "Support éditeur, SSO avancé, tableaux agiles et rapports en plus. Le cœur reste open source."
+    }
   ],
   "cards": [
-    { "id": "remise", "label": "Demander une remise", "text": "Classique. Efficace à petite dose.", "leverage": 8, "reaction": "Je peux faire un geste. Un petit. Symbolique." },
-    { "id": "menace", "label": "Menacer de partir", "text": "Puissant si la menace est crédible. Ridicule sinon.", "leverage": 30, "credibility_scaled": true, "reaction": "Partir ? Vers quoi, exactement ?" },
-    { "id": "appel_offres", "label": "Lancer un appel d'offres", "text": "+20 de levier, mais consomme deux tours.", "leverage": 20, "rounds": 2, "effects": { "velocity": -1 }, "reaction": "Un appel d'offres ? C'est long, un appel d'offres. Très long. Vous êtes sûr ?" },
-    { "id": "engagement_5ans", "label": "Proposer un engagement 5 ans", "text": "Grosse remise immédiate. Dépendance accrue pour longtemps.", "leverage": 10, "special": "term_5y", "reaction": "Cinq ans ! Là, on parle. Je vous fais préparer un avenant." },
-    { "id": "perimetre", "label": "Réduire le périmètre", "text": "Moins de licences, moins de coût. Quelques utilisateurs vont râler.", "leverage": 12, "special": "scope", "reaction": "Vous allez retirer des licences ? Vous êtes sûr de vos chiffres d'usage ?" },
-    { "id": "clause_sortie", "label": "Exiger une clause de sortie", "text": "Coûte un peu de levier. Réduit la dépendance future.", "leverage": -5, "special": "exit_clause", "reaction": "Une clause de sortie… Je dois remonter ça au juridique. Ils adorent ces demandes." },
-    { "id": "audit", "label": "Demander un audit des usages réels", "text": "Vous découvrez 1 200 licences inutilisées. Probablement.", "leverage": 12, "effects": { "budget": -1 }, "reaction": "Un audit ? Avec plaisir. Nous aussi, nous aimons beaucoup les audits." },
-    { "id": "postgres", "label": "Évoquer PostgreSQL", "text": "Crédible si vous avez les compétences internes.", "leverage": 18, "credibility_scaled": true, "only_tags": ["db"], "reaction": "PostgreSQL ? Pour vos 412 procédures stockées ? Je vous laisse estimer la migration." },
-    { "id": "open_source_virt", "label": "Évoquer Proxmox / XCP-ng", "text": "Crédible si vous avez une équipe infra solide.", "leverage": 18, "credibility_scaled": true, "only_tags": ["virtualization"], "reaction": "L'open source, c'est très bien pour les labs. Pour la production…" },
-    { "id": "migration_credible", "label": "Montrer votre POC de migration", "text": "Une alternative qui tourne déjà. L'argument ultime.", "leverage": 30, "needs_alternative": true, "reaction": "… Vous avez vraiment migré un périmètre ? Laissez-moi appeler mon directeur." },
-    { "id": "achats", "label": "Appeler les achats", "text": "Isabelle a négocié des contrats plus durs que celui-là.", "leverage": 10, "reaction": "Ah, Isabelle. Je la connais bien. Trop bien." },
-    { "id": "benchmark", "label": "Sortir le benchmark du cabinet", "text": "187 slides de comparaison de prix. Coûte un peu.", "leverage": 7, "effects": { "budget": -1.5 }, "reaction": "Ce benchmark date de 2019, mais d'accord, je le regarde." },
-    { "id": "souverain", "label": "Évoquer une alternative souveraine", "text": "Argument politique. Plus fort si la souveraineté est réelle.", "leverage": 14, "credibility_scaled": true, "only_tags": ["virtualization", "office", "db", "data", "ai"], "reaction": "Souveraine ? Nous aussi avons un partenariat souverain. Enfin, bientôt." },
-    { "id": "silence", "label": "Laisser un long silence", "text": "Technique ancestrale des acheteurs.", "leverage": 7, "reaction": "… … … Bon. D'accord. Je regarde ce que je peux faire." },
-    { "id": "internaliser", "label": "Annoncer un plan d'internalisation", "text": "Crédible si vous recrutez vraiment.", "leverage": 18, "credibility_scaled": true, "only_tags": ["esn"], "reaction": "Internaliser ? Mais qui va recruter ? Vous ? Avec quelle grille salariale ?" }
+    {
+      "id": "remise",
+      "label": "Demander une remise",
+      "text": "Classique. Efficace à petite dose.",
+      "leverage": 8,
+      "reaction": "Je peux faire un geste. Un petit. Symbolique."
+    },
+    {
+      "id": "menace",
+      "label": "Menacer de partir",
+      "text": "Puissant si la menace est crédible. Ridicule sinon.",
+      "leverage": 30,
+      "credibility_scaled": true,
+      "reaction": "Partir ? Vers quoi, exactement ?"
+    },
+    {
+      "id": "appel_offres",
+      "label": "Lancer un appel d'offres",
+      "text": "+20 de levier, mais consomme deux tours.",
+      "leverage": 20,
+      "rounds": 2,
+      "effects": {
+        "velocity": -1
+      },
+      "reaction": "Un appel d'offres ? C'est long, un appel d'offres. Très long. Vous êtes sûr ?"
+    },
+    {
+      "id": "engagement_5ans",
+      "label": "Proposer un engagement 5 ans",
+      "text": "Grosse remise immédiate. Dépendance accrue pour longtemps.",
+      "leverage": 10,
+      "special": "term_5y",
+      "reaction": "Cinq ans ! Là, on parle. Je vous fais préparer un avenant."
+    },
+    {
+      "id": "perimetre",
+      "label": "Réduire le périmètre",
+      "text": "Moins de licences, moins de coût. Quelques utilisateurs vont râler.",
+      "leverage": 12,
+      "special": "scope",
+      "reaction": "Vous allez retirer des licences ? Vous êtes sûr de vos chiffres d'usage ?"
+    },
+    {
+      "id": "clause_sortie",
+      "label": "Exiger une clause de sortie",
+      "text": "Coûte un peu de levier. Réduit la dépendance future.",
+      "leverage": -5,
+      "special": "exit_clause",
+      "reaction": "Une clause de sortie… Je dois remonter ça au juridique. Ils adorent ces demandes."
+    },
+    {
+      "id": "audit",
+      "label": "Demander un audit des usages réels",
+      "text": "Vous découvrez 1 200 licences inutilisées. Probablement.",
+      "leverage": 12,
+      "effects": {
+        "budget": -1
+      },
+      "reaction": "Un audit ? Avec plaisir. Nous aussi, nous aimons beaucoup les audits."
+    },
+    {
+      "id": "postgres",
+      "label": "Évoquer PostgreSQL",
+      "text": "Crédible si vous avez les compétences internes.",
+      "leverage": 18,
+      "credibility_scaled": true,
+      "only_tags": [
+        "db"
+      ],
+      "reaction": "PostgreSQL ? Pour vos 412 procédures stockées ? Je vous laisse estimer la migration."
+    },
+    {
+      "id": "open_source_virt",
+      "label": "Évoquer Proxmox / XCP-ng",
+      "text": "Crédible si vous avez une équipe infra solide.",
+      "leverage": 18,
+      "credibility_scaled": true,
+      "only_tags": [
+        "virtualization"
+      ],
+      "reaction": "L'open source, c'est très bien pour les labs. Pour la production…"
+    },
+    {
+      "id": "migration_credible",
+      "label": "Montrer votre POC de migration",
+      "text": "Une alternative qui tourne déjà. L'argument ultime.",
+      "leverage": 30,
+      "needs_alternative": true,
+      "reaction": "… Vous avez vraiment migré un périmètre ? Laissez-moi appeler mon directeur."
+    },
+    {
+      "id": "achats",
+      "label": "Appeler les achats",
+      "text": "Isabelle a négocié des contrats plus durs que celui-là.",
+      "leverage": 10,
+      "reaction": "Ah, Isabelle. Je la connais bien. Trop bien."
+    },
+    {
+      "id": "benchmark",
+      "label": "Sortir le benchmark du cabinet",
+      "text": "187 slides de comparaison de prix. Coûte un peu.",
+      "leverage": 7,
+      "effects": {
+        "budget": -1.5
+      },
+      "reaction": "Ce benchmark date de 2019, mais d'accord, je le regarde."
+    },
+    {
+      "id": "souverain",
+      "label": "Évoquer une alternative souveraine",
+      "text": "Argument politique. Plus fort si la souveraineté est réelle.",
+      "leverage": 14,
+      "credibility_scaled": true,
+      "only_tags": [
+        "virtualization",
+        "office",
+        "db",
+        "data",
+        "ai"
+      ],
+      "reaction": "Souveraine ? Nous aussi avons un partenariat souverain. Enfin, bientôt."
+    },
+    {
+      "id": "silence",
+      "label": "Laisser un long silence",
+      "text": "Technique ancestrale des acheteurs.",
+      "leverage": 7,
+      "reaction": "… … … Bon. D'accord. Je regarde ce que je peux faire."
+    },
+    {
+      "id": "internaliser",
+      "label": "Annoncer un plan d'internalisation",
+      "text": "Crédible si vous recrutez vraiment.",
+      "leverage": 18,
+      "credibility_scaled": true,
+      "only_tags": [
+        "esn"
+      ],
+      "reaction": "Internaliser ? Mais qui va recruter ? Vous ? Avec quelle grille salariale ?"
+    }
   ],
   "hazards": [
-    { "id": "fin_trimestre", "label": "Fin de trimestre commercial", "text": "Le commercial doit signer avant le 31. Il est soudainement très flexible.", "leverage": 15 },
-    { "id": "ceo_fan", "label": "La DG adore le fournisseur", "text": "Elle a déjeuné avec leur country manager. « Des gens formidables. »", "leverage": -30, "weight": 0.6 },
-    { "id": "concurrent", "label": "Un concurrent vous démarche", "text": "Un concurrent du fournisseur vous propose un POC gratuit. Vous le faites savoir.", "leverage": 10 },
-    { "id": "daf_valide", "label": "Le DAF a déjà provisionné la hausse", "text": "Le commercial l'a appris. Par qui ? Mystère.", "leverage": -15 },
-    { "id": "nouveau_kam", "label": "Changement de commercial", "text": "Le nouveau KAM ne connaît pas votre dossier. Il veut « repartir sur de bonnes bases ».", "leverage": 6 },
-    { "id": "salon", "label": "Invitation au salon du fournisseur", "text": "Le COMEX a été invité à l'événement annuel à l'étranger. Le COMEX a accepté.", "leverage": -8 }
+    {
+      "id": "fin_trimestre",
+      "label": "Fin de trimestre commercial",
+      "text": "Le commercial doit signer avant le 31. Il est soudainement très flexible.",
+      "leverage": 15
+    },
+    {
+      "id": "ceo_fan",
+      "label": "La DG adore le fournisseur",
+      "text": "Elle a déjeuné avec leur country manager. « Des gens formidables. »",
+      "leverage": -30,
+      "weight": 0.6
+    },
+    {
+      "id": "concurrent",
+      "label": "Un concurrent vous démarche",
+      "text": "Un concurrent du fournisseur vous propose un POC gratuit. Vous le faites savoir.",
+      "leverage": 10
+    },
+    {
+      "id": "daf_valide",
+      "label": "Le DAF a déjà provisionné la hausse",
+      "text": "Le commercial l'a appris. Par qui ? Mystère.",
+      "leverage": -15
+    },
+    {
+      "id": "nouveau_kam",
+      "label": "Changement de commercial",
+      "text": "Le nouveau KAM ne connaît pas votre dossier. Il veut « repartir sur de bonnes bases ».",
+      "leverage": 6
+    },
+    {
+      "id": "salon",
+      "label": "Invitation au salon du fournisseur",
+      "text": "Le COMEX a été invité à l'événement annuel à l'étranger. Le COMEX a accepté.",
+      "leverage": -8
+    }
   ]
 }

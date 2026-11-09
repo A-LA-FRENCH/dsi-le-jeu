@@ -99,7 +99,7 @@ pub fn breakdown(content: &Content, s: &GameState) -> Breakdown {
     }
     let mut projects = 0.0;
     for p in &s.projects {
-        if let Some(d) = content.project(&p.id) {
+        if let Some(d) = crate::projects::def_of(content, p) {
             projects += d.burn;
             if p.esn {
                 esn += d.burn * 0.6;

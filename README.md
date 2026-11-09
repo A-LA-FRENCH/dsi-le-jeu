@@ -99,6 +99,14 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
     Aucune technique offensive : le jeu porte sur la prévention et la réponse.
 - **Projets multi-mois** (≈ 40, jusqu'à 5 en parallèle) avec coût, durée, complexité, risque de glissement,
   renfort ESN possible, effets à la livraison et technologies débloquées.
+- **Choix de la solution** pour certains projets (coût, durée, risque, contrat souscrit et
+  effets propres à chaque option) :
+  - suite collaborative open source : La Suite numérique ou ElixirOffice ;
+  - flotte mobile sans Google ni Apple : Fairphone sous /e/OS avec Murena (support interne)
+    ou en location chez Commown (support et réparation inclus) ;
+  - sortie d'Atlassian : OpenProject Community ou Enterprise ;
+  - sortie des hyperscalers (AWS, Azure, Google Cloud) : Scaleway, OVHcloud ou Clever Cloud
+    (aussi proposés, avec Cloud Temple, pour la migration vers un cloud de confiance).
 - **Technology Map** (infra, dev, culture, data, IA, identité, applications) : chaque
   techno a des effets mensuels parfois conditionnels — Kubernetes accélère si vous avez
   les compétences, sinon il fait exploser la complexité.

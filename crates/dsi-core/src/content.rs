@@ -361,6 +361,31 @@ impl Content {
                     errs.push(format!("projet {}: contrat inconnu {c}", p.id));
                 }
             }
+            if let Some(v) = &p.cloud_provider
+                && self.vendor(v).is_none()
+            {
+                errs.push(format!("projet {}: fournisseur cloud inconnu {v}", p.id));
+            }
+            let mut seen = std::collections::BTreeSet::new();
+            for o in &p.options {
+                let ctx = format!("projet {} / solution {}", p.id, o.id);
+                if !seen.insert(&o.id) {
+                    errs.push(format!("{ctx}: identifiant en double"));
+                }
+                if o.name.is_empty() || o.desc.is_empty() {
+                    errs.push(format!("{ctx}: nom ou description manquant"));
+                }
+                for v in o.vendor.iter().chain(o.cloud_provider.iter()) {
+                    if self.vendor(v).is_none() {
+                        errs.push(format!("{ctx}: fournisseur inconnu {v}"));
+                    }
+                }
+                for c in &o.add_contract {
+                    if self.contract(c).is_none() {
+                        errs.push(format!("{ctx}: contrat inconnu {c}"));
+                    }
+                }
+            }
         }
         for c in &self.contracts {
             if self.vendor(&c.vendor).is_none() {

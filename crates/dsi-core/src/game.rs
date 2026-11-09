@@ -22,6 +22,8 @@ pub enum Command {
     Continue,
     AdvanceMonth,
     StartProject(String),
+    /// Lance un projet avec la solution choisie parmi ses options.
+    StartProjectWith(String, String),
     EsnBoost(String),
     CancelProject(String),
     DoAction(String),
@@ -749,14 +751,22 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
             advance(content, s);
             Ok(())
         }
-        Command::StartProject(id) => {
+        Command::StartProject(_) | Command::StartProjectWith(..) => {
+            let (id, option) = match cmd {
+                Command::StartProjectWith(id, o) => (id, Some(o)),
+                Command::StartProject(id) => (id, None),
+                _ => unreachable!(),
+            };
             ensure_free(s)?;
-            projects::can_start(content, s, &id).map_err(GameError::NotNow)?;
+            projects::can_start_with(content, s, &id, option.as_deref())
+                .map_err(GameError::NotNow)?;
             spend_agenda(s, 1)?;
-            let deltas = projects::start(content, s, &id);
-            let def = content
-                .project(&id)
-                .cloned()
+            let deltas = projects::start_with(content, s, &id, option.as_deref());
+            let def = s
+                .projects
+                .iter()
+                .find(|p| p.id == id)
+                .and_then(|p| projects::def_of(content, p))
                 .ok_or(GameError::Unknown(id.clone()))?;
             s.active = Some(result(
                 &format!("Lancement : {}", def.name),

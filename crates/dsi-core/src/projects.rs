@@ -71,10 +71,98 @@ pub struct ProjectDef {
     pub cloud_provider: Option<String>,
     #[serde(default)]
     pub cloud_bill: f32,
+    /// À la livraison, remplace le fournisseur cloud actuel (sortie d'un hyperscaler).
+    #[serde(default)]
+    pub cloud_switch: bool,
+    /// Solutions ou prestataires au choix : chacune ajuste coût, durée, risque et effets.
+    #[serde(default)]
+    pub options: Vec<ProjectOption>,
+}
+
+/// Une solution proposée pour un projet (choisie au lancement).
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct ProjectOption {
+    pub id: String,
+    pub name: String,
+    pub desc: String,
+    /// Fournisseur de référence (fiche vendeur), si pertinent.
+    #[serde(default)]
+    pub vendor: Option<String>,
+    /// Écarts par rapport au projet de base.
+    #[serde(default)]
+    pub cost: f32,
+    #[serde(default)]
+    pub burn: f32,
+    #[serde(default)]
+    pub duration: i32,
+    #[serde(default)]
+    pub risk: f32,
+    /// Effets ajoutés à la livraison et chaque mois.
+    #[serde(default)]
+    pub on_done: Effects,
+    #[serde(default)]
+    pub monthly: Effects,
+    /// Remplace les contrats souscrits du projet de base (si non vide).
+    #[serde(default)]
+    pub add_contract: Vec<String>,
+    #[serde(default)]
+    pub cloud_provider: Option<String>,
+    #[serde(default)]
+    pub cloud_bill: Option<f32>,
+    #[serde(default)]
+    pub done_text: String,
 }
 
 fn yes() -> bool {
     true
+}
+
+impl ProjectDef {
+    pub fn option(&self, id: &str) -> Option<&ProjectOption> {
+        self.options.iter().find(|o| o.id == id)
+    }
+
+    /// Le projet tel qu'il se déroule avec la solution choisie (par défaut : la première).
+    pub fn with_option(&self, option: Option<&str>) -> ProjectDef {
+        let Some(o) = option
+            .and_then(|id| self.option(id))
+            .or_else(|| self.options.first())
+        else {
+            return self.clone();
+        };
+        let mut d = self.clone();
+        d.name = format!("{} — {}", self.name, o.name);
+        d.cost = (d.cost + o.cost).max(0.0);
+        d.burn = (d.burn + o.burn).max(0.0);
+        d.duration = (d.duration as i32 + o.duration).max(1) as u32;
+        d.risk = (d.risk + o.risk).clamp(0.0, 0.9);
+        for (m, v) in &o.on_done {
+            *d.on_done.entry(*m).or_insert(0.0) += v;
+        }
+        for (m, v) in &o.monthly {
+            *d.monthly.entry(*m).or_insert(0.0) += v;
+        }
+        if !o.add_contract.is_empty() {
+            d.add_contract = o.add_contract.clone();
+        }
+        if o.cloud_provider.is_some() {
+            d.cloud_provider = o.cloud_provider.clone();
+        }
+        if let Some(b) = o.cloud_bill {
+            d.cloud_bill = b;
+        }
+        if !o.done_text.is_empty() {
+            d.done_text = o.done_text.clone();
+        }
+        d
+    }
+}
+
+/// Définition effective d'un projet en cours (solution choisie comprise).
+pub fn def_of(content: &Content, st: &ProjectState) -> Option<ProjectDef> {
+    content
+        .project(&st.id)
+        .map(|d| d.with_option(st.option.as_deref()))
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -88,12 +176,30 @@ pub struct ProjectState {
     pub esn: bool,
     #[serde(default)]
     pub midway_done: bool,
+    /// Solution choisie parmi `ProjectDef::options`.
+    #[serde(default)]
+    pub option: Option<String>,
 }
 
 pub fn can_start(content: &Content, s: &GameState, id: &str) -> Result<(), String> {
-    let Some(p) = content.project(id) else {
+    can_start_with(content, s, id, None)
+}
+
+pub fn can_start_with(
+    content: &Content,
+    s: &GameState,
+    id: &str,
+    option: Option<&str>,
+) -> Result<(), String> {
+    let Some(base) = content.project(id) else {
         return Err("projet inconnu".into());
     };
+    if let Some(o) = option
+        && base.option(o).is_none()
+    {
+        return Err(format!("solution inconnue : {o}"));
+    }
+    let p = &base.with_option(option);
     if s.projects.iter().any(|x| x.id == id) {
         return Err("déjà en cours".into());
     }
@@ -115,9 +221,22 @@ pub fn can_start(content: &Content, s: &GameState, id: &str) -> Result<(), Strin
 }
 
 pub fn start(content: &Content, s: &mut GameState, id: &str) -> Vec<(Metric, f32)> {
-    let Some(p) = content.project(id).cloned() else {
+    start_with(content, s, id, None)
+}
+
+pub fn start_with(
+    content: &Content,
+    s: &mut GameState,
+    id: &str,
+    option: Option<&str>,
+) -> Vec<(Metric, f32)> {
+    let Some(base) = content.project(id) else {
         return vec![];
     };
+    let option = option
+        .map(str::to_string)
+        .or_else(|| base.options.first().map(|o| o.id.clone()));
+    let p = base.with_option(option.as_deref());
     let mut fx = p.on_start.clone();
     *fx.entry(Metric::Budget).or_insert(0.0) -= p.cost;
     let d = effects::apply(s, &fx);
@@ -128,6 +247,7 @@ pub fn start(content: &Content, s: &mut GameState, id: &str) -> Vec<(Metric, f32
         slips: 0,
         esn: false,
         midway_done: false,
+        option,
     });
     s.push_log(format!("Projet lancé : {}", p.name), Tone::Story);
     s.decisions.push(format!("project:{}", p.id));
@@ -151,11 +271,7 @@ pub fn speed(def: &ProjectDef, st: &ProjectState, s: &GameState) -> f32 {
 pub fn burn(content: &Content, s: &GameState) -> f32 {
     s.projects
         .iter()
-        .filter_map(|p| {
-            content
-                .project(&p.id)
-                .map(|d| d.burn * if p.esn { 1.6 } else { 1.0 })
-        })
+        .filter_map(|p| def_of(content, p).map(|d| d.burn * if p.esn { 1.6 } else { 1.0 }))
         .sum()
 }
 
@@ -165,10 +281,10 @@ pub fn monthly(content: &Content, s: &mut GameState) -> Vec<String> {
     let mut finished = Vec::new();
     let ids: Vec<String> = s.projects.iter().map(|p| p.id.clone()).collect();
     for id in ids {
-        let Some(def) = content.project(&id).cloned() else {
+        let st = s.projects.iter().find(|p| p.id == id).cloned().unwrap();
+        let Some(def) = def_of(content, &st) else {
             continue;
         };
-        let st = s.projects.iter().find(|p| p.id == id).cloned().unwrap();
         effects::apply(s, &def.monthly);
         if st.esn {
             s.metrics.add(Metric::VendorDep, 0.6);
@@ -221,7 +337,10 @@ pub fn monthly(content: &Content, s: &mut GameState) -> Vec<String> {
 
 /// Livre un projet : effets, technologies, contrats. Renvoie l'événement de livraison éventuel.
 pub fn complete(content: &Content, s: &mut GameState, id: &str) -> Option<String> {
-    let def = content.project(id)?.clone();
+    let def = match s.projects.iter().find(|p| p.id == id) {
+        Some(st) => def_of(content, st)?,
+        None => content.project(id)?.clone(),
+    };
     s.projects.retain(|p| p.id != id);
     s.done_projects.insert(id.to_string());
     effects::apply(s, &def.on_done);
@@ -243,9 +362,12 @@ pub fn complete(content: &Content, s: &mut GameState, id: &str) -> Option<String
         s.flags.insert(f.clone());
     }
     if let Some(p) = &def.cloud_provider {
+        if def.cloud_switch {
+            s.cloud.provider = Some(p.clone());
+        }
         s.cloud.activate(p);
     }
-    s.cloud.bill += def.cloud_bill;
+    s.cloud.bill = (s.cloud.bill + def.cloud_bill).max(0.0);
     let text = if def.done_text.is_empty() {
         format!("Projet livré : {}", def.name)
     } else {

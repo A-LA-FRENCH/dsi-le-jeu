@@ -531,7 +531,6 @@ fn team(ui: &mut egui::Ui, c: &mut Ctx) {
         c.ui.fire_pending = None;
         c.run(cmd);
     }
-    let g = c.g();
     section(ui, "PERSONNAGES");
     for ch in &c.content.dialogues.characters {
         if ch.id == "notif" {
