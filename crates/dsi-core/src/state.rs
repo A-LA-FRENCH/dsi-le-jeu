@@ -492,6 +492,9 @@ pub struct GameState {
     pub projects: Vec<ProjectState>,
     pub done_projects: BTreeSet<String>,
     pub team: Vec<Hire>,
+    /// Tours des licenciements récents (le climat social s'en souvient).
+    #[serde(default)]
+    pub firings: Vec<u32>,
     pub cloud: CloudState,
     pub ai: AiState,
     /// Événements déjà vus (id → dernier mois absolu).
@@ -574,6 +577,7 @@ impl GameState {
             projects: Vec::new(),
             done_projects: BTreeSet::new(),
             team: Vec::new(),
+            firings: Vec::new(),
             cloud: CloudState::default(),
             ai: AiState::default(),
             seen: BTreeMap::new(),

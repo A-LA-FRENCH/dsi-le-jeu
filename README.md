@@ -50,6 +50,9 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
   salles (lancer un projet, recruter, négocier en avance, auditer, écouter le dev senior…).
 - **Chaque décision fait mal quelque part.** Les choix montrent le *sens* des effets (▲▼),
   jamais leur ampleur ; ⏳ signale des suites différées.
+- **Licenciements** (onglet Équipe) : arrêter le salaire d'une recrue pour tenir le budget.
+  Sans indemnités pendant la période d'essai (3 mois), 3 mois de salaire ensuite ; MAKE,
+  équipes et attractivité baissent, d'autant plus si les départs se répètent dans l'année.
 - **Sauvegardes** : sauvegarde automatique + 3 emplacements manuels (nom, date de jeu, score,
   état de la partie, ancienneté), chargement depuis l'écran titre ou en cours de partie.
 - **Budget mensuel détaillé** (bas droite et onglet Indicateurs) : allocation du DAF et sa

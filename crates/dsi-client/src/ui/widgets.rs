@@ -283,7 +283,7 @@ pub fn budget_tooltip(b: &dsi_core::economy::Breakdown) -> String {
         t.push_str(&format!("\n{k} : {v:.2} pt — {:.0} %{detail}", pct(v)));
     }
     t.push_str(&format!(
-        "\n\nSolde du mois : {:+.2} pt, ajouté à la jauge BUDGET au passage du mois.",
+        "\n\nSolde du mois : {:+.2} pt, ajouté à la jauge BUDGET au passage du mois.\nPour réduire les salaires : onglet Équipe → Licencier.",
         b.balance
     ));
     t

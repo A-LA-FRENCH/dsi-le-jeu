@@ -27,6 +27,8 @@ pub enum Command {
     DoAction(String),
     Negotiate(String),
     Recruit(String),
+    /// Licencie la recrue d'indice donné dans `team` (1 créneau d'agenda).
+    Dismiss(usize),
     PlayCard(String),
     Conclude,
     AcceptOffer,
@@ -885,6 +887,17 @@ pub fn apply(content: &Content, s: &mut GameState, cmd: Command) -> GameResult {
             let n = negotiation::start(content, s, &contract, true)
                 .ok_or(GameError::Unknown(contract))?;
             s.active = Some(Active::Negotiation(Box::new(n)));
+            Ok(())
+        }
+        Command::Dismiss(idx) => {
+            ensure_free(s)?;
+            if idx >= s.team.len() {
+                return Err(GameError::Unknown(format!("recrue {idx}")));
+            }
+            spend_agenda(s, 1)?;
+            let r = people::dismiss(content, s, idx)
+                .ok_or(GameError::Unknown(format!("recrue {idx}")))?;
+            s.active = Some(Active::Result(Box::new(r)));
             Ok(())
         }
         Command::Recruit(role) => {

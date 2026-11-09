@@ -274,6 +274,133 @@ pub fn offer(
     }
 }
 
+/// Période d'essai : licencier pendant ces premiers mois ne coûte pas d'indemnités.
+pub const TRIAL_MONTHS: u32 = 3;
+/// Indemnités de départ hors période d'essai, en mois de salaire.
+pub const SEVERANCE_MONTHS: f32 = 3.0;
+
+/// Conditions d'un licenciement : à afficher avant de confirmer, puis appliquées.
+#[derive(Clone, Debug, PartialEq)]
+pub struct DismissTerms {
+    pub name: String,
+    pub role: String,
+    pub trial: bool,
+    /// Coût immédiat (points de budget).
+    pub severance: f32,
+    /// Économie mensuelle.
+    pub saving: f32,
+    /// Licenciements des 12 derniers mois (aggrave l'effet sur les équipes).
+    pub recent: usize,
+    /// Effets immédiats (indemnités comprises).
+    pub effects: Effects,
+}
+
+pub fn dismiss_terms(content: &Content, s: &GameState, idx: usize) -> Option<DismissTerms> {
+    let h = s.team.get(idx)?;
+    let role = content.careers.roles.iter().find(|r| r.id == h.role);
+    let now = s.turn();
+    let trial = now.saturating_sub(h.since) < TRIAL_MONTHS;
+    let recent = s
+        .firings
+        .iter()
+        .filter(|t| now.saturating_sub(**t) < 12)
+        .count();
+    let climate = 1.0 + 0.5 * recent as f32;
+    let severance = if trial {
+        0.0
+    } else {
+        h.salary * SEVERANCE_MONTHS
+    };
+    // La compétence part avec la personne : on perd une partie de l'apport à l'embauche.
+    let make_loss = role
+        .and_then(|r| r.on_hire.get(&Metric::Make))
+        .copied()
+        .unwrap_or(2.0)
+        .max(1.0);
+    let mut fx = Effects::new();
+    if severance > 0.0 {
+        fx.insert(Metric::Budget, -severance);
+    }
+    fx.insert(
+        Metric::Make,
+        -(if trial { make_loss * 0.5 } else { make_loss })
+            .round()
+            .max(1.0),
+    );
+    fx.insert(Metric::DevSat, -(if trial { 1.0 } else { 3.0 }) * climate);
+    fx.insert(
+        Metric::Attractiveness,
+        -(if trial { 1.0 } else { 2.0 }) * climate,
+    );
+    if !trial {
+        fx.insert(Metric::Comex, 1.0);
+    }
+    Some(DismissTerms {
+        name: h.name.clone(),
+        role: role.map(|r| r.label.clone()).unwrap_or_default(),
+        trial,
+        severance,
+        saving: h.salary,
+        recent,
+        effects: fx,
+    })
+}
+
+/// Licencie la recrue `idx` : son salaire s'arrête dès ce mois.
+pub fn dismiss(content: &Content, s: &mut GameState, idx: usize) -> Option<Resolution> {
+    let t = dismiss_terms(content, s, idx)?;
+    s.team.remove(idx);
+    s.firings.push(s.turn());
+    let deltas = effects::apply(s, &t.effects);
+    s.decisions.push(format!("fire:{}", t.role));
+    s.push_log(
+        if t.trial {
+            format!("Fin de période d'essai pour {} ({}).", t.name, t.role)
+        } else {
+            format!(
+                "{} ({}) quitte l'entreprise : rupture négociée.",
+                t.name, t.role
+            )
+        },
+        Tone::Bad,
+    );
+    let mut notes = vec![format!("Masse salariale : −{:.2} pt / mois.", t.saving)];
+    if t.severance > 0.0 {
+        notes.push(format!(
+            "Indemnités : {:.2} pt ({SEVERANCE_MONTHS:.0} mois de salaire).",
+            t.severance
+        ));
+    }
+    if t.recent > 0 {
+        notes.push(format!(
+            "{} départ(s) contraint(s) ces 12 derniers mois : les équipes s'inquiètent.",
+            t.recent
+        ));
+    }
+    Some(Resolution {
+        title: if t.trial {
+            "Fin de période d'essai".into()
+        } else {
+            "Départ négocié".into()
+        },
+        text: if t.trial {
+            format!(
+                "Vous mettez fin à la période d'essai de {}. Un entretien de dix minutes, un badge rendu, un message Teams laissé en « vu ». L'équipe a remarqué.",
+                t.name
+            )
+        } else {
+            format!(
+                "{} signe une rupture conventionnelle. Le DAF salue « un geste de maîtrise de la masse salariale ». Ses collègues récupèrent ses sujets, et ses astreintes.",
+                t.name
+            )
+        },
+        deltas,
+        notes,
+        speaker: String::new(),
+        delayed_hint: false,
+    })
+}
+
 /// Coût mensuel de l'équipe recrutée.
 pub fn payroll(s: &GameState) -> f32 {
     s.team.iter().map(|h| h.salary).sum()

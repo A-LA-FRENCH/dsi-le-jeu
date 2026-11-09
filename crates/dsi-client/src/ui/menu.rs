@@ -465,6 +465,10 @@ pub fn help(ctx: &egui::Context, c: &mut Ctx) {
                 "Les flèches ▲▼ indiquent le sens des effets, pas leur ampleur. ⏳ signale des conséquences différées.",
             ),
             (
+                "Équipe et salaires",
+                "Recrutez depuis la salle RH ; chaque recrue coûte chaque mois. Onglet Équipe : « Licencier… » arrête un salaire (1 créneau ; sans indemnités pendant la période d'essai de 3 mois, puis 3 mois de salaire), au prix d'un coup au moral et à l'attractivité.",
+            ),
+            (
                 "Projets",
                 "Lancés depuis la salle projet : coût de lancement, coût mensuel, durée, risque de glissement. 5 en parallèle au maximum.",
             ),

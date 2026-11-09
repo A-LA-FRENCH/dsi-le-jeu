@@ -715,3 +715,42 @@ fn trois_emplacements_de_sauvegarde() {
     // Les anciennes sauvegardes (sans horodatage) restent lisibles.
     assert_eq!(save::read(&save::to_json(&s).unwrap()).unwrap().1, 0);
 }
+
+#[test]
+fn licencier_une_recrue_allege_la_masse_salariale() {
+    use dsi_core::people::{self, Hire};
+    let (c, mut s) = new(9);
+    s.inbox.clear();
+    s.agenda = 3;
+    s.metrics.set(Metric::Budget, 50.0);
+    for (role, since) in [("senior", 0), ("sre", 0)] {
+        s.team.push(Hire {
+            role: role.into(),
+            name: format!("Test {role}"),
+            salary: 0.4,
+            since,
+        });
+    }
+    let payroll = people::payroll(&s);
+    let balance = dsi_core::economy::monthly_balance(&c, &s);
+    // En période d'essai : pas d'indemnités.
+    let t = people::dismiss_terms(&c, &s, 0).unwrap();
+    assert!(t.trial && t.severance == 0.0);
+    // Hors période d'essai : 3 mois de salaire d'indemnités, et le climat se dégrade.
+    s.cal.month += 4;
+    let t = people::dismiss_terms(&c, &s, 1).unwrap();
+    assert!(!t.trial && (t.severance - 1.2).abs() < 1e-4);
+    let budget = s.m(Metric::Budget);
+    game::apply(&c, &mut s, Command::Dismiss(1)).unwrap();
+    assert_eq!(s.team.len(), 1);
+    assert_eq!(s.agenda, 2);
+    assert!((people::payroll(&s) - (payroll - 0.4)).abs() < 1e-4);
+    assert!(dsi_core::economy::monthly_balance(&c, &s) > balance);
+    assert!((s.m(Metric::Budget) - (budget - 1.2)).abs() < 1e-3);
+    game::apply(&c, &mut s, Command::Continue).unwrap();
+    // Un deuxième licenciement dans l'année pèse plus lourd sur les équipes.
+    let second = people::dismiss_terms(&c, &s, 0).unwrap();
+    assert_eq!(second.recent, 1);
+    assert!(second.effects[&Metric::DevSat] < t.effects[&Metric::DevSat]);
+    assert!(game::apply(&c, &mut s, Command::Dismiss(5)).is_err());
+}

@@ -420,26 +420,118 @@ fn team(ui: &mut egui::Ui, c: &mut Ctx) {
         c.view.plateau = true;
     }
     let g = c.g();
+    let hires = dsi_core::people::payroll(g);
+    let total = g.staff_payroll + hires;
+    let pct = if g.allocation > 0.0 {
+        total / g.allocation * 100.0
+    } else {
+        0.0
+    };
+    wrap(
+        ui,
+        RichText::new(format!(
+            "Masse salariale : équipe historique {:.2} + recrues {hires:.2} = {total:.2} pt/mois ({pct:.0} % du budget mensuel).",
+            g.staff_payroll
+        ))
+        .size(13.0)
+        .color(LIGHT),
+    );
     if g.team.is_empty() {
         muted(
             ui,
             "Personne pour l'instant : le SI est tenu par 18 ESN et quelques héros fatigués. Recrutez depuis la salle RH.",
         );
+    } else {
+        muted(
+            ui,
+            format!(
+                "Licencier arrête le salaire dès ce mois (1 créneau d'agenda). Pendant les {} premiers mois (période d'essai) : sans indemnités ; ensuite : {} mois de salaire d'indemnités. MAKE, équipes et attractivité en pâtissent, d'autant plus si les départs se répètent.",
+                dsi_core::people::TRIAL_MONTHS,
+                dsi_core::people::SEVERANCE_MONTHS
+            ),
+        );
     }
-    for h in &g.team {
-        let role = c
-            .content
-            .careers
-            .roles
-            .iter()
-            .find(|r| r.id == h.role)
-            .map(|r| r.label.clone())
-            .unwrap_or_default();
-        ui.horizontal(|ui| {
-            ui.label(RichText::new(&h.name).font(bold(13.5)));
-            muted(ui, format!("{role} · {:.2}/mois", h.salary));
+    let busy = g.active.is_some() || g.finished();
+    let agenda = g.agenda;
+    let now = g.turn();
+    let team = g.team.clone();
+    let mut run: Option<Command> = None;
+    for (i, h) in team.iter().enumerate() {
+        let role = c.content.careers.roles.iter().find(|r| r.id == h.role);
+        let months = now.saturating_sub(h.since);
+        let trial = months < dsi_core::people::TRIAL_MONTHS;
+        card().show(ui, |ui| {
+            ui.set_width(ui.available_width());
+            ui.horizontal(|ui| {
+                ui.label(RichText::new(&h.name).font(bold(13.5)));
+                if trial {
+                    ui.label(RichText::new("PÉRIODE D'ESSAI").font(bold(10.5)).color(CYAN));
+                }
+            });
+            muted(
+                ui,
+                format!(
+                    "{} · {:.2} pt/mois · {months} mois d'ancienneté",
+                    role.map(|r| r.label.as_str()).unwrap_or(""),
+                    h.salary
+                ),
+            );
+            if let Some(r) = role
+                && !r.monthly.is_empty()
+            {
+                let fx: Vec<String> = r
+                    .monthly
+                    .iter()
+                    .map(|(m, v)| format!("{} {v:+.2}", m.label()))
+                    .collect();
+                ui.label(RichText::new(format!("Apport mensuel : {}", fx.join(" · "))).size(12.0).color(GREEN));
+            }
+            if c.ui.fire_pending == Some(i) {
+                if let Some(t) = dsi_core::people::dismiss_terms(c.content, c.g(), i) {
+                    ui.add_space(2.0);
+                    ui.label(
+                        RichText::new(format!(
+                            "Licencier {} ? Économie : {:.2} pt/mois · indemnités : {:.2} pt · 1 créneau d'agenda.",
+                            t.name, t.saving, t.severance
+                        ))
+                        .size(13.0)
+                        .color(ORANGE),
+                    );
+                    let fx: Vec<String> = t
+                        .effects
+                        .iter()
+                        .map(|(m, v)| if m.inverted() || v.fract().abs() > 0.01 { format!("{} {v:+.2}", m.label()) } else { format!("{} {v:+.0}", m.label()) })
+                        .collect();
+                    ui.add(egui::Label::new(RichText::new(format!("Effets immédiats : {}", fx.join(" · "))).size(12.5).color(LIGHT)).wrap());
+                    if t.recent > 0 {
+                        ui.label(RichText::new(format!("Déjà {} départ(s) contraint(s) cette année : l'équipe le vivra mal.", t.recent)).size(12.0).color(RED));
+                    }
+                    ui.horizontal(|ui| {
+                        let can = !busy && agenda > 0;
+                        let b = ui.add_enabled(can, egui::Button::new(RichText::new("Confirmer le licenciement").color(ORANGE)));
+                        let b = if agenda == 0 { b.on_disabled_hover_text("Plus de créneau d'agenda ce mois-ci.") } else { b.on_disabled_hover_text("Terminez d'abord le sujet en cours.") };
+                        if b.clicked() {
+                            run = Some(Command::Dismiss(i));
+                        }
+                        if ui.button("Annuler").clicked() {
+                            c.ui.fire_pending = None;
+                        }
+                    });
+                }
+            } else if ui
+                .add_enabled(!busy, egui::Button::new(RichText::new("Licencier…").color(MUTED)).small())
+                .on_hover_text("Voir le coût et les conséquences avant de confirmer")
+                .clicked()
+            {
+                c.ui.fire_pending = Some(i);
+            }
         });
     }
+    if let Some(cmd) = run {
+        c.ui.fire_pending = None;
+        c.run(cmd);
+    }
+    let g = c.g();
     section(ui, "PERSONNAGES");
     for ch in &c.content.dialogues.characters {
         if ch.id == "notif" {

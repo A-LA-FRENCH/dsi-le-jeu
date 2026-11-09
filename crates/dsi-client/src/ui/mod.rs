@@ -78,6 +78,8 @@ pub struct UiState {
     pub show_saves: bool,
     pub slots: Vec<Option<Result<dsi_core::save::SlotInfo, String>>>,
     pub slot_pending: Option<saves::Pending>,
+    /// Recrue dont le licenciement attend confirmation (onglet Équipe).
+    pub fire_pending: Option<usize>,
     pub ambition_choice: Option<String>,
     /// Rectangles d'éléments d'interface que le tutoriel peut désigner.
     pub marks: std::collections::HashMap<&'static str, egui::Rect>,
@@ -117,6 +119,7 @@ impl Default for UiState {
             show_saves: false,
             slots: Vec::new(),
             slot_pending: None,
+            fire_pending: None,
             ambition_choice: None,
             marks: Default::default(),
             tip_hidden: None,
@@ -135,6 +138,7 @@ impl UiState {
         self.show_mentors = false;
         self.show_ambition = false;
         self.show_help = false;
+        self.fire_pending = None;
     }
 
     pub fn toast(&mut self, msg: impl Into<String>, good: bool) {
