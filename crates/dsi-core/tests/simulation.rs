@@ -834,3 +834,45 @@ fn les_projets_proposent_plusieurs_solutions() {
     assert!(s.has_tech("cloud_souverain") && !s.has_tech("cloud_public"));
     assert!((s.cloud.bill - 0.8).abs() < 1e-4);
 }
+
+#[test]
+fn partage_du_resultat_et_lien_de_defi() {
+    use dsi_core::share::{self, Audience};
+    let mut found = (false, false);
+    for seed in 0..40 {
+        let s = play(seed, (seed % 3) as usize);
+        let win = s.ending.is_some();
+        if (win && found.0) || (!win && found.1) || !s.finished() {
+            continue;
+        }
+        if win {
+            found.0 = true
+        } else {
+            found.1 = true
+        }
+        let mut messages = Vec::new();
+        for a in Audience::ALL {
+            let card = share::card(&s, a);
+            assert_eq!(card.win, win);
+            assert_eq!(card.seed, s.seed);
+            let link = share::link("https://exemple.fr/dsi/?seed=3#x", &card);
+            assert!(link.starts_with("https://exemple.fr/dsi/?defi="), "{link}");
+            let back = share::decode(link.split("defi=").nth(1).unwrap()).unwrap();
+            assert_eq!(back, card);
+            let msg = share::message(&card);
+            assert!(msg.contains(&card.outcome) && !msg.is_empty());
+            messages.push(msg);
+            let (title, text) = share::invitation(&back);
+            assert!(!title.is_empty() && text.contains(&card.name));
+        }
+        // Un message différent pour chaque destinataire.
+        messages.dedup();
+        assert_eq!(messages.len(), 3);
+    }
+    assert!(
+        found.0 && found.1,
+        "il faut au moins une victoire et une défaite : {found:?}"
+    );
+    // Un lien trafiqué est ignoré.
+    assert!(share::decode("pas-un-defi").is_none());
+}

@@ -340,21 +340,46 @@ fn chapter(ctx: &egui::Context, c: &mut Ctx, index: usize) {
         c.run(Command::Continue);
         return;
     };
-    let mut cont = enter(ctx);
+    // Les scènes longues défilent par pages de 4 répliques.
+    const PER_PAGE: usize = 4;
+    if c.ui.chapter_page.0 != index {
+        c.ui.chapter_page = (index, 0);
+    }
+    let pages = ch.lines.len().div_ceil(PER_PAGE).max(1);
+    let page = c.ui.chapter_page.1.min(pages - 1);
+    let last = page + 1 >= pages;
+    let mut next = false;
+    let mut cont = false;
+    if enter(ctx) {
+        if last { cont = true } else { next = true }
+    }
     modal(ctx, "chapter", 660.0, YELLOW, |ui| {
-        muted(
-            ui,
-            format!("{} · {}", c.g().cal.label(), c.g().profile.company),
-        );
+        ui.horizontal(|ui| {
+            muted(
+                ui,
+                format!("{} · {}", c.g().cal.label(), c.g().profile.company),
+            );
+            if pages > 1 {
+                ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    ui.label(
+                        RichText::new(format!("{}/{pages}", page + 1))
+                            .font(bold(13.0))
+                            .color(MUTED),
+                    );
+                });
+            }
+        });
         ui.label(RichText::new(&ch.title).font(pixel(30.0)).color(YELLOW));
-        ui.label(
-            RichText::new(&ch.subtitle)
-                .size(15.0)
-                .italics()
-                .color(LIGHT),
-        );
+        if page == 0 {
+            ui.label(
+                RichText::new(&ch.subtitle)
+                    .size(15.0)
+                    .italics()
+                    .color(LIGHT),
+            );
+        }
         ui.add_space(8.0);
-        for l in &ch.lines {
+        for l in ch.lines.iter().skip(page * PER_PAGE).take(PER_PAGE) {
             ui.horizontal_top(|ui| {
                 c.face(ui, &l.speaker, 56.0);
                 ui.vertical(|ui| {
@@ -367,14 +392,32 @@ fn chapter(ctx: &egui::Context, c: &mut Ctx, index: usize) {
             ui.add_space(4.0);
         }
         ui.add_space(6.0);
-        if big_button(ui, "C'est parti", true, 220.0)
-            .on_hover_text("Entrée")
-            .clicked()
-        {
-            cont = true;
-        }
+        ui.horizontal(|ui| {
+            if last {
+                if big_button(ui, "C'est parti", true, 220.0)
+                    .on_hover_text("Entrée")
+                    .clicked()
+                {
+                    cont = true;
+                }
+            } else {
+                if big_button(ui, "Suite ▶", true, 160.0)
+                    .on_hover_text("Entrée")
+                    .clicked()
+                {
+                    next = true;
+                }
+                if ghost_button(ui, "Passer la scène", 160.0).clicked() {
+                    cont = true;
+                }
+            }
+        });
     });
+    if next {
+        c.ui.chapter_page.1 = page + 1;
+    }
     if cont {
+        c.ui.chapter_page = (usize::MAX, 0);
         c.run(Command::Continue);
     }
 }
@@ -485,6 +528,94 @@ fn final_stats(ui: &mut egui::Ui, c: &Ctx) {
     );
 }
 
+/// Partage du résultat : trois destinataires, un message adapté et un lien de défi.
+fn share_panel(ui: &mut egui::Ui, c: &mut Ctx) {
+    use dsi_core::share::{self, Audience};
+    section(ui, "PARTAGER MON RÉSULTAT");
+    ui.horizontal_wrapped(|ui| {
+        for a in Audience::ALL {
+            let sel = c.ui.share_audience == Some(a);
+            if ui
+                .selectable_label(
+                    sel,
+                    RichText::new(a.label()).font(bold(13.5)).color(if sel {
+                        YELLOW
+                    } else {
+                        TEXT
+                    }),
+                )
+                .clicked()
+            {
+                c.ui.share_audience = if sel { None } else { Some(a) };
+            }
+        }
+    });
+    let Some(a) = c.ui.share_audience else {
+        muted(
+            ui,
+            "Choisissez à qui l'envoyer : un message adapté et un lien qui ouvre le jeu sur le même scénario.",
+        );
+        return;
+    };
+    let card = share::card(c.g(), a);
+    let text = share::message(&card);
+    let url = share::link(&crate::share::page_url(), &card);
+    card_frame_text(ui, &text, &url);
+    ui.horizontal_wrapped(|ui| {
+        if ui
+            .button(RichText::new("Copier le message + le lien").strong())
+            .clicked()
+        {
+            let ok = crate::share::copy(&format!("{text} {url}"));
+            c.ui.toast(
+                if ok {
+                    "Copié : collez-le où vous voulez."
+                } else {
+                    "Copie impossible : sélectionnez le lien à la main."
+                },
+                ok,
+            );
+        }
+        if ui.button("Copier le lien").clicked() {
+            let ok = crate::share::copy(&url);
+            c.ui.toast(
+                if ok {
+                    "Lien copié."
+                } else {
+                    "Copie impossible."
+                },
+                ok,
+            );
+        }
+        if crate::share::can_native_share() && ui.button("Partager…").clicked() {
+            crate::share::native_share("DSI — LE JEU", &text, &url);
+        }
+        for (name, link) in crate::share::networks(&text, &url) {
+            if ui
+                .button(name)
+                .on_hover_text(format!("Partager sur {name}"))
+                .clicked()
+            {
+                if name == "LinkedIn" {
+                    // LinkedIn ne reprend que le lien : on copie le message pour le coller.
+                    crate::share::copy(&format!("{text} {url}"));
+                    c.ui.toast("Message copié : collez-le dans le post LinkedIn.", true);
+                }
+                crate::share::open(&link);
+            }
+        }
+    });
+}
+
+fn card_frame_text(ui: &mut egui::Ui, text: &str, url: &str) {
+    card().show(ui, |ui| {
+        ui.set_width(ui.available_width());
+        wrap(ui, RichText::new(text).size(13.5).italics().color(LIGHT));
+        ui.add(egui::Label::new(RichText::new(url).size(11.5).color(CYAN)).truncate())
+            .on_hover_text(url);
+    });
+}
+
 fn end_buttons(ui: &mut egui::Ui, c: &mut Ctx) {
     ui.horizontal(|ui| {
         if big_button(ui, "Rejouer", true, 180.0).clicked() {
@@ -525,6 +656,8 @@ fn game_over(ctx: &egui::Context, c: &mut Ctx) {
             .color(YELLOW),
         );
         final_stats(ui, c);
+        ui.add_space(6.0);
+        share_panel(ui, c);
         ui.add_space(8.0);
         end_buttons(ui, c);
     });
@@ -610,6 +743,8 @@ fn ending(ctx: &egui::Context, c: &mut Ctx) {
             });
             ui.add_space(6.0);
         }
+        share_panel(ui, c);
+        ui.add_space(8.0);
         end_buttons(ui, c);
     });
 }

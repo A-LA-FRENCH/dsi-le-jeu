@@ -36,6 +36,8 @@ pub mod params {
     pub struct LaunchParams {
         pub seed: Option<u64>,
         pub debug: bool,
+        /// Lien de défi reçu (`?defi=…`), encodé.
+        pub defi: Option<String>,
     }
 
     /// Analyse une query string du type `?seed=1234&debug=true`.
@@ -48,6 +50,7 @@ pub mod params {
             match k {
                 "seed" => p.seed = v.parse().ok(),
                 "debug" => p.debug = matches!(v, "true" | "1" | "yes" | ""),
+                "defi" if !v.is_empty() => p.defi = Some(v.to_string()),
                 _ => {}
             }
         }
@@ -81,16 +84,19 @@ pub mod params {
                 parse("?seed=1234&debug=true"),
                 LaunchParams {
                     seed: Some(1234),
-                    debug: true
+                    debug: true,
+                    defi: None
                 }
             );
             assert_eq!(
                 parse("?debug=false"),
                 LaunchParams {
                     seed: None,
-                    debug: false
+                    debug: false,
+                    defi: None
                 }
             );
+            assert_eq!(parse("?defi=eyJh").defi.as_deref(), Some("eyJh"));
             assert_eq!(parse(""), LaunchParams::default());
         }
     }

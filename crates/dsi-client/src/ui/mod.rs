@@ -82,6 +82,13 @@ pub struct UiState {
     pub fire_pending: Option<usize>,
     /// Solution choisie par projet dans la salle projet.
     pub project_option: std::collections::HashMap<String, String>,
+    /// Destinataire choisi pour le partage du résultat.
+    pub share_audience: Option<dsi_core::share::Audience>,
+    /// Défi reçu par lien (`?defi=…`), tant qu'il n'a pas été écarté.
+    pub incoming: Option<dsi_core::share::ShareCard>,
+    pub incoming_checked: bool,
+    /// Page du chapitre en cours (scènes de dialogue longues) : (chapitre, page).
+    pub chapter_page: (usize, usize),
     pub ambition_choice: Option<String>,
     /// Rectangles d'éléments d'interface que le tutoriel peut désigner.
     pub marks: std::collections::HashMap<&'static str, egui::Rect>,
@@ -123,6 +130,10 @@ impl Default for UiState {
             slot_pending: None,
             fire_pending: None,
             project_option: std::collections::HashMap::new(),
+            share_audience: None,
+            incoming: None,
+            incoming_checked: false,
+            chapter_page: (usize::MAX, 0),
             ambition_choice: None,
             marks: Default::default(),
             tip_hidden: None,
@@ -142,6 +153,7 @@ impl UiState {
         self.show_ambition = false;
         self.show_help = false;
         self.fire_pending = None;
+        self.share_audience = None;
     }
 
     pub fn toast(&mut self, msg: impl Into<String>, good: bool) {

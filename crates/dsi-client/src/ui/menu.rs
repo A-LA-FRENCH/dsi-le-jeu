@@ -16,6 +16,29 @@ pub fn title(ctx: &egui::Context, c: &mut Ctx) {
                 ui.label(RichText::new("DSI — LE JEU").font(pixel(58.0)).color(YELLOW));
                 ui.label(RichText::new("« Votre SI date de 1998. Votre budget vient d'être coupé de 15 %. Bonne chance. »").size(16.0).italics().color(LIGHT));
                 ui.add_space(14.0);
+                if !c.ui.incoming_checked {
+                    c.ui.incoming_checked = true;
+                    c.ui.incoming = c.session.params.defi.as_deref().and_then(dsi_core::share::decode);
+                }
+                if let Some(card) = c.ui.incoming.clone() {
+                    let (title, text) = dsi_core::share::invitation(&card);
+                    super::style::card().stroke(egui::Stroke::new(2.0, ORANGE)).show(ui, |ui| {
+                        ui.set_width(ui.available_width());
+                        ui.label(RichText::new(title.to_uppercase()).font(pixel(16.0)).color(ORANGE));
+                        ui.label(RichText::new(text).size(14.0).color(TEXT));
+                        ui.horizontal(|ui| {
+                            if big_button(ui, "Relever le défi ▶", true, 220.0).on_hover_text("Même scénario : mêmes aléas que la partie partagée").clicked() {
+                                c.ui.seed_text = card.seed.to_string();
+                                c.ui.screen = Screen::Create;
+                                c.ui.incoming = None;
+                            }
+                            if ghost_button(ui, "Plus tard", 110.0).clicked() {
+                                c.ui.incoming = None;
+                            }
+                        });
+                    });
+                    ui.add_space(8.0);
+                }
                 if c.session.has_save && big_button(ui, "Continuer la partie", true, 300.0).clicked() {
                     match c.session.load(c.store) {
                         Ok(()) => c.ui.screen = Screen::Playing,

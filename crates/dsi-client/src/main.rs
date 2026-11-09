@@ -9,6 +9,7 @@
 
 mod audio;
 mod plateau;
+mod share;
 mod sim;
 mod ui;
 #[cfg(target_arch = "wasm32")]

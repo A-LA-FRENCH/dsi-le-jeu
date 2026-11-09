@@ -31,6 +31,9 @@ pub fn show(ui: &mut egui::Ui, c: &mut Ctx) {
                 sel,
                 RichText::new(label).size(13.5),
             ));
+            if tab == Tab::Metrics {
+                mark(&mut c.ui.marks, "tab_metrics", b.rect);
+            }
             if tab == Tab::Contracts {
                 mark(&mut c.ui.marks, "tab_contracts", b.rect);
             }

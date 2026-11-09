@@ -53,6 +53,14 @@ avec un code, des textes, un pixel art et des sons entièrement originaux.
 - **Licenciements** (onglet Équipe) : arrêter le salaire d'une recrue pour tenir le budget.
   Sans indemnités pendant la période d'essai (3 mois), 3 mois de salaire ensuite ; MAKE,
   équipes et attractivité baissent, d'autant plus si les départs se répètent dans l'année.
+- **Scène d'ouverture** : une saynette en 4 pages (16 répliques) sur le SI hérité, les
+  fournisseurs verrouillés et la culture interne, avant le premier mois.
+- **Tutoriel du mentor** (19 bulles), dont une section sur les critères : composantes du
+  score et rangs, objectifs annuels du COMEX, fins possibles et leurs conditions.
+- **Partage du résultat** (victoire ou défaite) : « À mon DSI », « À l'équipe de ma DSI »,
+  « À un futur DSI » — message adapté, lien de défi (`?defi=…`) qui rouvre le jeu sur le
+  même scénario avec le bilan de l'expéditeur ; LinkedIn, X, Bluesky, WhatsApp, e-mail,
+  copie ou partage natif du téléphone.
 - **Sauvegardes** : sauvegarde automatique + 3 emplacements manuels (nom, date de jeu, score,
   état de la partie, ancienneté), chargement depuis l'écran titre ou en cours de partie.
 - **Budget mensuel détaillé** (bas droite et onglet Indicateurs) : allocation du DAF et sa

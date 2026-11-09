@@ -24,6 +24,7 @@ pub mod projects;
 pub mod save;
 pub mod score;
 pub mod security;
+pub mod share;
 pub mod skills;
 pub mod state;
 pub mod technology;

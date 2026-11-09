@@ -11,8 +11,28 @@ use bevy_egui::egui::{self, Color32, RichText};
 use dsi_core::Command;
 use dsi_core::state::{Active, Metric, Room, TUTORIAL_DONE, TUTORIAL_OFF};
 
-/// Nombre d'étapes affiché (« 3/14 »).
-const STEPS: u32 = 16;
+/// Ordre des étapes : la section « critères » (20 à 22) s'insère après les indicateurs.
+const ORDER: [u32; 19] = [
+    0, 1, 20, 21, 22, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+];
+/// Nombre d'étapes affiché (« 3/19 »).
+const STEPS: u32 = ORDER.len() as u32;
+
+/// Étape suivante (bouton « Suivant »).
+fn next_step(step: u32) -> u32 {
+    match ORDER.iter().position(|&s| s == step) {
+        Some(i) if i + 1 < ORDER.len() => ORDER[i + 1],
+        _ => TUTORIAL_DONE,
+    }
+}
+
+/// Rang affiché d'une étape (1 à STEPS).
+fn display_index(step: u32) -> u32 {
+    ORDER
+        .iter()
+        .position(|&s| s == step)
+        .map_or(STEPS, |i| i as u32 + 1)
+}
 /// Les conseils de prochaine action restent affichés jusqu'à ce mois (absolu, exclu).
 const TIPS_UNTIL: u32 = 6;
 
@@ -50,7 +70,7 @@ fn step_bubble(c: &mut Ctx) -> Option<Bubble> {
         let turn = g.turn();
         let next = match step {
             // Le joueur est déjà passé au mois suivant : on saute à l'étape des contrats.
-            0..=9 if turn >= 1 && !active => Some(10),
+            0..=9 | 20..=22 if turn >= 1 && !active => Some(10),
             0..=3
                 if matches!(
                     g.active,
@@ -107,6 +127,49 @@ fn step_bubble(c: &mut Ctx) -> Option<Bubble> {
             Target::Mark("gauges"),
             true,
         ),
+        20 if !modal_open => {
+            let parts: Vec<&str> = dsi_core::score::SCORE_PARTS
+                .iter()
+                .map(|(m, _)| m.label())
+                .collect();
+            Some(Bubble {
+                text: format!(
+                    "Parlons critères. Ton score sur 100 est la moyenne de 10 composantes : {}. Pour la dette, moins c'est mieux. Ton rang va de « Directeur du PowerPoint » à « Grand architecte ». Au-delà de 95, on vérifie que tu n'as pas triché.",
+                    parts.join(", ")
+                ),
+                target: Target::Mark("tab_metrics"),
+                next: true,
+            })
+        }
+        21 if !modal_open => {
+            let year = c
+                .content
+                .dialogues
+                .years
+                .iter()
+                .find(|y| y.year == g.cal.year.max(1));
+            let objs = year
+                .map(|y| {
+                    y.objectives
+                        .iter()
+                        .map(|o| format!("« {} »", o.label))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                })
+                .unwrap_or_default();
+            Some(Bubble {
+                text: format!(
+                    "Chaque décembre, le COMEX annuel te juge sur les objectifs de l'année. Cette année : {objs}. Objectif tenu : la confiance du COMEX monte ; raté : elle chute. C'est la jauge qui te fait virer. Tu les retrouves dans l'onglet Indicateurs."
+                ),
+                target: Target::Mark("tab_metrics"),
+                next: true,
+            })
+        }
+        22 if !modal_open => b(
+            "Et à la fin ? En décembre de l'année 3, ton profil décide : Software Company, DSI souveraine, Cloud Native, Engineering Culture, Agentic Enterprise ou Pragmatic CIO, la plus dure, où il faut être bon partout. Sinon : « Toujours en poste ». Les conditions exactes sont dans Indicateurs › Objectifs de fin. Choisis tôt où tu veux aller : on ne devient pas DSI souveraine en décembre.",
+            Target::Mark("tab_metrics"),
+            true,
+        ),
         2 if !modal_open => b(
             "Ta vraie ressource, c'est le temps : 3 créneaux d'agenda par mois. Lancer un projet, recruter ou négocier dans une salle en consomme un.",
             Target::Mark("agenda"),
@@ -119,7 +182,7 @@ fn step_bubble(c: &mut Ctx) -> Option<Bubble> {
         ),
         4 => match &g.active {
             Some(Active::Chapter { .. }) => b(
-                "Un chapitre commence : les personnages posent le décor. Lis, puis « C'est parti » (ou Entrée).",
+                "Un chapitre commence : les personnages posent le décor. Lis chaque page (« Suite » ou Entrée), puis « C'est parti ».",
                 Target::Side,
                 false,
             ),
@@ -450,7 +513,7 @@ pub fn show(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect, vp: &WorldVie
                                 let tag = if tips {
                                     "conseil".to_string()
                                 } else {
-                                    format!("tutoriel {}/{STEPS}", (step + 1).min(STEPS))
+                                    format!("tutoriel {}/{STEPS}", display_index(step))
                                 };
                                 muted(ui, tag);
                             });
@@ -506,8 +569,8 @@ pub fn show(ctx: &egui::Context, c: &mut Ctx, central: egui::Rect, vp: &WorldVie
         go_next = true;
     }
     if go_next {
-        let n = c.g().tutorial + 1;
-        set_step(c, if n > 15 { TUTORIAL_DONE } else { n });
+        let n = next_step(c.g().tutorial);
+        set_step(c, n);
         c.click();
     }
     if skip {

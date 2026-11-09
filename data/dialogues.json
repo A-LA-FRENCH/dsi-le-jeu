@@ -149,23 +149,71 @@
         "month": 1
       },
       "title": "Chapitre 1 — Le SI hérité",
-      "subtitle": "Comprendre le SI avant qu'il ne s'effondre.",
+      "subtitle": "Premier jour. On vous fait visiter le SI. Personne ne sait vraiment où il commence.",
       "lines": [
         {
           "speaker": "dg",
-          "text": "Bienvenue {dsi}. Je compte sur vous pour réduire les coûts de 15 % tout en accélérant la transformation digitale."
+          "text": "Bienvenue {dsi} ! Votre prédécesseur est parti « pour un projet personnel ». Le projet personnel, c'était de partir."
+        },
+        {
+          "speaker": "dg",
+          "text": "Ma demande est simple : −15 % de coûts, de l'IA partout, plus d'agilité et zéro incident. Le conseil d'administration a lu un article dans l'avion."
         },
         {
           "speaker": "daf",
-          "text": "Et en recrutant moins. Au passage : pourquoi payons-nous autant de licences ?"
+          "text": "Et en recrutant moins. Question préliminaire : pourquoi payons-nous 14 000 licences pour 8 000 salariés ?"
+        },
+        {
+          "speaker": "drh",
+          "text": "Votre badge sera prêt dans trois semaines. En attendant, voici un badge visiteur. Il ouvre toutes les portes, sauf celle de votre bureau."
+        },
+        {
+          "speaker": "archi",
+          "text": "Le SI ? J'ai une cartographie. Elle date de 2011, elle est sous Visio, et tout ce qui est en rouge, c'est ce qu'on ne comprend plus. Il y a beaucoup de rouge."
         },
         {
           "speaker": "dev",
-          "text": "Le vrai problème, c'est le batch de 3 h du matin. Mais bon, personne ne m'écoute."
+          "text": "Le cœur du système, c'est un batch COBOL qui tourne à 3 h du matin. Seul Michel sait le relancer. Michel part à la retraite. Michel ne répond plus aux mails."
+        },
+        {
+          "speaker": "soc",
+          "text": "Le serveur de fichiers tourne sous Windows Server 2008. Il marche très bien. Personne n'ose le redémarrer depuis la pandémie."
+        },
+        {
+          "speaker": "rssi",
+          "text": "Les sauvegardes existent. Les restaurer, on n'a jamais essayé. Par superstition, surtout."
+        },
+        {
+          "speaker": "achats",
+          "text": "Côté contrats : virtualisation, bureautique, base de données, ERP, outils de tickets. Tous « stratégiques », tous renouvelés tacitement, tous indexés. Les dates d'échéance sont dans un Excel. Quelque part."
+        },
+        {
+          "speaker": "vendor",
+          "text": "Félicitations pour votre nomination ! Petite nouveauté : votre contrat passe au modèle par cœur, par abonnement et par enthousiasme. C'est plus simple. Pour nous."
+        },
+        {
+          "speaker": "esn",
+          "text": "Bonjour, je suis votre ESN. Enfin, l'une des dix-huit. Nous avons 43 consultants chez vous ; certains ont un badge plus ancien que le vôtre."
+        },
+        {
+          "speaker": "consultant",
+          "text": "J'ai préparé un diagnostic gratuit. Slide 1 : votre SI est complexe. Slide 2 : notre offre. Il n'y a pas de slide 3."
+        },
+        {
+          "speaker": "dircom",
+          "text": "En interne, on parle de « la DSI » comme de la météo : tout le monde s'en plaint, personne ne pense pouvoir y changer quoi que ce soit."
+        },
+        {
+          "speaker": "data",
+          "text": "Nous avons un data lake. C'est surtout un lac. Personne ne sait ce qu'il y a au fond, mais tout le monde y jette quelque chose."
+        },
+        {
+          "speaker": "dev",
+          "text": "La mise en production, c'est le vendredi à 18 h, par FTP, après validation par mail du chef de service. Il répond le lundi. On a appris à vivre avec."
         },
         {
           "speaker": "mentor",
-          "text": "Et moi, je suis {mentor}, ton mentor. Je te guide pendant les premiers mois, et tu peux m'appeler pour un conseil : clique sur mon portrait en bas à gauche."
+          "text": "Respire, {dsi}. Tout le monde hérite d'un SI comme celui-là ; la différence, c'est ce qu'on en fait. Je suis {mentor}, ton mentor : je te guide les premiers mois, et tu peux m'appeler pour un conseil en cliquant sur mon portrait, en bas à gauche."
         }
       ]
     },
